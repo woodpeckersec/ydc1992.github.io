@@ -279,21 +279,13 @@
 </code></pre><p>运行如下命令安装docker</p>
 <pre><code>apt-get update
 apt-get install docker.io
-</code></pre><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><ol>
-<li>开始之前先启动docker服务,不然到后面会报错</li>
-</ol>
+</code></pre><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><p>1.开始之前先启动docker服务,不然到后面会报错</p>
 <pre><code> /etc/init.d/docker start
-</code></pre><ol>
-<li><p>设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径</p>
+</code></pre><p>2.设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径</p>
 <pre><code>export AOSP_VOL=/Android
-</code></pre></li>
-<li><p>下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考<a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a>, 脚本根对国内环境做了优化，使用速度比较快的清华源。</p>
-</li>
-</ol>
+</code></pre><p>3.下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考<a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a>, 脚本根对国内环境做了优化，使用速度比较快的清华源。</p>
 <pre><code>curl -O https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh
-</code></pre><ol>
-<li>编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。</li>
-</ol>
+</code></pre><p>4.编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。</p>
 <pre><code>sh ./build-kitkat.sh
 </code></pre><p>编译完成后,使用的是系统默认自带的内核，我们还需要重新修改编译内核绕过反调试</p>
 <h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><ol>
