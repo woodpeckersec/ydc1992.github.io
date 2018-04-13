@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   
 
-  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.12.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.12.0/styles/monokai.min.css">
   <script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/x86asm.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/cpp.min.js"></script>
@@ -241,6 +241,159 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-polyHook,比detours更好用的hook框架" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/undefined.html" class="article-date">
+      <time datetime="2018-04-13T14:19:46.000Z" itemprop="datePublished">2018-04-13</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
+<ol>
+<li>Detour</li>
+<li>Virtual Function Detour</li>
+<li>Virtual Function Pointer Swap</li>
+<li>Virtual Table Pointer Swap</li>
+<li>Import Address Table</li>
+<li>VEH</li>
+</ol>
+<p>我目前比较常用也只是用第一种hook方法。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>主要文件为PolyHook.hpp和Capstone库。 在属性-&gt;VC++目录中包含Capstone库,注意区分对应的平台。 添加PolyHook.hpp到工程中,用于提供的是hpp文件，声明和实现都在同一个文件，几个文件包含的话就会报重复定义的错误。 因此我在PolyHook.hpp文件的末尾自己封装了下hook方法。</p>
+<pre><code class="cpp">class HookMgr
+{
+public:
+    HookMgr(PVOID src, PVOID DstFunction)
+    {
+        m_DstFunction = DstFunction;
+        m_src = src;
+        std::shared_ptr&lt;PLH::Detour&gt; Detour_Ex(new PLH::Detour);
+        m_Detour_Ex = Detour_Ex;
+    }
+    ~HookMgr()
+    {
+    }
+private:
+    PVOID m_src;
+    PVOID m_DstFunction;
+    std::shared_ptr&lt;PLH::Detour&gt; m_Detour_Ex;
+public:
+    void hook()
+    {
+        m_Detour_Ex-&gt;SetupHook(m_src, m_DstFunction);
+        m_Detour_Ex-&gt;Hook();
+    }
+    //获取原函数
+    FARPROC GetOriginal()
+    {
+        return (FARPROC)m_Detour_Ex-&gt;GetOriginal&lt;decltype(&amp;m_DstFunction)&gt;();
+    }
+    void unhook()
+    {
+        m_Detour_Ex-&gt;UnHook();
+    }
+
+
+# 标准API HOOK
+
+hook MessageBoxA函数，
+
+```cpp
+HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
+hook-&gt;hook();
+oMessageBoxA = (decltype(&amp;MessageBoxA))hook-&gt;GetOriginal();
+</code></pre>
+<p>函数已经被hook，我们要调用原函数不能直接调用，需要通过GetOriginal来获取函数指针。 如下，我们在myMessageBox调用的是通过GetOriginal得到的oMessageBoxA函数指针。</p>
+<pre><code class="cpp"> int WINAPI myMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
+{
+    return oMessageBoxA(hWnd, &quot;Hooked&quot;, &quot;Hooked&quot;, 0);
+}
+</code></pre>
+<h1 id="任意函数-HOOK"><a href="#任意函数-HOOK" class="headerlink" title="任意函数 HOOK"></a>任意函数 HOOK</h1><p>有时我们想要hook的函数不是windows api，这时应该怎么hook?,答案是通过地址。前提时该地址能够被访问。 地址可以通过硬编码或者动态获取。</p>
+<p>用IDA找到想要hook的函数。我要想hook这个函数<code>signed int sub_F5D33D0()</code></p>
+<pre><code class="cpp">HookMgr* hook = new HookMgr((PVOID)F5D33D0, youfunction);
+hook-&gt;hook();
+oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
+</code></pre>
+<h1 id="usercall-hook"><a href="#usercall-hook" class="headerlink" title="_usercall hook"></a>_usercall hook</h1><p>用IDA反编译时我们经常看到_usercall调用的函数，使用寄存器传参，这时又应该如何hook?</p>
+<p>以下面这个函数举例 <code>int __usercall sub_F5D4140@&lt;eax&gt;(int a1@&lt;eax&gt;, int a2@&lt;ecx&gt;, int a3, int a4)</code></p>
+<ol>
+<li>将hook函数封装成其他形式的调用，如<strong>cdecall 或者 </strong>stdcall等等。</li>
+</ol>
+<pre><code class="cpp">void __declspec(naked) sub_F5D4140()                                                  
+{                                                                                            
+        __asm                                                                                
+        {                                                                                    
+                push [esp + 08h] // a4 
+                push [esp + 08h] // a3 
+                push ecx // a2 
+                push eax // a1 
+                // Call your __cdecl function here: 
+                call func                                 
+                add esp, 4 // 
+                pop ecx // a2 
+                add esp, 4 // a3 
+                add esp, 4 // a4 
+                retn                                                                         
+        }                                                                                    
+}
+</code></pre>
+<p>如果需要调用原函数，可在func函数内嵌入汇编代码，需要注意的是_usercall调用的函数由调用者平衡堆栈。</p>
+<pre><code class="_asm">{
+    push param4
+    push param3
+    mov ecx,param2
+    mov eax,param1
+    call origin_fun
+    add esp,0x8 //压了两次，因此加8平衡堆栈
+}
+</code></pre>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -902,72 +1055,6 @@ Segmentation fault
       
         <p class="article-more-link">
           <a  href="/archives/62077d14.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-pycurl-分块下载" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/6155f940.html" class="article-date">
-      <time datetime="2016-03-06T15:26:55.000Z" itemprop="datePublished">2016-03-06</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/6155f940.html">pycurl 分块下载</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。<br>这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下</p>
-<pre><code class="python">    d = downloader(downloadurl,out_filePath,None,None,None)
-    d.download() #调用下载功能下载
-</code></pre>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/python/">python</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/archives/6155f940.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
