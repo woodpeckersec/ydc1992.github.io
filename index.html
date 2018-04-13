@@ -275,9 +275,9 @@
 <p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
 <p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
 <p>现在我们可以理清下思路：</p>
-<pre><code>获取每一页的网页源码
-解析当前页的每一个md5对应的详细信息链接
-在详细信息页面解析下载地址。
+<pre><code>   获取每一页的网页源码
+   解析当前页的每一个md5对应的详细信息链接
+   在详细信息页面解析下载地址。
 </code></pre><h2 id="提取规则"><a href="#提取规则" class="headerlink" title="提取规则"></a>提取规则</h2><p>先从第一页开始爬起</p>
 <pre><code class="python">from scrapy.spiders import CrawlSpider
 from scrapy.http import Request
@@ -293,11 +293,13 @@ class BasicSpider(CrawlSpider):
     def parse_item(self):
          pass
 </code></pre>
-<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。<br>![图片说明](<a href="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png" target="_blank" rel="noopener">http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png</a> “图片说明”</p>
-<p>对应链接的xpath选择器为 //td/a/@href,<br>图片说明,</p>
-<p>下一页的链接的xpath选择器为 //a[contains(text(),’Next’)]/@href<br>图片说明,</p>
+<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。</p>
+<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png" alt="图片说明"></p>
+<p>对应链接的xpath选择器为 <code>//td/a/@href</code>,<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/4.png" alt="图片说明"></p>
+<p>下一页的链接的xpath选择器为 <code>//a[contains(text(),&#39;Next&#39;)]/@href</code></p>
+<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/5.png" alt="图片说明"></p>
 <p>要得到下载地址需要账号登陆，这里先不管它，单击Download下载文件对应的下载链接提取规则xpath选择器</p>
-<p>//a[contains(@class,’btn-primary’)]/@href.</p>
+<p><code>//a[contains(@class,&#39;btn-primary&#39;)]/@href</code>.</p>
 <p>现在来补充下代码，</p>
 <pre><code class="python">def parse_item(self):
       # 当前页所有md5对应的详细页面
