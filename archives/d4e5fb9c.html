@@ -28,7 +28,7 @@
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png">
-<meta property="og:updated_time" content="2018-04-13T14:05:30.815Z">
+<meta property="og:updated_time" content="2018-04-13T15:52:49.171Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一款勒索软件的分析(未完待续)">
 <meta name="twitter:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
@@ -279,8 +279,7 @@
 <p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p>
 <p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p>
 <p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"> </p>
-<p>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p>
 <p>最终通过</p>
 <pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)
 </code></pre>
@@ -402,7 +401,7 @@
         <p><span>本文标题:</span><a href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月12日 - 21时48分</p>
-        <p><span>最后更新:</span>2018年04月13日 - 22时05分</p>
+        <p><span>最后更新:</span>2018年04月13日 - 23时52分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/archives/d4e5fb9c.html" title="一款勒索软件的分析(未完待续)">http://yoursite.com/archives/d4e5fb9c.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/archives/d4e5fb9c.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

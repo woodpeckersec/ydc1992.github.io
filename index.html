@@ -258,7 +258,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
+              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
 <p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p>
 <p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
 <p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
@@ -266,136 +266,8 @@
 <pre><code>   获取每一页的网页源码
    解析当前页的每一个md5对应的详细信息链接
    在详细信息页面解析下载地址。
-</code></pre><h2 id="提取规则"><a href="#提取规则" class="headerlink" title="提取规则"></a>提取规则</h2><p>先从第一页开始爬起</p>
-<pre><code class="python">from scrapy.spiders import CrawlSpider
-from scrapy.http import Request
-from malwr.items import MalwrItem
-from scrapy.selector import Selector
-class BasicSpider(CrawlSpider):
-    name = &quot;basic&quot;
-    allowed_domains = [&quot;malwr.com&quot;]
-    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]
-    def start_requests(self):
-        url = self.strat_urls[0] 
-        yield Request(url, callback=self.parse_item)
-    def parse_item(self):
-         pass
 </code></pre>
-<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。</p>
-<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png" alt="图片说明"></p>
-<p>对应链接的xpath选择器为 <code>//td/a/@href</code>,<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/4.png" alt="图片说明"></p>
-<p>下一页的链接的xpath选择器为 <code>//a[contains(text(),&#39;Next&#39;)]/@href</code></p>
-<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/5.png" alt="图片说明"></p>
-<p>要得到下载地址需要账号登陆，这里先不管它，单击Download下载文件对应的下载链接提取规则xpath选择器</p>
-<p><code>//a[contains(@class,&#39;btn-primary&#39;)]/@href</code>.</p>
-<p>现在来补充下代码，</p>
-<pre><code class="python">def parse_item(self):
-      # 当前页所有md5对应的详细页面
-      url = response.xpath(&quot;//td/a/@href&quot;).extract()
-      for u in url:
-          url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))
-          yield Request(url,self.parse_downurl)
-      # 下一页
-      nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
-      url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)
-      yield Request(url,self.parse_item) 
-#解析下载地址
-def parse_downurl(self):
-      pass
-</code></pre>
-<h2 id="登陆"><a href="#登陆" class="headerlink" title="登陆"></a>登陆</h2><p>之前写爬虫的时候，是可以直接通过post登陆的，而我开始写这篇文章的时候开始加上了google的ReCaptcha验证码。</p>
-<p>只能换种方式使用selenium来登陆Malwr.得到登陆后的cookie后，我们就可以用这个cookie开始下载样本了。</p>
-<pre><code class="python">from selenium import webdriver
-from selenium.webdriver.support.wait import WebDriverWait
-def get_cookie():
-        loginurl = &#39;https://malwr.com/account/login/&#39;
-        # 当然Ie也可以换成其他的，比如firefox、chrom等等
-        driver = webdriver.Ie()
-        driver.get(loginurl)
-        WebDriverWait(driver,3).until(lambda x:x.find_element_by_link_text(&#39;Logout&#39;))
-        cookies = driver.get_cookies()
-        driver.close()
-        return cookies
-</code></pre>
-<p>使用Scrapy有一点很蛋疼，cookie它不会自动传递，需要自己在Request中传递下去，才能使后面的网络请求使用这个cookie.</p>
-<pre><code class="python">
-class BasicSpider(CrawlSpider):
-    name = &quot;basic&quot;
-    allowed_domains = [&quot;malwr.com&quot;]
-    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]
-    custom_settings = {
-                    &quot;COOKIES&quot;:get_cookie(),
-                    }
-    def start_requests(self):
-        url = self.strat_urls[0]
-        # cookiejar  cookie传递
-        yield Request(url,cookies=self.custom_settings[&#39;COOKIES&#39;],
-                          callback=self.parse_item,meta = {&#39;cookiejar&#39; : 1})
-    def parse_item(self,response):
-          # 当前页所有md5对应的详细页面
-          url = response.xpath(&quot;//td/a/@href&quot;).extract()
-          for u in url:
-              url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))
-              yield Request(url,self.parse_downurl,meta = {&#39;cookiejar&#39; : 1})
-          # 下一页
-          nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
-          url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)
-          yield Request(url,self.parse_item,meta = {&#39;cookiejar&#39; : 1})
-</code></pre>
-<p>我们在start_request函数里获取到登陆后的cookie,使用meta = {‘cookiejar’ : 1}将cookie传递到parse_item函数。</p>
-<p>parse_item函数的Request的两个Request也加上cookiejar,一个把cookie传给parse_item,一个传给parse_downurl,<br>下载样本</p>
-<p>scrapy本身就已经为我们提供了很好的文件下载、图片下载的功能，</p>
-<p>修改custom_settings,加上我们要用的ITEM_PIPELINES(在这里面实现下载功能)和FILES_STORE(保存到的文件夹)</p>
-<pre><code>custom_settings = {
-                  &quot;COOKIES&quot;:get_cookie(),
-                  &#39;ITEM_PIPELINES&#39;:{&#39;malwr.pipelines.MalwrPipeline&#39;:1},
-                  &quot;FILES_STORE&quot;:&quot;E:\\Virus\\Malwr&quot;
-                  }
-</code></pre><p>FilesPipeline是从file_urls中拿到下载地址然后开始下载文件，因此我们还需要Item.py定义一个file_urls.</p>
-<pre><code class="python"># Define here the models for your scraped items
-#
-# See documentation in:
-# http://doc.scrapy.org/en/latest/topics/items.html
-import scrapy
-class MalwrItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    file_urls = scrapy.Field()
-</code></pre>
-<p>在piplines.py文件实现文件的下载方法,继承FilesPipeline下载文件。</p>
-<p>由于下载文件需要cookie，因此重写了构造函数和get_media_requests函数，在Request中加上了cookies参数.</p>
-<p>我们在custom_settings中保存了cookie，这里直接使用getlist拿到登陆后的cookie.</p>
-<pre><code class="python"># Define your item pipelines here
-#
-# Don&#39;t forget to add your pipeline to the ITEM_PIPELINES setting
-# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
-from scrapy.http import Request
-from scrapy.pipelines.files import FilesPipeline
-class MalwrPipeline(FilesPipeline):
-    cookies = []
-    def __init__(self, store_uri, download_func=None, settings=None):
-        super(MalwrPipeline,self).__init__(store_uri, download_func,settings)
-        self.cookies = settings.getlist(&quot;COOKIES&quot;)
-    # 开始下载文件
-    def get_media_requests(self, item, info):
-        for file_url in item[&#39;file_urls&#39;]:
-            yield Request(file_url,cookies=self.cookies)
-</code></pre>
-<p>解析下载地址，将解析到的下载链接列表放入item的file_urls,返回item。pipeline会file_urls拿到链接开始调用get_media_requests下载文件</p>
-<pre><code class="python">    def parse_downurl(self,response):
-        try:
-            # 提取点击下载按钮的下载地址
-            url = response.xpath(&quot;//a[contains(@class,&#39;btn-primary&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
-            url = urlparse.urljoin(&quot;https://malwr.com&quot;,url)
-            item = MalwrItem()
-            item[&#39;file_urls&#39;] = [url]
-            return item
-        except Exception,e:
-            pass
-return
-</code></pre>
-<p>最后附上完整的源码 <a href="https://github.com/ydc1992/Malwr" target="_blank" rel="noopener">https://github.com/ydc1992/Malwr</a></p>
-
+          
       
       
     </div>
@@ -405,6 +277,10 @@ return
       
 
       
+      
+        <p class="article-more-link">
+          <a  href="/archives/undefined.html#more">大航海 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -449,155 +325,10 @@ return
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+              <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
 <p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
-<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。</p>
-<h2 id="分配硬盘"><a href="#分配硬盘" class="headerlink" title="分配硬盘"></a>分配硬盘</h2><p>linux至少要分配100g的硬盘空间。空间足够的可以跳过，原本装有VMWare linux，但是空间不足，又不想重新装个虚拟机。 可以参考 这篇文章<a href="http://blog.csdn.net/u010372981/article/details/46514011" target="_blank" rel="noopener">http://blog.csdn.net/u010372981/article/details/46514011</a> 给虚拟机加块硬盘。</p>
-<h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>默认源中没有docker,我们需要在添加backports源，在/etc/apt/sources.list文件 加入下面这行</p>
-<pre><code>  deb http://http.debian.net/debian jessie-backports main
-</code></pre><p>运行如下命令安装docker</p>
-<pre><code>apt-get update
-apt-get install docker.io
-</code></pre><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><p>1.开始之前先启动docker服务,不然到后面会报错</p>
-<pre><code> /etc/init.d/docker start
-</code></pre><p>2.设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径</p>
-<pre><code>export AOSP_VOL=/Android
-</code></pre><p>3.下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考<a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a>, 脚本根对国内环境做了优化，使用速度比较快的清华源。</p>
-<pre><code>curl -O https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh
-</code></pre><p>4.编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。</p>
-<pre><code>sh ./build-kitkat.sh
-</code></pre><p>编译完成后,使用的是系统默认自带的内核，我们还需要重新修改编译内核绕过反调试</p>
-<h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><ol>
-<li>clone内核源码 我使用的手机是Nexus 5,对应的内核源码为kernel/msm。设备名是hammerhead</li>
-</ol>
-<p>在存放源码的目录创建kernel文件夹，我这里存放源码目录为/Android</p>
-<pre><code>cd /Android/aosp
-mkdir kernel
-cd kernel
-git clone https://aosp.tuna.tsinghua.edu.cn/kernel/msm.git
-</code></pre><ol>
-<li>选择系统版本 切换到克隆下来的源码目录，切换分支</li>
-</ol>
-<pre><code>git branch -a
-</code></pre><p>找到名字带有 hammerhead的。</p>
-<pre><code>git checkout remotes/origin/android-msm-hammerhead-3.4-kitkat-mr1
-</code></pre><ol>
-<li>修改源码</li>
-</ol>
-<p>需要修改<code>kernel/msm/fs/proc/base.c</code>和<code>kernel/msm/fs/proc/array.c</code>两个文件</p>
-<p>base.c中 <code>proc_pid_wchan</code>函数部分修改成如下：</p>
-<pre><code>//省略
-else {
-           if (strstr(symname, &quot;trace&quot;)) {
-                return sprintf(buffer, &quot;%s&quot;, &quot;sys_epoll_wait&quot;);
-           }
-           return sprintf(buffer, &quot;%s&quot;, symname);
-      }
-</code></pre><p>array.c中<code>tast_state</code>函数部分修改成</p>
-<pre><code>&quot;Gid:\t%d\t%d\t%d\t%d\n&quot;,
-              get_task_state(p),
-              task_tgid_nr_ns(p, ns),
-              pid_nr_ns(pid, ns),
-              ppid, /*tpid*/0,
-              cred-&gt;uid, cred-&gt;euid, cred-&gt;suid, cred-&gt;fsuid,
-              cred-&gt;gid, cred-&gt;egid, cred-&gt;sgid, cred-&gt;fsgid);
-</code></pre><p><code>task_state_array</code>变量修改成</p>
-<pre><code class="cpp">static const char * const task_state_array[] = {
-     &quot;R (running)&quot;,        /*    0 */
-     &quot;S (sleeping)&quot;,       /*    1 */
-     &quot;D (disk sleep)&quot;,     /*    2 */
-     &quot;S (sleeping)&quot;,       /*    4 */
-     &quot;S (sleeping)&quot;, /*     8 */
-     &quot;Z (zombie)&quot;,         /*  16 */
-     &quot;X (dead)&quot;,           /*  32 */
-     &quot;x (dead)&quot;,           /*  64 */
-     &quot;K (wakekill)&quot;,       /* 128 */
-     &quot;W (waking)&quot;,         /* 256 */
-};
-</code></pre>
-<ol>
-<li>创建编译脚本 在<code>/Android/aosp/kernel/msm</code>目录,即内核源码所在的目录创建一个脚本，内容如下,保存为run.sh. PATH前面的gcc路径为编译工具链,用来编译内核的。</li>
-</ol>
-<pre><code class="bash">export PATH=&#39;/Android/aosp/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin&#39;;$PATH
-export ARCH=arm
-export SUBARCH=arm
-export CROSS_COMPILE=arm-eabi-
-make hammerhead defconfig
-make -j4
-</code></pre>
-<p>然后运行该脚本开始编译内核</p>
-<pre><code>sh run.sh
-</code></pre><p>出现如下提示表示内核已经编译ok</p>
-<pre><code>CALL    scripts/checksyscalls.sh
-CHK     include/generated/compile.h
-Kernel: arch/arm/boot/Image is ready
-LD      arch/arm/boot/compressed/vmlinux
-OBJCOPY arch/arm/boot/zImage
-Kernel: arch/arm/boot/zImage is ready
-CAT     arch/arm/boot/zImage-dtb
-Kernel: arch/arm/boot/zImage-dtb is ready
-</code></pre><p>在<code>/Android/aosp/kernel/msm/arch/arm/boot</code>找到zImage-dtb,这个是nexus 5内核文件,拷贝到<code>/Android/aosp/device/lge/hammerhead-kernel</code>覆盖原来的文件</p>
-<ol>
-<li>下载驱动设备 要刷机到实体机,还需要下载三个驱动设备</li>
-</ol>
-<p>从<a href="https://developers.google.com/android/drivers找到对应的驱动设备。" target="_blank" rel="noopener">https://developers.google.com/android/drivers找到对应的驱动设备。</a></p>
-<p>搜索Nexus 5找到对应的系统版本，我的是Android 4.4.4。找到的结果如下：</p>
-<p>Nexus 5 (GSM/LTE) binaries for Android 4.4.4 (KTU84P)</p>
-<table>
-<thead>
-<tr>
-<th>Hardware Component</th>
-<th>Company</th>
-<th>Download</th>
-<th>SHA-256 Checksum</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>NFC, Bluetooth, Wi-Fi</td>
-<td>Broadcom</td>
-<td>Link</td>
-<td>f258605e24c9c3d4e78c9af934f3516a4f8d3410da697005fad42cad36c5ed5c</td>
-</tr>
-<tr>
-<td>Camera, Sensors, Audio</td>
-<td>LG</td>
-<td>Link</td>
-<td>fc72704e0fba9c51c6505ae009e474570de27ee8565d51483368d8dae6c0f44e</td>
-</tr>
-<tr>
-<td>Graphics, GSM, Camera, GPS, Sensors, Media, DSP, USB</td>
-<td>Qualcomm</td>
-<td>Link</td>
-<td>8603d85ad511346d65c27c3747919da280523b86d55a39dfce657a4ca1b0685b</td>
-</tr>
-</tbody>
-</table>
-<p>Download对应的是下载连接，我们把这三个文件下载后解压到/Android/AOSP目录。得到三个sh脚本文件 <code>extract-broadcom-hammerhead.sh</code>、<code>extract-lge-hammerhead.sh</code>和<code>extract-qcom-hammerhead.sh</code>;</p>
-<p>分别运行它们</p>
-<pre><code>sh extract-broadcom-hammerhead.sh
-sh extract-lge-hammerhead.sh
-sh extract-qcom-hammerhead.sh
-</code></pre><p>一直按回车，等到如下提示输入 I ACCEPT。</p>
-<pre><code>Type &quot;I ACCEPT&quot; if you agree to the terms of the license: 
-You didn&#39;t accept the license. Extraction aborted.
-</code></pre><ol>
-<li>再次编译源码 再次运行编译脚本重新编译,这次会很快</li>
-</ol>
-<pre><code>sh ./build-kitkat.sh
-</code></pre><h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><p>先确定bootloader有没有解锁,没解锁是刷不进去的。</p>
-<p>Nexus 5 是两个音量键和开机键一起一直按到出现bootloader界面。usb连接手机，输入以下命令</p>
-<pre><code class="bash">fastboot oem unlock
-</code></pre>
-<p>这个是Nexus 5的解锁方式</p>
-<p>Android源码编译成功后,文件保存在<code>/Android/aosp/out/target/product/hammerhead</code>。</p>
-<p>输入如下命令就可以刷入实体机了。</p>
-<pre><code class="bash">cd /Android/aosp/out/target/product/hammerhead
-Adb reboot bootloader
-Fastboot -w flashall
-</code></pre>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.csdn.net/gaisylly/article/details/50113791" target="_blank" rel="noopener">http://blog.csdn.net/gaisylly/article/details/50113791</a><br><a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a><br><a href="http://weishu.me/2016/12/30/simple-way-to-compile-android-source/" target="_blank" rel="noopener">http://weishu.me/2016/12/30/simple-way-to-compile-android-source/</a><br><a href="http://bbs.pediy.com/thread-213481.htm" target="_blank" rel="noopener">http://bbs.pediy.com/thread-213481.htm</a><br><a href="http://blog.csdn.net/sunao2002002/article/details/53057374" target="_blank" rel="noopener">http://blog.csdn.net/sunao2002002/article/details/53057374</a><br><a href="https://developers.google.com/android/drivers" target="_blank" rel="noopener">https://developers.google.com/android/drivers</a></p>
-
+<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
+          
       
       
     </div>
@@ -607,6 +338,10 @@ Fastboot -w flashall
       
 
       
+      
+        <p class="article-more-link">
+          <a  href="/archives/undefined.html#more">大航海 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -651,101 +386,15 @@ Fastboot -w flashall
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
+              <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
 <ol>
 <li>Detour</li>
 <li>Virtual Function Detour</li>
 <li>Virtual Function Pointer Swap</li>
 <li>Virtual Table Pointer Swap</li>
 <li>Import Address Table</li>
-<li>VEH</li>
-</ol>
-<p>我目前比较常用也只是用第一种hook方法。</p>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>主要文件为PolyHook.hpp和Capstone库。 在属性-&gt;VC++目录中包含Capstone库,注意区分对应的平台。 添加PolyHook.hpp到工程中,用于提供的是hpp文件，声明和实现都在同一个文件，几个文件包含的话就会报重复定义的错误。 因此我在PolyHook.hpp文件的末尾自己封装了下hook方法。</p>
-<pre><code class="cpp">class HookMgr
-{
-public:
-    HookMgr(PVOID src, PVOID DstFunction)
-    {
-        m_DstFunction = DstFunction;
-        m_src = src;
-        std::shared_ptr&lt;PLH::Detour&gt; Detour_Ex(new PLH::Detour);
-        m_Detour_Ex = Detour_Ex;
-    }
-    ~HookMgr()
-    {
-    }
-private:
-    PVOID m_src;
-    PVOID m_DstFunction;
-    std::shared_ptr&lt;PLH::Detour&gt; m_Detour_Ex;
-public:
-    void hook()
-    {
-        m_Detour_Ex-&gt;SetupHook(m_src, m_DstFunction);
-        m_Detour_Ex-&gt;Hook();
-    }
-    //获取原函数
-    FARPROC GetOriginal()
-    {
-        return (FARPROC)m_Detour_Ex-&gt;GetOriginal&lt;decltype(&amp;m_DstFunction)&gt;();
-    }
-    void unhook()
-    {
-        m_Detour_Ex-&gt;UnHook();
-    }
-</code></pre>
-<h1 id="标准API-HOOK"><a href="#标准API-HOOK" class="headerlink" title="标准API HOOK"></a>标准API HOOK</h1><p>hook MessageBoxA函数，</p>
-<pre><code class="cpp">HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
-hook-&gt;hook();
-oMessageBoxA = (decltype(&amp;MessageBoxA))hook-&gt;GetOriginal();
-</code></pre>
-<p>函数已经被hook，我们要调用原函数不能直接调用，需要通过GetOriginal来获取函数指针。 如下，我们在myMessageBox调用的是通过GetOriginal得到的oMessageBoxA函数指针。</p>
-<pre><code class="cpp"> int WINAPI myMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
-{
-    return oMessageBoxA(hWnd, &quot;Hooked&quot;, &quot;Hooked&quot;, 0);
-}
-</code></pre>
-<h1 id="任意函数-HOOK"><a href="#任意函数-HOOK" class="headerlink" title="任意函数 HOOK"></a>任意函数 HOOK</h1><p>有时我们想要hook的函数不是windows api，这时应该怎么hook?,答案是通过地址。前提时该地址能够被访问。 地址可以通过硬编码或者动态获取。</p>
-<p>用IDA找到想要hook的函数。我要想hook这个函数<code>signed int sub_F5D33D0()</code></p>
-<pre><code class="cpp">HookMgr* hook = new HookMgr((PVOID)F5D33D0, youfunction);
-hook-&gt;hook();
-oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
-</code></pre>
-<h1 id="usercall-hook"><a href="#usercall-hook" class="headerlink" title="_usercall hook"></a>_usercall hook</h1><p>用IDA反编译时我们经常看到_usercall调用的函数，使用寄存器传参，这时又应该如何hook?</p>
-<p>以下面这个函数举例 <code>int __usercall sub_F5D4140@&lt;eax&gt;(int a1@&lt;eax&gt;, int a2@&lt;ecx&gt;, int a3, int a4)</code></p>
-<ol>
-<li>将hook函数封装成其他形式的调用，如<strong>cdecall 或者 </strong>stdcall等等。</li>
-</ol>
-<pre><code class="cpp">void __declspec(naked) sub_F5D4140()                                                  
-{                                                                                            
-        __asm                                                                                
-        {                                                                                    
-                push [esp + 08h] // a4 
-                push [esp + 08h] // a3 
-                push ecx // a2 
-                push eax // a1 
-                // Call your __cdecl function here: 
-                call func                                 
-                add esp, 4 // 
-                pop ecx // a2 
-                add esp, 4 // a3 
-                add esp, 4 // a4 
-                retn                                                                         
-        }                                                                                    
-}
-</code></pre>
-<p>如果需要调用原函数，可在func函数内嵌入汇编代码，需要注意的是_usercall调用的函数由调用者平衡堆栈。</p>
-<pre><code class="_asm">{
-    push param4
-    push param3
-    mov ecx,param2
-    mov eax,param1
-    call origin_fun
-    add esp,0x8 //压了两次，因此加8平衡堆栈
-}
-</code></pre>
-
+<li>VEH
+          
       
       
     </div>
@@ -755,6 +404,10 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
       
 
       
+      
+        <p class="article-more-link">
+          <a  href="/archives/undefined.html#more">大航海 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
@@ -799,79 +452,15 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
     <div class="article-entry" itemprop="articleBody">
       
           
-        <blockquote>
+              <blockquote>
 <p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
 </blockquote>
 <h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
 <p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p>
 <p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p>
 <p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"> </p>
-<p>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p>
-<p>最终通过</p>
-<pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)
-</code></pre>
-<p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p>
-<p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p>
-<h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"> </p>
-<p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p>
-<p>来到0x83d2107处，</p>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p>
-<p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p>
-<pre><code class="x86asm">        mov ecx,0xDEADBEEF
-        call 083D216C  
-        mov dword ptr ss:[esp],eax ;esp=0x83d2118
-        mov ebx,dword ptr ss:[esp]
-        inc ebx
-        cmp dword ptr ds:[ebx],ecx
-        jnz X083D211E
-</code></pre>
-<p>0xDEADBEEF后面有2个比较重要的数据。</p>
-<pre><code class="cpp">struct stc_encode
-{
-    DWORD flag; //0xDEDBEEF
-    DWORD codeSize;
-    DWORD originCode_head; //未加密代码头四个字节
-    char  encode_code[codeSize];
-}
-</code></pre>
-<p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p>
-<p>0x6b891276</p>
-<pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部
-        mov edx,dword ptr ds:[edx]
-        xor edx,ebx
-        cmp edx,dword ptr ss:[esp+0x8] ;[esp+0x8] 原始函数头部
-        je X083D214B
-        inc ebx       ;从0开始递增xor key,
-        jmp X083D213A
-</code></pre>
-<p>找到key，随后就是解密异或后的代码。</p>
-<pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key
-        nop
-        nop
-        nop
-        mov edx,dword ptr ss:[esp+0xC]
-        xor ecx,ecx
-        xor dword ptr ds:[edx+ecx],ebx
-        cmp ecx,dword ptr ss:[esp+0x4]
-        jge X083D2166
-        add ecx,0x4
-        jmp X083D2158
-        mov esp,ebp
-        pop ebp
-        pop ebx
-        jmp edx ;跳到解密后的函数执行
-</code></pre>
-<p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p>
-<h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"> </p>
-<p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"> </p>
-<blockquote>
-<p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p>
-</blockquote>
-<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"> </p>
-
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br>
+          
       
       
     </div>
@@ -881,6 +470,10 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
       
 
       
+      
+        <p class="article-more-link">
+          <a  href="/archives/d4e5fb9c.html#more">大航海 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>
