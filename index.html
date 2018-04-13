@@ -272,8 +272,8 @@
           
         <p>简介</p>
 <p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
-<p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br>图片说明</p>
-<p>只有MD5的超链接可以点，点进去看看，<br>图片说明</p>
+<p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p>
+<p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
 <p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
 <p>现在我们可以理清下思路：</p>
 <pre><code>获取每一页的网页源码
@@ -295,7 +295,7 @@ class BasicSpider(CrawlSpider):
     def parse_item(self):
          pass
 </code></pre>
-<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。<br>图片说明,</p>
+<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。<br>![图片说明](<a href="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png" target="_blank" rel="noopener">http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png</a> “图片说明”</p>
 <p>对应链接的xpath选择器为 //td/a/@href,<br>图片说明,</p>
 <p>下一页的链接的xpath选择器为 //a[contains(text(),’Next’)]/@href<br>图片说明,</p>
 <p>要得到下载地址需要账号登陆，这里先不管它，单击Download下载文件对应的下载链接提取规则xpath选择器</p>
