@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.12.0/styles/atom-one-dark.min.css">
+  <script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/x86asm.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/cpp.min.js"></script>
+
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <title>Python取证技术(3): Windows 事件日志分析 | ydc&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
+<meta name="keywords" content="取证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python取证技术(3): Windows 事件日志分析">
+<meta property="og:url" content="http://yoursite.com/archives/ddac3f57.html">
+<meta property="og:site_name" content="ydc&#39;s blog">
+<meta property="og:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-04-04T16:57:40.422Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python取证技术(3): Windows 事件日志分析">
+<meta name="twitter:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
+  
+    <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.png">
+  
+  
+      <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <!-- 加载特效 -->
+    <script src="/js/pace.js"></script>
+    <link href="/css/pace/pace-theme-flash.css" rel="stylesheet" />
+  <script>
+      var yiliaConfig = {
+          rootUrl: '/',
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head>
+<body>
+  <div id="container">
+
+<script id="__bs_script__">//<![CDATA[
+  document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.23.6'><\/script>".replace("HOST", location.hostname));
+//]]></script>  
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/img/head.jpg" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/" title="Hi Mate">Ken</a></h1>
+        </hgroup>
+
+        
+        
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/Home">博客首页</a></li>
+                        
+                            <li><a href="/works">作品展示</a></li>
+                        
+                            <li><a href="/about">留言打卡</a></li>
+                        
+                            <li><a href="/FrontEndGuide">前端导航</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fl mail" target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=PAkNDgsKBQ4MCnxNTRJfU1E" title="mail">mail</a>
+                            
+                                <a class="fl github" target="_blank" href="https://github.com/luuman" title="github">github</a>
+                            
+                                <a class="fl zhihu" target="_blank" href="#" title="zhihu">zhihu</a>
+                            
+                                <a class="fl weibo" target="_blank" href="#" title="weibo">weibo</a>
+                            
+                                <a class="fl google" target="_blank" href="#" title="google">google</a>
+                            
+                                <a class="fl twitter" target="_blank" href="#" title="twitter">twitter</a>
+                            
+                                <a class="fl linkedin" target="_blank" href="#" title="linkedin">linkedin</a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 10px;">爬虫</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://luuman.github.io/">name</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">纯海迷、爱运动、爱交友、爱旅行、喜欢接触新鲜事物、迎接新的挑战，更爱游离于错综复杂的编码与逻辑中</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="Me">Ken</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/img/head.jpg" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="Me">Ken</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/Home">博客首页</a></li>
+                
+                    <li><a href="/works">作品展示</a></li>
+                
+                    <li><a href="/about">留言打卡</a></li>
+                
+                    <li><a href="/FrontEndGuide">前端导航</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                <div class="social">
+                    
+                        <a class="mail" target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=PAkNDgsKBQ4MCnxNTRJfU1E" title="mail">mail</a>
+                    
+                        <a class="github" target="_blank" href="https://github.com/luuman" title="github">github</a>
+                    
+                        <a class="zhihu" target="_blank" href="#" title="zhihu">zhihu</a>
+                    
+                        <a class="weibo" target="_blank" href="#" title="weibo">weibo</a>
+                    
+                        <a class="google" target="_blank" href="#" title="google">google</a>
+                    
+                        <a class="twitter" target="_blank" href="#" title="twitter">twitter</a>
+                    
+                        <a class="linkedin" target="_blank" href="#" title="linkedin">linkedin</a>
+                    
+                </div>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-Python取证技术-3-Windows-事件日志分析" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/ddac3f57.html" class="article-date">
+      <time datetime="2016-01-19T04:51:56.000Z" itemprop="datePublished">2016-01-19</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Python取证技术(3): Windows 事件日志分析
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/取证/">取证</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p>
+<h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p>
+<pre><code class="bash">pip install python-evtx
+</code></pre>
+<p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p>
+<a id="more"></a>
+<h2 id="python-Evtx-解析日志文件"><a href="#python-Evtx-解析日志文件" class="headerlink" title="python_Evtx 解析日志文件"></a>python_Evtx 解析日志文件</h2><p>python_Evtx能够Evtx格式的日志文件解析成可读的XML文件</p>
+<pre><code class="bash">import mmap
+import contextlib
+
+from Evtx.Evtx import FileHeader
+from Evtx.Views import evtx_file_xml_view
+
+def MyFun():
+    EvtxPath = &quot;D:\Application.evtx&quot; #日志文件的路径
+
+    with open(EvtxPath,&#39;r&#39;) as f:
+        with contextlib.closing(mmap.mmap(f.fileno(),0,access=mmap.ACCESS_READ)) as buf:
+            fh = FileHeader(buf,0)
+            # 构建一个xml文件，根元素是Events
+            print &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot;standalone=\&quot;yes\&quot; ?&gt;&quot;
+            print &quot;&lt;Events&gt;&quot;
+            # 遍历事件
+            for xml, record in evtx_file_xml_view(fh):
+                print xml
+            print &quot;&lt;/Events&gt;&quot;
+
+if __name__ == &#39;__main__&#39;:
+    MyFun()
+</code></pre>
+<p>输出的事件如下(只取了其中一个)，有很多节点:</p>
+<pre><code class="xml">&lt;Event xmlns=&quot;http://schemas.microsoft.com/win/2004/08/events/event&quot;&gt;&lt;System&gt;&lt;Provider Name=&quot;Microsoft-Windows-EventSystem&quot; Guid=&quot;{899daace-4868-4295-afcd-9eb8fb497561}&quot; EventSourceName=&quot;EventSystem&quot;&gt;&lt;/Provider&gt;
+&lt;EventID Qualifiers=&quot;16384&quot;&gt;4625&lt;/EventID&gt;
+&lt;Version&gt;0&lt;/Version&gt;
+&lt;Level&gt;4&lt;/Level&gt;
+&lt;Task&gt;0&lt;/Task&gt;
+&lt;Opcode&gt;0&lt;/Opcode&gt;
+&lt;Keywords&gt;0x0080000000000000&lt;/Keywords&gt;
+&lt;TimeCreated SystemTime=&quot;2015-12-07 13:10:17&quot;&gt;&lt;/TimeCreated&gt;
+&lt;EventRecordID&gt;1&lt;/EventRecordID&gt;
+&lt;Correlation ActivityID=&quot;&quot; RelatedActivityID=&quot;&quot;&gt;&lt;/Correlation&gt;
+&lt;Execution ProcessID=&quot;0&quot; ThreadID=&quot;0&quot;&gt;&lt;/Execution&gt;
+&lt;Channel&gt;Application&lt;/Channel&gt;
+&lt;Computer&gt;KEN-PC&lt;/Computer&gt;
+&lt;Security UserID=&quot;&quot;&gt;&lt;/Security&gt;
+&lt;/System&gt;
+&lt;EventData&gt;&lt;Data Name=&quot;param1&quot;&gt;86400&lt;/Data&gt;
+&lt;Data Name=&quot;param2&quot;&gt;SuppressDuplicateDuration&lt;/Data&gt;
+&lt;Data Name=&quot;param3&quot;&gt;Software\Microsoft\EventSystem\EventLog&lt;/Data&gt;
+&lt;/EventData&gt;
+&lt;/Event&gt;
+</code></pre>
+<p>我们需要着重关注的是EventID、EventData、TimeCreated。</p>
+<p>这段脚本运行完毕后会将该文件所有的事件日志信息输出，但我们并不需要如此对所有的事件分析，只分析我们感兴趣的部分。下面就是我改进后的代码：</p>
+<pre><code class="python">import mmap
+import contextlib
+
+from Evtx.Evtx import FileHeader
+from Evtx.Views import evtx_file_xml_view
+from xml.dom import minidom
+
+def MyFun():
+    EvtxPath = &quot;D:\Application.evtx&quot;
+
+    with open(EvtxPath,&#39;r&#39;) as f:
+        with contextlib.closing(mmap.mmap(f.fileno(),0,access=mmap.ACCESS_READ)) as buf:
+            fh = FileHeader(buf,0)
+            print &quot;&lt;?xml version=\&quot;1.0\&quot; encoding=\&quot;utf-8\&quot;standalone=\&quot;yes\&quot; ?&gt;&quot;
+            print &quot;&lt;Events&gt;&quot;
+            for xml, record in evtx_file_xml_view(fh):
+                #只输出事件ID为16384的内容
+                InterestEvent(xml,16384)
+            print &quot;&lt;/Events&gt;&quot;
+
+# 过滤掉不需要的事件，输出感兴趣的事件
+def InterestEvent(xml,EventID):
+    xmldoc = minidom.parseString(xml)
+    # 获取EventID节点的事件ID
+    eventID = xmldoc.getElementsByTagName(&#39;EventID&#39;)[0]
+    if EventID == eventID:
+        print xml
+
+if __name__ == &#39;__main__&#39;:
+    MyFun()
+
+</code></pre>
+<h2 id="常见的一些事件ID"><a href="#常见的一些事件ID" class="headerlink" title="常见的一些事件ID"></a>常见的一些事件ID</h2><p><a href="http://windowsir.blogspot.de/2014/10/windows-event-logs.html" title="WindowsEventLog" target="_blank" rel="noopener">WindowsEventLog</a></p>
+<table>
+<thead>
+<tr>
+<th>事件ID</th>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20, 24, 25, 31, 34, 35</td>
+<td>Windows-Update-Failure</td>
+<td>windows更新失败</td>
+</tr>
+<tr>
+<td>104, 1102</td>
+<td>Microsoft-Windows-Eventlog</td>
+<td>正常情况下是不可能被清除的，除非是攻击者为了清除痕迹。</td>
+</tr>
+<tr>
+<td>106</td>
+<td>Microsoft-Windows-TaskScheduler</td>
+<td>显示最新注册的计划任务</td>
+</tr>
+<tr>
+<td>1014</td>
+<td>Microsoft-Windows-DNS-Client</td>
+<td>DNS解析超时。这个也是非常有用的，恶意程序经常用来测试是否连接到目标网站。</td>
+</tr>
+<tr>
+<td>2004, 2005, 2006, 2033</td>
+<td>Firewall-Rule-Add/Change/Delete</td>
+<td>正常用户一般不会修改防火墙规则</td>
+</tr>
+<tr>
+<td>3004</td>
+<td>Microsoft-Windows-Windows Defender</td>
+<td>WD杀毒检测日志</td>
+</tr>
+<tr>
+<td>4720, 4724, 4725, 4728, 4732, 4635,4740, 4748, 4756</td>
+<td>Microsoft-Windows-Security-Auditing</td>
+<td>能够找到远程登录信息，以及用户提权等相关信息</td>
+</tr>
+<tr>
+<td>7030, 7045</td>
+<td>Service-Control-Manager</td>
+<td>监视服务是配置成与桌面交互还是安装在系统中。</td>
+</tr>
+<tr>
+<td>8003, 8004, 8006, 8007</td>
+<td>App-Locker-Block/Warning</td>
+<td>记录被阻止运行或警告的程序信息</td>
+</tr>
+</tbody>
+</table>
+
+      
+      
+        <div class="page-reward">
+          <p><a href="javascript:void(0)" onclick="dashangToggle()" class="dashang">赏</a></p>
+          <div class="hide_box"></div>
+          <div class="shang_box">
+            <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+            <div class="shang_tit">
+              <p>纯属好玩</p>
+            </div>
+            <div class="shang_payimg">
+              <img src="/img/alipayimg.jpg" alt="扫码支持" title="扫一扫" />
+            </div>
+              <div class="pay_explain">扫码打赏，你说多少就多少</div>
+            <div class="shang_payselect">
+              
+                <div class="pay_item checked" data-id="alipay">
+                  <span class="radiobox"></span>
+                  <span class="pay_logo"><img src="/img/alipay.png" alt="支付宝" /></span>
+                </div>
+              
+              
+                <div class="pay_item" data-id="wechat">
+                  <span class="radiobox"></span>
+                  <span class="pay_logo"><img src="/img/weixin.png" alt="微信" /></span>
+                </div>
+              
+            </div>
+            <div class="shang_info">
+              <p>打开<span id="shang_pay_txt">支付宝</span>扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+        </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+        <script type="text/javascript">
+          $(".pay_item").click(function(){
+            $(this).addClass('checked').siblings('.pay_item').removeClass('checked');
+            var dataid=$(this).attr('data-id');
+            $(".shang_payimg img").attr("src","/img/"+dataid+"img.jpg");
+            $("#shang_pay_txt").text(dataid=="alipay"?"支付宝":"微信");
+          });
+          function dashangToggle(){
+            
+            $(".hide_box").fadeToggle();
+            $(".shang_box").fadeToggle();
+          }
+        </script>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
+        <p><span>发布时间:</span>2016年01月19日 - 12时51分</p>
+        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/archives/ddac3f57.html" title="Python取证技术(3): Windows 事件日志分析">http://yoursite.com/archives/ddac3f57.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/archives/ddac3f57.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target = "_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+<nav id="article-nav">
+  
+    <a href="/archives/a5fc00a6.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Python取证技术(4): Windows 注册表分析
+        
+      </div>
+    </a>
+  
+  
+    <a href="/archives/a2e78025.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python取证技术(2): hash生成</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装python-Evtx"><span class="toc-number">1.</span> <span class="toc-text">安装python_Evtx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python-Evtx-解析日志文件"><span class="toc-number">2.</span> <span class="toc-text">python_Evtx 解析日志文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见的一些事件ID"><span class="toc-number">3.</span> <span class="toc-text">常见的一些事件ID</span></a></li></ol>
+</div>
+<input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+        }
+    })
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+    }
+</script>
+
+
+
+
+
+<div class="bdsharebuttonbox">
+	<a href="#" class="fx fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="fx fa-weixin bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="fx fa-qq bds_sqq" data-cmd="sqq" title="分享到QQ好友"></a>
+	<a href="#" class="fx fa-facebook-official bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="fx fa-twitter bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="fx fa-linkedin bds_linkedin" data-cmd="linkedin" title="分享到linkedin"></a>
+	<a href="#" class="fx fa-files-o bds_copy" data-cmd="copy" title="分享到复制网址"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"2","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+
+    
+        <div id="gitments"></div>
+<script src="/js/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+      id: window.location.pathname,
+      owner: 'luuman',
+      repo: 'luuman.github.io',
+      oauth: {
+        client_id: '',
+        client_secret: '',
+      },
+    })
+    gitment.render('gitments')
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/archives/a5fc00a6.html" title="上一篇: Python取证技术(4): Windows 注册表分析">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+        
+            <a href="/archives/a2e78025.html" title="下一篇: Python取证技术(2): hash生成">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+            }
+        })
+    </script>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2018 Ken
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/luuman/hexo-theme-spfk" target="_blank">spfk</a> by luuman
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >海贼到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var backgroundnum = 24;
+            var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+            $("#mobile-nav").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+            $(".left-col").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+  <script language="javascript">
+    $(function() {
+        $("a[title]").each(function() {
+            var a = $(this);
+            var title = a.attr('title');
+            if (title == undefined || title == "") return;
+            a.data('title', title).removeAttr('title').hover(
+
+            function() {
+                var offset = a.offset();
+                $("<div id=\"anchortitlecontainer\"></div>").appendTo($("body")).html(title).css({
+                    top: offset.top - a.outerHeight() - 15,
+                    left: offset.left + a.outerWidth()/2 + 1
+                }).fadeIn(function() {
+                    var pop = $(this);
+                    setTimeout(function() {
+                        pop.remove();
+                    }, pop.text().length * 800);
+                });
+            }, function() {
+                $("#anchortitlecontainer").remove();
+            });
+        });
+    });
+</script>
+
+
+  </div>
+  
+</body>
+</html>
