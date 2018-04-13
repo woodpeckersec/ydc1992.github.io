@@ -312,14 +312,9 @@ public:
     {
         m_Detour_Ex-&gt;UnHook();
     }
-
-
-# 标准API HOOK
-
-hook MessageBoxA函数，
-
-```cpp
-HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
+</code></pre>
+<h1 id="标准API-HOOK"><a href="#标准API-HOOK" class="headerlink" title="标准API HOOK"></a>标准API HOOK</h1><p>hook MessageBoxA函数，</p>
+<pre><code class="cpp">HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
 hook-&gt;hook();
 oMessageBoxA = (decltype(&amp;MessageBoxA))hook-&gt;GetOriginal();
 </code></pre>
