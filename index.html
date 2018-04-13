@@ -8,7 +8,8 @@
   <script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/x86asm.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/cpp.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/Bash.min.js"></script>
+  
   <script>hljs.initHighlightingOnLoad();</script>
 
   <title>ydc&#39;s blog</title>
@@ -241,6 +242,219 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-AOSP-docker编译安卓源码绕过反调试" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/undefined.html" class="article-date">
+      <time datetime="2018-04-13T14:31:08.000Z" itemprop="datePublished">2018-04-13</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/undefined.html">AOSP docker编译安卓源码绕过反调试</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+<p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
+<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。</p>
+<h2 id="分配硬盘"><a href="#分配硬盘" class="headerlink" title="分配硬盘"></a>分配硬盘</h2><p>linux至少要分配100g的硬盘空间。空间足够的可以跳过，原本装有VMWare linux，但是空间不足，又不想重新装个虚拟机。 可以参考 这篇文章<a href="http://blog.csdn.net/u010372981/article/details/46514011" target="_blank" rel="noopener">http://blog.csdn.net/u010372981/article/details/46514011</a> 给虚拟机加块硬盘。</p>
+<h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>默认源中没有docker,我们需要在添加backports源，在/etc/apt/sources.list文件 加入下面这行</p>
+<pre><code>  deb http://http.debian.net/debian jessie-backports main
+</code></pre><p>运行如下命令安装docker</p>
+<p><code>`</code>apt-get update<br>apt-get install docker.io</p>
+<pre><code>
+## 开始编译
+
+1.  开始之前先启动docker服务,不然到后面会报错
+
+</code></pre><p> /etc/init.d/docker start</p>
+<pre><code>
+1.  设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径
+</code></pre><p> export AOSP_VOL=/Android</p>
+<pre><code>
+1.  下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考https://github.com/tiann/docker-aosp, 脚本根对国内环境做了优化，使用速度比较快的清华源。
+
+</code></pre><p>curl -O <a href="https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh" target="_blank" rel="noopener">https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh</a></p>
+<pre><code>
+1.  编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。
+
+</code></pre><p>sh ./build-kitkat.sh</p>
+<pre><code>
+编译完成后,使用的是系统默认自带的内核，我们还需要重新修改编译内核绕过反调试
+
+## 编译内核
+
+1.  clone内核源码 我使用的手机是Nexus 5,对应的内核源码为kernel/msm。设备名是hammerhead
+
+在存放源码的目录创建kernel文件夹，我这里存放源码目录为/Android
+
+</code></pre><p>cd /Android/aosp<br>mkdir kernel<br>cd kernel<br>git clone <a href="https://aosp.tuna.tsinghua.edu.cn/kernel/msm.git" target="_blank" rel="noopener">https://aosp.tuna.tsinghua.edu.cn/kernel/msm.git</a></p>
+<pre><code>
+1.  选择系统版本 切换到克隆下来的源码目录，切换分支
+
+</code></pre><p>git branch -a</p>
+<pre><code>
+找到名字带有 hammerhead的。
+
+</code></pre><p>git checkout remotes/origin/android-msm-hammerhead-3.4-kitkat-mr1</p>
+<pre><code>
+1.  修改源码
+
+需要修改`kernel/msm/fs/proc/base.c`和`kernel/msm/fs/proc/array.c`两个文件
+
+base.c中 `proc_pid_wchan`函数部分修改成如下：
+
+</code></pre><p>//省略<br>else {<br>           if (strstr(symname, “trace”)) {<br>                return sprintf(buffer, “%s”, “sys_epoll_wait”);<br>           }<br>           return sprintf(buffer, “%s”, symname);<br>      }</p>
+<pre><code>
+array.c中`tast_state`函数部分修改成
+
+</code></pre><p>“Gid:\t%d\t%d\t%d\t%d\n”,<br>              get_task_state(p),<br>              task_tgid_nr_ns(p, ns),<br>              pid_nr_ns(pid, ns),<br>              ppid, /<em>tpid</em>/0,<br>              cred-&gt;uid, cred-&gt;euid, cred-&gt;suid, cred-&gt;fsuid,<br>              cred-&gt;gid, cred-&gt;egid, cred-&gt;sgid, cred-&gt;fsgid);</p>
+<pre><code>
+`task_state_array`变量修改成
+
+
+```cpp
+static const char * const task_state_array[] = {
+     &quot;R (running)&quot;,        /*    0 */
+     &quot;S (sleeping)&quot;,       /*    1 */
+     &quot;D (disk sleep)&quot;,     /*    2 */
+     &quot;S (sleeping)&quot;,       /*    4 */
+     &quot;S (sleeping)&quot;, /*     8 */
+     &quot;Z (zombie)&quot;,         /*  16 */
+     &quot;X (dead)&quot;,           /*  32 */
+     &quot;x (dead)&quot;,           /*  64 */
+     &quot;K (wakekill)&quot;,       /* 128 */
+     &quot;W (waking)&quot;,         /* 256 */
+};
+</code></pre><ol>
+<li>创建编译脚本 在<code>/Android/aosp/kernel/msm</code>目录,即内核源码所在的目录创建一个脚本，内容如下,保存为run.sh. PATH前面的gcc路径为编译工具链,用来编译内核的。</li>
+</ol>
+<pre><code class="bash">export PATH=&#39;/Android/aosp/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin&#39;;$PATH
+export ARCH=arm
+export SUBARCH=arm
+export CROSS_COMPILE=arm-eabi-
+make hammerhead defconfig
+make -j4
+</code></pre>
+<p>然后运行该脚本开始编译内核</p>
+<pre><code>sh run.sh
+</code></pre><p>出现如下提示表示内核已经编译ok</p>
+<pre><code>CALL    scripts/checksyscalls.sh
+CHK     include/generated/compile.h
+Kernel: arch/arm/boot/Image is ready
+LD      arch/arm/boot/compressed/vmlinux
+OBJCOPY arch/arm/boot/zImage
+Kernel: arch/arm/boot/zImage is ready
+CAT     arch/arm/boot/zImage-dtb
+Kernel: arch/arm/boot/zImage-dtb is ready
+</code></pre><p>在<code>/Android/aosp/kernel/msm/arch/arm/boot</code>找到zImage-dtb,这个是nexus 5内核文件,拷贝到<code>/Android/aosp/device/lge/hammerhead-kernel</code>覆盖原来的文件</p>
+<ol>
+<li>下载驱动设备 要刷机到实体机,还需要下载三个驱动设备</li>
+</ol>
+<p>从<a href="https://developers.google.com/android/drivers找到对应的驱动设备。" target="_blank" rel="noopener">https://developers.google.com/android/drivers找到对应的驱动设备。</a></p>
+<p>搜索Nexus 5找到对应的系统版本，我的是Android 4.4.4。找到的结果如下：</p>
+<p>Nexus 5 (GSM/LTE) binaries for Android 4.4.4 (KTU84P)</p>
+<table>
+<thead>
+<tr>
+<th>Hardware Component</th>
+<th>Company</th>
+<th>Download</th>
+<th>SHA-256 Checksum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NFC, Bluetooth, Wi-Fi</td>
+<td>Broadcom</td>
+<td>Link</td>
+<td>f258605e24c9c3d4e78c9af934f3516a4f8d3410da697005fad42cad36c5ed5c</td>
+</tr>
+<tr>
+<td>Camera, Sensors, Audio</td>
+<td>LG</td>
+<td>Link</td>
+<td>fc72704e0fba9c51c6505ae009e474570de27ee8565d51483368d8dae6c0f44e</td>
+</tr>
+<tr>
+<td>Graphics, GSM, Camera, GPS, Sensors, Media, DSP, USB</td>
+<td>Qualcomm</td>
+<td>Link</td>
+<td>8603d85ad511346d65c27c3747919da280523b86d55a39dfce657a4ca1b0685b</td>
+</tr>
+</tbody>
+</table>
+<p>Download对应的是下载连接，我们把这三个文件下载后解压到/Android/AOSP目录。得到三个sh脚本文件 <code>extract-broadcom-hammerhead.sh</code>、<code>extract-lge-hammerhead.sh</code>和<code>extract-qcom-hammerhead.sh</code>;</p>
+<p>分别运行它们</p>
+<pre><code>sh extract-broadcom-hammerhead.sh
+sh extract-lge-hammerhead.sh
+sh extract-qcom-hammerhead.sh
+</code></pre><p>一直按回车，等到如下提示输入 I ACCEPT。</p>
+<pre><code>Type &quot;I ACCEPT&quot; if you agree to the terms of the license: 
+You didn&#39;t accept the license. Extraction aborted.
+</code></pre><ol>
+<li>再次编译源码 再次运行编译脚本重新编译,这次会很快</li>
+</ol>
+<pre><code>sh ./build-kitkat.sh
+</code></pre><h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><p>先确定bootloader有没有解锁,没解锁是刷不进去的。</p>
+<p>Nexus 5 是两个音量键和开机键一起一直按到出现bootloader界面。usb连接手机，输入以下命令</p>
+<pre><code class="bash">fastboot oem unlock
+</code></pre>
+<p>这个是Nexus 5的解锁方式</p>
+<p>Android源码编译成功后,文件保存在<code>/Android/aosp/out/target/product/hammerhead</code>。</p>
+<p>输入如下命令就可以刷入实体机了。</p>
+<pre><code class="bash">cd /Android/aosp/out/target/product/hammerhead
+Adb reboot bootloader
+Fastboot -w flashall
+</code></pre>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.csdn.net/gaisylly/article/details/50113791" target="_blank" rel="noopener">http://blog.csdn.net/gaisylly/article/details/50113791</a></p>
+<p><a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a></p>
+<p><a href="http://weishu.me/2016/12/30/simple-way-to-compile-android-source/" target="_blank" rel="noopener">http://weishu.me/2016/12/30/simple-way-to-compile-android-source/</a></p>
+<p><a href="http://bbs.pediy.com/thread-213481.htm" target="_blank" rel="noopener">http://bbs.pediy.com/thread-213481.htm</a></p>
+<p><a href="http://blog.csdn.net/sunao2002002/article/details/53057374" target="_blank" rel="noopener">http://blog.csdn.net/sunao2002002/article/details/53057374</a></p>
+<p><a href="https://developers.google.com/android/drivers" target="_blank" rel="noopener">https://developers.google.com/android/drivers</a></p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-polyHook,比detours更好用的hook框架" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -983,72 +1197,6 @@ Segmentation fault
       
         <p class="article-more-link">
           <a  href="/archives/62077d14.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-pycurl-分块下载" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/6155f940.html" class="article-date">
-      <time datetime="2016-03-06T15:26:55.000Z" itemprop="datePublished">2016-03-06</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/6155f940.html">pycurl 分块下载</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。<br>这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下</p>
-<pre><code class="python">    d = downloader(downloadurl,out_filePath,None,None,None)
-    d.download() #调用下载功能下载
-</code></pre>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/python/">python</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/archives/6155f940.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
