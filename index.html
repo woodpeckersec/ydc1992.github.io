@@ -259,8 +259,7 @@
       
           
               <hr>
-<p>title: 病毒样本快到碗里来，一个样本下载爬虫的实现<br>date: 2018-04-13 23:27:24</p>
-<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
 <p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p>
 <p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
 <p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
@@ -327,9 +326,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <hr>
-<p>uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6<br>title: 一款勒索软件的分析(未完待续)<br>abbrlink: d4e5fb9c<br>date: 2018-04-12 21:48:12</p>
-<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><blockquote>
+              <blockquote>
 <p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
 </blockquote>
 <h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
@@ -395,9 +392,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <hr>
-<p>title: AOSP docker编译安卓源码绕过反调试<br>date: 2018-04-13 22:31:08</p>
-<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+              <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
 <p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
 <p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
           

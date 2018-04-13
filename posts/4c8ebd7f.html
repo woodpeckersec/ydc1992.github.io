@@ -14,12 +14,12 @@
 
   <title>一款勒索软件的分析-未完待续 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6title: 一款勒索软件的分析(未完待续)abbrlink: d4e5fb9cdate: 2018-04-12 21:48:12 tags: 文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shel">
+  <meta name="description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一款勒索软件的分析-未完待续">
 <meta property="og:url" content="http://yoursite.com/posts/4c8ebd7f.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6title: 一款勒索软件的分析(未完待续)abbrlink: d4e5fb9cdate: 2018-04-12 21:48:12 tags: 文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shel">
+<meta property="og:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png">
@@ -28,10 +28,10 @@
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png">
-<meta property="og:updated_time" content="2018-04-13T16:56:45.413Z">
+<meta property="og:updated_time" content="2018-04-13T16:59:56.805Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一款勒索软件的分析-未完待续">
-<meta name="twitter:description" content="uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6title: 一款勒索软件的分析(未完待续)abbrlink: d4e5fb9cdate: 2018-04-12 21:48:12 tags: 文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shel">
+<meta name="twitter:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta name="twitter:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -272,9 +272,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <hr>
-<p>uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6<br>title: 一款勒索软件的分析(未完待续)<br>abbrlink: d4e5fb9c<br>date: 2018-04-12 21:48:12</p>
-<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><blockquote>
+        <blockquote>
 <p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
 </blockquote>
 <h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
@@ -403,7 +401,7 @@
         <p><span>本文标题:</span><a href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月14日 - 00时56分</p>
-        <p><span>最后更新:</span>2018年04月14日 - 00时56分</p>
+        <p><span>最后更新:</span>2018年04月14日 - 00时59分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/4c8ebd7f.html" title="一款勒索软件的分析-未完待续">http://yoursite.com/posts/4c8ebd7f.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/4c8ebd7f.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -441,7 +439,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#tags"><span class="toc-number">1.</span> <span class="toc-text">tags:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#NSIS脚本分析"><span class="toc-number">2.</span> <span class="toc-text">NSIS脚本分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加密文件分析"><span class="toc-number">3.</span> <span class="toc-text">加密文件分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#解密shellcode"><span class="toc-number">3.1.</span> <span class="toc-text">解密shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解密PE文件"><span class="toc-number">3.2.</span> <span class="toc-text">解密PE文件</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NSIS脚本分析"><span class="toc-number">1.</span> <span class="toc-text">NSIS脚本分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加密文件分析"><span class="toc-number">2.</span> <span class="toc-text">加密文件分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#解密shellcode"><span class="toc-number">2.1.</span> <span class="toc-text">解密shellcode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解密PE文件"><span class="toc-number">2.2.</span> <span class="toc-text">解密PE文件</span></a></li></ol></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
