@@ -234,8 +234,8 @@
     <article id="post-病毒样本快到碗里来，一个样本下载爬虫的实现" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/undefined.html" class="article-date">
-      <time datetime="2018-04-13T15:27:24.000Z" itemprop="datePublished">2018-04-13</time>
+      <a href="/posts/9222f001.html" class="article-date">
+      <time datetime="2018-04-13T16:57:23.000Z" itemprop="datePublished">2018-04-14</time>
 </a>
     </div>
   
@@ -248,7 +248,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/undefined.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a>
+      <a class="article-title" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a>
     </h1>
   
 
@@ -258,7 +258,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
+              <hr>
+<p>title: 病毒样本快到碗里来，一个样本下载爬虫的实现<br>date: 2018-04-13 23:27:24</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
 <p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p>
 <p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
 <p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
@@ -279,134 +281,7 @@
       
       
         <p class="article-more-link">
-          <a  href="/archives/undefined.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-AOSP-docker编译安卓源码绕过反调试" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/undefined.html" class="article-date">
-      <time datetime="2018-04-13T14:31:08.000Z" itemprop="datePublished">2018-04-13</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/undefined.html">AOSP docker编译安卓源码绕过反调试</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
-<p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
-<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/archives/undefined.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-polyHook,比detours更好用的hook框架" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/undefined.html" class="article-date">
-      <time datetime="2018-04-13T14:19:46.000Z" itemprop="datePublished">2018-04-13</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
-<ol>
-<li>Detour</li>
-<li>Virtual Function Detour</li>
-<li>Virtual Function Pointer Swap</li>
-<li>Virtual Table Pointer Swap</li>
-<li>Import Address Table</li>
-<li>VEH
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/archives/undefined.html#more">大航海 >></a>
+          <a  href="/posts/9222f001.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -428,8 +303,8 @@
     <article id="post-一款勒索软件的分析-未完待续" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/d4e5fb9c.html" class="article-date">
-      <time datetime="2018-04-12T13:48:12.000Z" itemprop="datePublished">2018-04-12</time>
+      <a href="/posts/4c8ebd7f.html" class="article-date">
+      <time datetime="2018-04-13T16:56:09.000Z" itemprop="datePublished">2018-04-14</time>
 </a>
     </div>
   
@@ -442,7 +317,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a>
+      <a class="article-title" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a>
     </h1>
   
 
@@ -452,7 +327,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <blockquote>
+              <hr>
+<p>uuid: 249d68a0-3e58-11e8-99cb-c5c14f1e37f6<br>title: 一款勒索软件的分析(未完待续)<br>abbrlink: d4e5fb9c<br>date: 2018-04-12 21:48:12</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><blockquote>
 <p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
 </blockquote>
 <h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
@@ -472,7 +349,70 @@
       
       
         <p class="article-more-link">
-          <a  href="/archives/d4e5fb9c.html#more">大航海 >></a>
+          <a  href="/posts/4c8ebd7f.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-AOSP-docker编译安卓源码绕过反调试" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/7b82cd68.html" class="article-date">
+      <time datetime="2018-04-13T16:48:50.000Z" itemprop="datePublished">2018-04-14</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <hr>
+<p>title: AOSP docker编译安卓源码绕过反调试<br>date: 2018-04-13 22:31:08</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+<p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
+<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+        <p class="article-more-link">
+          <a  href="/posts/7b82cd68.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -494,7 +434,7 @@
     <article id="post-内存中加载modlue" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/a9796658.html" class="article-date">
+      <a href="/posts/a9796658.html" class="article-date">
       <time datetime="2018-02-20T20:44:29.000Z" itemprop="datePublished">2018-02-21</time>
 </a>
     </div>
@@ -508,7 +448,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/a9796658.html">内存中加载modlue</a>
+      <a class="article-title" href="/posts/a9796658.html">内存中加载modlue</a>
     </h1>
   
 
@@ -565,7 +505,7 @@
     <article id="post-豆约翰博客备份专家破解" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/9d7b1fcb.html" class="article-date">
+      <a href="/posts/9d7b1fcb.html" class="article-date">
       <time datetime="2016-10-30T12:14:54.000Z" itemprop="datePublished">2016-10-30</time>
 </a>
     </div>
@@ -579,7 +519,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/9d7b1fcb.html">豆约翰博客备份专家破解</a>
+      <a class="article-title" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a>
     </h1>
   
 
@@ -607,7 +547,7 @@
       
       
         <p class="article-more-link">
-          <a  href="/archives/9d7b1fcb.html#more">大航海 >></a>
+          <a  href="/posts/9d7b1fcb.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -629,7 +569,7 @@
     <article id="post-selenium-Firefox-48-报错解决方法" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/e8a649b6.html" class="article-date">
+      <a href="/posts/e8a649b6.html" class="article-date">
       <time datetime="2016-10-26T12:47:23.000Z" itemprop="datePublished">2016-10-26</time>
 </a>
     </div>
@@ -643,7 +583,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a>
+      <a class="article-title" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a>
     </h1>
   
 
@@ -701,7 +641,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
     <article id="post-pycharm-远程调试kodi-python-plugin" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/8a11904.html" class="article-date">
+      <a href="/posts/8a11904.html" class="article-date">
       <time datetime="2016-06-18T07:23:11.000Z" itemprop="datePublished">2016-06-18</time>
 </a>
     </div>
@@ -715,7 +655,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/8a11904.html">pycharm 远程调试kodi python plugin</a>
+      <a class="article-title" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a>
     </h1>
   
 
@@ -744,7 +684,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
 
       
         <p class="article-more-link">
-          <a  href="/archives/8a11904.html#more">大航海 >></a>
+          <a  href="/posts/8a11904.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -766,7 +706,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
     <article id="post-Reversing-kr-Flash-Encrypt" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/672ac0b8.html" class="article-date">
+      <a href="/posts/672ac0b8.html" class="article-date">
       <time datetime="2016-04-09T03:37:51.000Z" itemprop="datePublished">2016-04-09</time>
 </a>
     </div>
@@ -780,7 +720,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/672ac0b8.html">Reversing.kr Flash Encrypt</a>
+      <a class="article-title" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a>
     </h1>
   
 
@@ -812,7 +752,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
 
       
         <p class="article-more-link">
-          <a  href="/archives/672ac0b8.html#more">大航海 >></a>
+          <a  href="/posts/672ac0b8.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
@@ -834,7 +774,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
     <article id="post-Pwnable-kr-shellshock" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/8f13cc3.html" class="article-date">
+      <a href="/posts/8f13cc3.html" class="article-date">
       <time datetime="2016-04-03T13:21:09.000Z" itemprop="datePublished">2016-04-03</time>
 </a>
     </div>
@@ -848,7 +788,7 @@ driver = webdriver.Firefox(firefox_binary=binary)
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/archives/8f13cc3.html">Pwnable.kr shellshock</a>
+      <a class="article-title" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a>
     </h1>
   
 
@@ -896,6 +836,69 @@ Segmentation fault
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
     </div>
 
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-VirusTotal扫描器-python版" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/62077d14.html" class="article-date">
+      <time datetime="2016-03-16T19:30:31.000Z" itemprop="datePublished">2016-03-17</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/62077d14.html">VirusTotal扫描器 python版</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>利用在线查毒网站<a href="https://www.virustotal.com/" target="_blank" rel="noopener">https://www.virustotal.com/</a> 提供的API实现上传文件返回扫描结果，因为我平时只看查毒结果，因此只是简单的把文件上传然后返回分析结果。<br>代码如下：</p>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/62077d14.html#more">大航海 >></a>
+        </p>
       
       <div class="clearfix"></div>
     </div>

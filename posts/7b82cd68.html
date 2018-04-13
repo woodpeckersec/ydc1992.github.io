@@ -12,19 +12,19 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>polyHook,比detours更好用的hook框架 | ydc&#39;s blog</title>
+  <title>AOSP-docker编译安卓源码绕过反调试 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH">
+  <meta name="description" content="title: AOSP docker编译安卓源码绕过反调试date: 2018-04-13 22:31:08 tags:看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。 自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docke">
 <meta property="og:type" content="article">
-<meta property="og:title" content="polyHook,比detours更好用的hook框架">
-<meta property="og:url" content="http://yoursite.com/archives/undefined.html">
+<meta property="og:title" content="AOSP-docker编译安卓源码绕过反调试">
+<meta property="og:url" content="http://yoursite.com/posts/7b82cd68.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH">
+<meta property="og:description" content="title: AOSP docker编译安卓源码绕过反调试date: 2018-04-13 22:31:08 tags:看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。 自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docke">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-13T15:52:35.499Z">
+<meta property="og:updated_time" content="2018-04-13T16:55:32.931Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="polyHook,比detours更好用的hook框架">
-<meta name="twitter:description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH">
+<meta name="twitter:title" content="AOSP-docker编译安卓源码绕过反调试">
+<meta name="twitter:description" content="title: AOSP docker编译安卓源码绕过反调试date: 2018-04-13 22:31:08 tags:看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。 自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docke">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -230,11 +230,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-polyHook,比detours更好用的hook框架" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-AOSP-docker编译安卓源码绕过反调试" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/archives/undefined.html" class="article-date">
-      <time datetime="2018-04-13T14:19:46.000Z" itemprop="datePublished">2018-04-13</time>
+      <a href="/posts/7b82cd68.html" class="article-date">
+      <time datetime="2018-04-13T16:48:50.000Z" itemprop="datePublished">2018-04-14</time>
 </a>
     </div>
   
@@ -247,7 +247,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      polyHook,比detours更好用的hook框架
+      AOSP-docker编译安卓源码绕过反调试
     </h1>
   
 
@@ -264,100 +264,156 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
-<ol>
-<li>Detour</li>
-<li>Virtual Function Detour</li>
-<li>Virtual Function Pointer Swap</li>
-<li>Virtual Table Pointer Swap</li>
-<li>Import Address Table</li>
-<li>VEH<a id="more"></a>
-我目前比较常用也只是用第一种hook方法。</li>
+        <hr>
+<p>title: AOSP docker编译安卓源码绕过反调试<br>date: 2018-04-13 22:31:08</p>
+<h2 id="tags"><a href="#tags" class="headerlink" title="tags:"></a>tags:</h2><p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+<p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
+<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br><a id="more"></a></p>
+<h2 id="分配硬盘"><a href="#分配硬盘" class="headerlink" title="分配硬盘"></a>分配硬盘</h2><p>linux至少要分配100g的硬盘空间。空间足够的可以跳过，原本装有VMWare linux，但是空间不足，又不想重新装个虚拟机。 可以参考 这篇文章<a href="http://blog.csdn.net/u010372981/article/details/46514011" target="_blank" rel="noopener">http://blog.csdn.net/u010372981/article/details/46514011</a> 给虚拟机加块硬盘。</p>
+<h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>默认源中没有docker,我们需要在添加backports源，在/etc/apt/sources.list文件 加入下面这行</p>
+<pre><code>  deb http://http.debian.net/debian jessie-backports main
+</code></pre><p>运行如下命令安装docker</p>
+<pre><code>apt-get update
+apt-get install docker.io
+</code></pre><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><p>1.开始之前先启动docker服务,不然到后面会报错</p>
+<pre><code> /etc/init.d/docker start
+</code></pre><p>2.设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径</p>
+<pre><code>export AOSP_VOL=/Android
+</code></pre><p>3.下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考<a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a>, 脚本根对国内环境做了优化，使用速度比较快的清华源。</p>
+<pre><code>curl -O https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh
+</code></pre><p>4.编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。</p>
+<pre><code>sh ./build-kitkat.sh
+</code></pre><p>编译完成后,使用的是系统默认自带的内核，我们还需要重新修改编译内核绕过反调试</p>
+<h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><ol>
+<li>clone内核源码 我使用的手机是Nexus 5,对应的内核源码为kernel/msm。设备名是hammerhead</li>
 </ol>
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>主要文件为PolyHook.hpp和Capstone库。 在属性-&gt;VC++目录中包含Capstone库,注意区分对应的平台。 添加PolyHook.hpp到工程中,用于提供的是hpp文件，声明和实现都在同一个文件，几个文件包含的话就会报重复定义的错误。 因此我在PolyHook.hpp文件的末尾自己封装了下hook方法。</p>
-<pre><code class="cpp">class HookMgr
-{
-public:
-    HookMgr(PVOID src, PVOID DstFunction)
-    {
-        m_DstFunction = DstFunction;
-        m_src = src;
-        std::shared_ptr&lt;PLH::Detour&gt; Detour_Ex(new PLH::Detour);
-        m_Detour_Ex = Detour_Ex;
-    }
-    ~HookMgr()
-    {
-    }
-private:
-    PVOID m_src;
-    PVOID m_DstFunction;
-    std::shared_ptr&lt;PLH::Detour&gt; m_Detour_Ex;
-public:
-    void hook()
-    {
-        m_Detour_Ex-&gt;SetupHook(m_src, m_DstFunction);
-        m_Detour_Ex-&gt;Hook();
-    }
-    //获取原函数
-    FARPROC GetOriginal()
-    {
-        return (FARPROC)m_Detour_Ex-&gt;GetOriginal&lt;decltype(&amp;m_DstFunction)&gt;();
-    }
-    void unhook()
-    {
-        m_Detour_Ex-&gt;UnHook();
-    }
-</code></pre>
-<h1 id="标准API-HOOK"><a href="#标准API-HOOK" class="headerlink" title="标准API HOOK"></a>标准API HOOK</h1><p>hook MessageBoxA函数，</p>
-<pre><code class="cpp">HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
-hook-&gt;hook();
-oMessageBoxA = (decltype(&amp;MessageBoxA))hook-&gt;GetOriginal();
-</code></pre>
-<p>函数已经被hook，我们要调用原函数不能直接调用，需要通过GetOriginal来获取函数指针。 如下，我们在myMessageBox调用的是通过GetOriginal得到的oMessageBoxA函数指针。</p>
-<pre><code class="cpp"> int WINAPI myMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
-{
-    return oMessageBoxA(hWnd, &quot;Hooked&quot;, &quot;Hooked&quot;, 0);
-}
-</code></pre>
-<h1 id="任意函数-HOOK"><a href="#任意函数-HOOK" class="headerlink" title="任意函数 HOOK"></a>任意函数 HOOK</h1><p>有时我们想要hook的函数不是windows api，这时应该怎么hook?,答案是通过地址。前提时该地址能够被访问。 地址可以通过硬编码或者动态获取。</p>
-<p>用IDA找到想要hook的函数。我要想hook这个函数<code>signed int sub_F5D33D0()</code></p>
-<pre><code class="cpp">HookMgr* hook = new HookMgr((PVOID)F5D33D0, youfunction);
-hook-&gt;hook();
-oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
-</code></pre>
-<h1 id="usercall-hook"><a href="#usercall-hook" class="headerlink" title="_usercall hook"></a>_usercall hook</h1><p>用IDA反编译时我们经常看到_usercall调用的函数，使用寄存器传参，这时又应该如何hook?</p>
-<p>以下面这个函数举例 <code>int __usercall sub_F5D4140@&lt;eax&gt;(int a1@&lt;eax&gt;, int a2@&lt;ecx&gt;, int a3, int a4)</code></p>
-<ol>
-<li>将hook函数封装成其他形式的调用，如<strong>cdecall 或者 </strong>stdcall等等。</li>
+<p>在存放源码的目录创建kernel文件夹，我这里存放源码目录为/Android</p>
+<pre><code>cd /Android/aosp
+mkdir kernel
+cd kernel
+git clone https://aosp.tuna.tsinghua.edu.cn/kernel/msm.git
+</code></pre><ol>
+<li>选择系统版本 切换到克隆下来的源码目录，切换分支</li>
 </ol>
-<pre><code class="cpp">void __declspec(naked) sub_F5D4140()                                                  
-{                                                                                            
-        __asm                                                                                
-        {                                                                                    
-                push [esp + 08h] // a4 
-                push [esp + 08h] // a3 
-                push ecx // a2 
-                push eax // a1 
-                // Call your __cdecl function here: 
-                call func                                 
-                add esp, 4 // 
-                pop ecx // a2 
-                add esp, 4 // a3 
-                add esp, 4 // a4 
-                retn                                                                         
-        }                                                                                    
-}
+<pre><code>git branch -a
+</code></pre><p>找到名字带有 hammerhead的。</p>
+<pre><code>git checkout remotes/origin/android-msm-hammerhead-3.4-kitkat-mr1
+</code></pre><ol>
+<li>修改源码</li>
+</ol>
+<p>需要修改<code>kernel/msm/fs/proc/base.c</code>和<code>kernel/msm/fs/proc/array.c</code>两个文件</p>
+<p>base.c中 <code>proc_pid_wchan</code>函数部分修改成如下：</p>
+<pre><code>//省略
+else {
+           if (strstr(symname, &quot;trace&quot;)) {
+                return sprintf(buffer, &quot;%s&quot;, &quot;sys_epoll_wait&quot;);
+           }
+           return sprintf(buffer, &quot;%s&quot;, symname);
+      }
+</code></pre><p>array.c中<code>tast_state</code>函数部分修改成</p>
+<pre><code>&quot;Gid:\t%d\t%d\t%d\t%d\n&quot;,
+              get_task_state(p),
+              task_tgid_nr_ns(p, ns),
+              pid_nr_ns(pid, ns),
+              ppid, /*tpid*/0,
+              cred-&gt;uid, cred-&gt;euid, cred-&gt;suid, cred-&gt;fsuid,
+              cred-&gt;gid, cred-&gt;egid, cred-&gt;sgid, cred-&gt;fsgid);
+</code></pre><p><code>task_state_array</code>变量修改成</p>
+<pre><code class="cpp">static const char * const task_state_array[] = {
+     &quot;R (running)&quot;,        /*    0 */
+     &quot;S (sleeping)&quot;,       /*    1 */
+     &quot;D (disk sleep)&quot;,     /*    2 */
+     &quot;S (sleeping)&quot;,       /*    4 */
+     &quot;S (sleeping)&quot;, /*     8 */
+     &quot;Z (zombie)&quot;,         /*  16 */
+     &quot;X (dead)&quot;,           /*  32 */
+     &quot;x (dead)&quot;,           /*  64 */
+     &quot;K (wakekill)&quot;,       /* 128 */
+     &quot;W (waking)&quot;,         /* 256 */
+};
 </code></pre>
-<p>如果需要调用原函数，可在func函数内嵌入汇编代码，需要注意的是_usercall调用的函数由调用者平衡堆栈。</p>
-<pre><code class="_asm">{
-    push param4
-    push param3
-    mov ecx,param2
-    mov eax,param1
-    call origin_fun
-    add esp,0x8 //压了两次，因此加8平衡堆栈
-}
+<ol>
+<li>创建编译脚本 在<code>/Android/aosp/kernel/msm</code>目录,即内核源码所在的目录创建一个脚本，内容如下,保存为run.sh. PATH前面的gcc路径为编译工具链,用来编译内核的。</li>
+</ol>
+<pre><code class="bash">export PATH=&#39;/Android/aosp/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin&#39;;$PATH
+export ARCH=arm
+export SUBARCH=arm
+export CROSS_COMPILE=arm-eabi-
+make hammerhead defconfig
+make -j4
 </code></pre>
+<p>然后运行该脚本开始编译内核</p>
+<pre><code>sh run.sh
+</code></pre><p>出现如下提示表示内核已经编译ok</p>
+<pre><code>CALL    scripts/checksyscalls.sh
+CHK     include/generated/compile.h
+Kernel: arch/arm/boot/Image is ready
+LD      arch/arm/boot/compressed/vmlinux
+OBJCOPY arch/arm/boot/zImage
+Kernel: arch/arm/boot/zImage is ready
+CAT     arch/arm/boot/zImage-dtb
+Kernel: arch/arm/boot/zImage-dtb is ready
+</code></pre><p>在<code>/Android/aosp/kernel/msm/arch/arm/boot</code>找到zImage-dtb,这个是nexus 5内核文件,拷贝到<code>/Android/aosp/device/lge/hammerhead-kernel</code>覆盖原来的文件</p>
+<ol>
+<li>下载驱动设备 要刷机到实体机,还需要下载三个驱动设备</li>
+</ol>
+<p>从<a href="https://developers.google.com/android/drivers找到对应的驱动设备。" target="_blank" rel="noopener">https://developers.google.com/android/drivers找到对应的驱动设备。</a></p>
+<p>搜索Nexus 5找到对应的系统版本，我的是Android 4.4.4。找到的结果如下：</p>
+<p>Nexus 5 (GSM/LTE) binaries for Android 4.4.4 (KTU84P)</p>
+<table>
+<thead>
+<tr>
+<th>Hardware Component</th>
+<th>Company</th>
+<th>Download</th>
+<th>SHA-256 Checksum</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NFC, Bluetooth, Wi-Fi</td>
+<td>Broadcom</td>
+<td>Link</td>
+<td>f258605e24c9c3d4e78c9af934f3516a4f8d3410da697005fad42cad36c5ed5c</td>
+</tr>
+<tr>
+<td>Camera, Sensors, Audio</td>
+<td>LG</td>
+<td>Link</td>
+<td>fc72704e0fba9c51c6505ae009e474570de27ee8565d51483368d8dae6c0f44e</td>
+</tr>
+<tr>
+<td>Graphics, GSM, Camera, GPS, Sensors, Media, DSP, USB</td>
+<td>Qualcomm</td>
+<td>Link</td>
+<td>8603d85ad511346d65c27c3747919da280523b86d55a39dfce657a4ca1b0685b</td>
+</tr>
+</tbody>
+</table>
+<p>Download对应的是下载连接，我们把这三个文件下载后解压到/Android/AOSP目录。得到三个sh脚本文件 <code>extract-broadcom-hammerhead.sh</code>、<code>extract-lge-hammerhead.sh</code>和<code>extract-qcom-hammerhead.sh</code>;</p>
+<p>分别运行它们</p>
+<pre><code>sh extract-broadcom-hammerhead.sh
+sh extract-lge-hammerhead.sh
+sh extract-qcom-hammerhead.sh
+</code></pre><p>一直按回车，等到如下提示输入 I ACCEPT。</p>
+<pre><code>Type &quot;I ACCEPT&quot; if you agree to the terms of the license: 
+You didn&#39;t accept the license. Extraction aborted.
+</code></pre><ol>
+<li>再次编译源码 再次运行编译脚本重新编译,这次会很快</li>
+</ol>
+<pre><code>sh ./build-kitkat.sh
+</code></pre><h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><p>先确定bootloader有没有解锁,没解锁是刷不进去的。</p>
+<p>Nexus 5 是两个音量键和开机键一起一直按到出现bootloader界面。usb连接手机，输入以下命令</p>
+<pre><code class="bash">fastboot oem unlock
+</code></pre>
+<p>这个是Nexus 5的解锁方式</p>
+<p>Android源码编译成功后,文件保存在<code>/Android/aosp/out/target/product/hammerhead</code>。</p>
+<p>输入如下命令就可以刷入实体机了。</p>
+<pre><code class="bash">cd /Android/aosp/out/target/product/hammerhead
+Adb reboot bootloader
+Fastboot -w flashall
+</code></pre>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.csdn.net/gaisylly/article/details/50113791" target="_blank" rel="noopener">http://blog.csdn.net/gaisylly/article/details/50113791</a><br><a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a><br><a href="http://weishu.me/2016/12/30/simple-way-to-compile-android-source/" target="_blank" rel="noopener">http://weishu.me/2016/12/30/simple-way-to-compile-android-source/</a><br><a href="http://bbs.pediy.com/thread-213481.htm" target="_blank" rel="noopener">http://bbs.pediy.com/thread-213481.htm</a><br><a href="http://blog.csdn.net/sunao2002002/article/details/53057374" target="_blank" rel="noopener">http://blog.csdn.net/sunao2002002/article/details/53057374</a><br><a href="https://developers.google.com/android/drivers" target="_blank" rel="noopener">https://developers.google.com/android/drivers</a></p>
 
       
       
@@ -413,13 +469,13 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a></p>
+        <p><span>本文标题:</span><a href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2018年04月13日 - 22时19分</p>
-        <p><span>最后更新:</span>2018年04月13日 - 23时52分</p>
+        <p><span>发布时间:</span>2018年04月14日 - 00时48分</p>
+        <p><span>最后更新:</span>2018年04月14日 - 00时55分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/archives/undefined.html" title="polyHook,比detours更好用的hook框架">http://yoursite.com/archives/undefined.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/archives/undefined.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/7b82cd68.html" title="AOSP-docker编译安卓源码绕过反调试">http://yoursite.com/posts/7b82cd68.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/7b82cd68.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -432,18 +488,18 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
 
 <nav id="article-nav">
   
-    <a href="/archives/undefined.html" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/posts/4c8ebd7f.html" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption"><</strong>
       <div class="article-nav-title">
         
-          AOSP docker编译安卓源码绕过反调试
+          一款勒索软件的分析-未完待续
         
       </div>
     </a>
   
   
-    <a href="/archives/d4e5fb9c.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">一款勒索软件的分析(未完待续)</div>
+    <a href="/posts/a9796658.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">内存中加载modlue</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -454,7 +510,7 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">1.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#标准API-HOOK"><span class="toc-number"></span> <span class="toc-text">标准API HOOK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#任意函数-HOOK"><span class="toc-number"></span> <span class="toc-text">任意函数 HOOK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#usercall-hook"><span class="toc-number"></span> <span class="toc-text">_usercall hook</span></a>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#tags"><span class="toc-number">1.</span> <span class="toc-text">tags:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分配硬盘"><span class="toc-number">2.</span> <span class="toc-text">分配硬盘</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装docker"><span class="toc-number">3.</span> <span class="toc-text">安装docker</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始编译"><span class="toc-number">4.</span> <span class="toc-text">开始编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译内核"><span class="toc-number">5.</span> <span class="toc-text">编译内核</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#刷机"><span class="toc-number">6.</span> <span class="toc-text">刷机</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">7.</span> <span class="toc-text">参考</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
@@ -520,18 +576,18 @@ oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/archives/undefined.html" title="上一篇: AOSP docker编译安卓源码绕过反调试">
+            <a href="/posts/4c8ebd7f.html" title="上一篇: 一款勒索软件的分析-未完待续">
                 <i class="fa fa-angle-left"></i>
             </a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/archives/d4e5fb9c.html" title="下一篇: 一款勒索软件的分析(未完待续)">
+            <a href="/posts/a9796658.html" title="下一篇: 内存中加载modlue">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">AOSP docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");
