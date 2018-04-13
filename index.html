@@ -170,7 +170,7 @@
                 <section class="switch-part switch-part3">
                     <div id="js-friends">
                     
-                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://luuman.github.io/">name</a>
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://ydc1992.github.io/">name</a>
                     
                     </div>
                 </section>
@@ -242,6 +242,198 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-病毒样本快到碗里来，一个样本下载爬虫的实现" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/undefined.html" class="article-date">
+      <time datetime="2018-04-13T15:27:24.000Z" itemprop="datePublished">2018-04-13</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/undefined.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>简介</p>
+<p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
+<p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br>图片说明</p>
+<p>只有MD5的超链接可以点，点进去看看，<br>图片说明</p>
+<p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
+<p>现在我们可以理清下思路：</p>
+<pre><code>获取每一页的网页源码
+解析当前页的每一个md5对应的详细信息链接
+在详细信息页面解析下载地址。
+</code></pre><p>提取规则</p>
+<p>先从第一页开始爬起</p>
+<pre><code class="python">from scrapy.spiders import CrawlSpider
+from scrapy.http import Request
+from malwr.items import MalwrItem
+from scrapy.selector import Selector
+class BasicSpider(CrawlSpider):
+    name = &quot;basic&quot;
+    allowed_domains = [&quot;malwr.com&quot;]
+    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]
+    def start_requests(self):
+        url = self.strat_urls[0] 
+        yield Request(url, callback=self.parse_item)
+    def parse_item(self):
+         pass
+</code></pre>
+<p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。<br>图片说明,</p>
+<p>对应链接的xpath选择器为 //td/a/@href,<br>图片说明,</p>
+<p>下一页的链接的xpath选择器为 //a[contains(text(),’Next’)]/@href<br>图片说明,</p>
+<p>要得到下载地址需要账号登陆，这里先不管它，单击Download下载文件对应的下载链接提取规则xpath选择器</p>
+<p>//a[contains(@class,’btn-primary’)]/@href.</p>
+<p>现在来补充下代码，</p>
+<pre><code class="python">def parse_item(self):
+      # 当前页所有md5对应的详细页面
+      url = response.xpath(&quot;//td/a/@href&quot;).extract()
+      for u in url:
+          url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))
+          yield Request(url,self.parse_downurl)
+      # 下一页
+      nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
+      url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)
+      yield Request(url,self.parse_item) 
+#解析下载地址
+def parse_downurl(self):
+      pass
+</code></pre>
+<p>登陆</p>
+<p>之前写爬虫的时候，是可以直接通过post登陆的，而我开始写这篇文章的时候开始加上了google的ReCaptcha验证码。</p>
+<p>只能换种方式使用selenium来登陆Malwr.得到登陆后的cookie后，我们就可以用这个cookie开始下载样本了。</p>
+<pre><code class="python">from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait
+def get_cookie():
+        loginurl = &#39;https://malwr.com/account/login/&#39;
+        # 当然Ie也可以换成其他的，比如firefox、chrom等等
+        driver = webdriver.Ie()
+        driver.get(loginurl)
+        WebDriverWait(driver,3).until(lambda x:x.find_element_by_link_text(&#39;Logout&#39;))
+        cookies = driver.get_cookies()
+        driver.close()
+        return cookies
+</code></pre>
+<p>使用Scrapy有一点很蛋疼，cookie它不会自动传递，需要自己在Request中传递下去，才能使后面的网络请求使用这个cookie.</p>
+<pre><code class="python">
+class BasicSpider(CrawlSpider):
+    name = &quot;basic&quot;
+    allowed_domains = [&quot;malwr.com&quot;]
+    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]
+    custom_settings = {
+                    &quot;COOKIES&quot;:get_cookie(),
+                    }
+    def start_requests(self):
+        url = self.strat_urls[0]
+        # cookiejar  cookie传递
+        yield Request(url,cookies=self.custom_settings[&#39;COOKIES&#39;],
+                          callback=self.parse_item,meta = {&#39;cookiejar&#39; : 1})
+    def parse_item(self,response):
+          # 当前页所有md5对应的详细页面
+          url = response.xpath(&quot;//td/a/@href&quot;).extract()
+          for u in url:
+              url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))
+              yield Request(url,self.parse_downurl,meta = {&#39;cookiejar&#39; : 1})
+          # 下一页
+          nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
+          url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)
+          yield Request(url,self.parse_item,meta = {&#39;cookiejar&#39; : 1})
+</code></pre>
+<p>我们在start_request函数里获取到登陆后的cookie,使用meta = {‘cookiejar’ : 1}将cookie传递到parse_item函数。</p>
+<p>parse_item函数的Request的两个Request也加上cookiejar,一个把cookie传给parse_item,一个传给parse_downurl,<br>下载样本</p>
+<p>scrapy本身就已经为我们提供了很好的文件下载、图片下载的功能，</p>
+<p>修改custom_settings,加上我们要用的ITEM_PIPELINES(在这里面实现下载功能)和FILES_STORE(保存到的文件夹)</p>
+<pre><code>custom_settings = {
+                  &quot;COOKIES&quot;:get_cookie(),
+                  &#39;ITEM_PIPELINES&#39;:{&#39;malwr.pipelines.MalwrPipeline&#39;:1},
+                  &quot;FILES_STORE&quot;:&quot;E:\\Virus\\Malwr&quot;
+                  }
+</code></pre><p>FilesPipeline是从file_urls中拿到下载地址然后开始下载文件，因此我们还需要Item.py定义一个file_urls.</p>
+<pre><code class="python"># Define here the models for your scraped items
+#
+# See documentation in:
+# http://doc.scrapy.org/en/latest/topics/items.html
+import scrapy
+class MalwrItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    file_urls = scrapy.Field()
+</code></pre>
+<p>在piplines.py文件实现文件的下载方法,继承FilesPipeline下载文件。</p>
+<p>由于下载文件需要cookie，因此重写了构造函数和get_media_requests函数，在Request中加上了cookies参数.</p>
+<p>我们在custom_settings中保存了cookie，这里直接使用getlist拿到登陆后的cookie.</p>
+<pre><code class="python"># Define your item pipelines here
+#
+# Don&#39;t forget to add your pipeline to the ITEM_PIPELINES setting
+# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from scrapy.http import Request
+from scrapy.pipelines.files import FilesPipeline
+class MalwrPipeline(FilesPipeline):
+    cookies = []
+    def __init__(self, store_uri, download_func=None, settings=None):
+        super(MalwrPipeline,self).__init__(store_uri, download_func,settings)
+        self.cookies = settings.getlist(&quot;COOKIES&quot;)
+    # 开始下载文件
+    def get_media_requests(self, item, info):
+        for file_url in item[&#39;file_urls&#39;]:
+            yield Request(file_url,cookies=self.cookies)
+</code></pre>
+<p>解析下载地址，将解析到的下载链接列表放入item的file_urls,返回item。pipeline会file_urls拿到链接开始调用get_media_requests下载文件</p>
+<pre><code class="python">    def parse_downurl(self,response):
+        try:
+            # 提取点击下载按钮的下载地址
+            url = response.xpath(&quot;//a[contains(@class,&#39;btn-primary&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)
+            url = urlparse.urljoin(&quot;https://malwr.com&quot;,url)
+            item = MalwrItem()
+            item[&#39;file_urls&#39;] = [url]
+            return item
+        except Exception,e:
+            pass
+return
+</code></pre>
+<p>最后附上完整的源码 <a href="https://github.com/ydc1992/Malwr" target="_blank" rel="noopener">https://github.com/ydc1992/Malwr</a></p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-AOSP-docker编译安卓源码绕过反调试" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -1124,69 +1316,6 @@ Segmentation fault
         <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
     </div>
 
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-VirusTotal扫描器-python版" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/62077d14.html" class="article-date">
-      <time datetime="2016-03-16T19:30:31.000Z" itemprop="datePublished">2016-03-17</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/62077d14.html">VirusTotal扫描器 python版</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>利用在线查毒网站<a href="https://www.virustotal.com/" target="_blank" rel="noopener">https://www.virustotal.com/</a> 提供的API实现上传文件返回扫描结果，因为我平时只看查毒结果，因此只是简单的把文件上传然后返回分析结果。<br>代码如下：</p>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/archives/62077d14.html#more">大航海 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>

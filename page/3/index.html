@@ -170,7 +170,7 @@
                 <section class="switch-part switch-part3">
                     <div id="js-friends">
                     
-                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://luuman.github.io/">name</a>
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://ydc1992.github.io/">name</a>
                     
                     </div>
                 </section>
@@ -242,6 +242,77 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-Python取证技术-3-Windows-事件日志分析" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/ddac3f57.html" class="article-date">
+      <time datetime="2016-01-19T04:51:56.000Z" itemprop="datePublished">2016-01-19</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p>
+<h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p>
+<pre><code class="bash">pip install python-evtx
+</code></pre>
+<p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/取证/">取证</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/archives/ddac3f57.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-Python取证技术-2-hash生成" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -913,75 +984,6 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
       
         <p class="article-more-link">
           <a  href="/archives/d8e13760.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-Pwnable-kr-flag" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/564bd806.html" class="article-date">
-      <time datetime="2016-01-02T07:52:41.000Z" itemprop="datePublished">2016-01-02</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/564bd806.html">Pwnable.kr flag</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p><img src="http://t.cn/R4i2zsi" style="display:block;margin:auto"></p>
-<p>下载flag文件，使用file查看文件类型。发现是Linux x64文件。<br><img src="http://t.cn/R4i2b8Z" style="display:block;margin:auto"></p>
-<p>用Hiew查看十六进制时有明显的upx壳特征<br><img src="http://t.cn/R4i2U7e" style="display:block;margin:auto"><br>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/archives/564bd806.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
