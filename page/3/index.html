@@ -242,91 +242,6 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-Python取证技术-2-hash生成" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/a2e78025.html" class="article-date">
-      <time datetime="2016-01-18T09:19:10.000Z" itemprop="datePublished">2016-01-18</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p>
-<p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p>
-<pre><code class="python">import hashlib   #导入hash库
-
-Text   = &quot;This is Test&quot;
-md5    = hashlib.md5()
-sha256 = hashlib.sha256()
-
-# 输出生成的hash
-md5.update(Text)
-sha256.update(Text)
-
-print &quot;md5:&quot; + md5.hexdigest()
-print &quot;sha256&quot; + sha256.hexdigest()
-</code></pre>
-<p>输出结果:</p>
-<pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
-sha256:c0944b5a36476a91b39dee68df2432eae4565c315cfe870a9f951ca643abfb61
-</code></pre>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/python/">python</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/取证/">取证</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/archives/a2e78025.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-Python取证技术-1-环境搭建和ctype库介绍" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -982,6 +897,77 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
         <p class="article-more-link">
           <a  href="/archives/564bd806.html#more">大航海 >></a>
         </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-Pwnable-kr-col" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/a421b8e1.html" class="article-date">
+      <time datetime="2016-01-02T07:11:23.000Z" itemprop="datePublished">2016-01-02</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/a421b8e1.html">Pwnable.kr col</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><img src="http://t.cn/R4izlIi" style="display:block;margin:auto"><br> 从源码分析，我们可以得知：</p>
+<ul>
+<li>该程序接受一个参数argv[1]且该参数长度为20</li>
+<li>check_password函数返回的值等于hashcode。</li>
+<li>check_password函数的功能就是将argv[1]的值每四位一组，分成5组相加。即<code>0x12345678912</code>就是<code>\x34\x12+\x67\x89+\x34\x12</code>，总之大家知道是什么意思就行了，注意要使用小端。</li>
+</ul>
+<p>那我们构造一个符合要求的参数就可以拿到flag了。</p>
+<pre><code>    ./col `python -c &quot;print &#39;\xfd\x39\xc3\x03&#39; * 4 + &#39;\xf8\x21\xd0\x12&#39;&quot;
+</code></pre><p><img src="http://t.cn/R4iwYIV" style="display:block;margin:auto"></p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/challenge/">challenge</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
+    </div>
+
       
       <div class="clearfix"></div>
     </div>

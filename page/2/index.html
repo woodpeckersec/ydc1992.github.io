@@ -242,72 +242,6 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-pycurl-分块下载" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/archives/6155f940.html" class="article-date">
-      <time datetime="2016-03-06T15:26:55.000Z" itemprop="datePublished">2016-03-06</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/archives/6155f940.html">pycurl 分块下载</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。<br>这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下</p>
-<pre><code class="python">    d = downloader(downloadurl,out_filePath,None,None,None)
-    d.download() #调用下载功能下载
-</code></pre>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/python/">python</a>
-    </div>
-
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/archives/6155f940.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-Reversing-kr-Windows-kernal" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -928,6 +862,91 @@ HKEY_LOCAL_MACHINE\SYSTEM\Clone : Volatile hive
       
         <p class="article-more-link">
           <a  href="/archives/ddac3f57.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-Python取证技术-2-hash生成" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/a2e78025.html" class="article-date">
+      <time datetime="2016-01-18T09:19:10.000Z" itemprop="datePublished">2016-01-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p>
+<p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p>
+<pre><code class="python">import hashlib   #导入hash库
+
+Text   = &quot;This is Test&quot;
+md5    = hashlib.md5()
+sha256 = hashlib.sha256()
+
+# 输出生成的hash
+md5.update(Text)
+sha256.update(Text)
+
+print &quot;md5:&quot; + md5.hexdigest()
+print &quot;sha256&quot; + sha256.hexdigest()
+</code></pre>
+<p>输出结果:</p>
+<pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
+sha256:c0944b5a36476a91b39dee68df2432eae4565c315cfe870a9f951ca643abfb61
+</code></pre>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/取证/">取证</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/archives/a2e78025.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>

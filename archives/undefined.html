@@ -11,19 +11,19 @@
 
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>Hello World | ydc&#39;s blog</title>
+  <title>polyHook,比detours更好用的hook框架 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH  我目">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
+<meta property="og:title" content="polyHook,比detours更好用的hook框架">
 <meta property="og:url" content="http://yoursite.com/archives/undefined.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH  我目">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-12T15:36:22.358Z">
+<meta property="og:updated_time" content="2018-04-13T14:26:17.825Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="polyHook,比detours更好用的hook框架">
+<meta name="twitter:description" content="PolyHook支持x86/x64平台，源码地址为 https://github.com/stevemk14ebr/PolyHook。 一共提供了6种hook方法。  Detour Virtual Function Detour Virtual Function Pointer Swap Virtual Table Pointer Swap Import Address Table VEH  我目">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -241,11 +241,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-polyHook,比detours更好用的hook框架" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/archives/undefined.html" class="article-date">
-      <time datetime="2018-04-12T15:36:22.358Z" itemprop="datePublished">2018-04-12</time>
+      <time datetime="2018-04-13T14:19:46.000Z" itemprop="datePublished">2018-04-13</time>
 </a>
     </div>
   
@@ -258,7 +258,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Hello World
+      polyHook,比detours更好用的hook框架
     </h1>
   
 
@@ -275,19 +275,100 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><pre><code class="bash">$ hexo new &quot;My New Post&quot;
+        <p>PolyHook支持x86/x64平台，源码地址为 <a href="https://github.com/stevemk14ebr/PolyHook。" target="_blank" rel="noopener">https://github.com/stevemk14ebr/PolyHook。</a> 一共提供了6种hook方法。</p>
+<ol>
+<li>Detour</li>
+<li>Virtual Function Detour</li>
+<li>Virtual Function Pointer Swap</li>
+<li>Virtual Table Pointer Swap</li>
+<li>Import Address Table</li>
+<li>VEH</li>
+</ol>
+<p>我目前比较常用也只是用第一种hook方法。</p>
+<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><p>主要文件为PolyHook.hpp和Capstone库。 在属性-&gt;VC++目录中包含Capstone库,注意区分对应的平台。 添加PolyHook.hpp到工程中,用于提供的是hpp文件，声明和实现都在同一个文件，几个文件包含的话就会报重复定义的错误。 因此我在PolyHook.hpp文件的末尾自己封装了下hook方法。</p>
+<pre><code class="cpp">class HookMgr
+{
+public:
+    HookMgr(PVOID src, PVOID DstFunction)
+    {
+        m_DstFunction = DstFunction;
+        m_src = src;
+        std::shared_ptr&lt;PLH::Detour&gt; Detour_Ex(new PLH::Detour);
+        m_Detour_Ex = Detour_Ex;
+    }
+    ~HookMgr()
+    {
+    }
+private:
+    PVOID m_src;
+    PVOID m_DstFunction;
+    std::shared_ptr&lt;PLH::Detour&gt; m_Detour_Ex;
+public:
+    void hook()
+    {
+        m_Detour_Ex-&gt;SetupHook(m_src, m_DstFunction);
+        m_Detour_Ex-&gt;Hook();
+    }
+    //获取原函数
+    FARPROC GetOriginal()
+    {
+        return (FARPROC)m_Detour_Ex-&gt;GetOriginal&lt;decltype(&amp;m_DstFunction)&gt;();
+    }
+    void unhook()
+    {
+        m_Detour_Ex-&gt;UnHook();
+    }
 </code></pre>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><pre><code class="bash">$ hexo server
+<h1 id="标准API-HOOK"><a href="#标准API-HOOK" class="headerlink" title="标准API HOOK"></a>标准API HOOK</h1><p>hook MessageBoxA函数，</p>
+<pre><code class="cpp">HookMgr* hook = new HookMgr(MessageBoxA, myMessageBox);
+hook-&gt;hook();
+oMessageBoxA = (decltype(&amp;MessageBoxA))hook-&gt;GetOriginal();
 </code></pre>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><pre><code class="bash">$ hexo generate
+<p>函数已经被hook，我们要调用原函数不能直接调用，需要通过GetOriginal来获取函数指针。 如下，我们在myMessageBox调用的是通过GetOriginal得到的oMessageBoxA函数指针。</p>
+<pre><code class="cpp"> int WINAPI myMessageBox(HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType)
+{
+    return oMessageBoxA(hWnd, &quot;Hooked&quot;, &quot;Hooked&quot;, 0);
+}
 </code></pre>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><pre><code class="bash">$ hexo deploy
+<h1 id="任意函数-HOOK"><a href="#任意函数-HOOK" class="headerlink" title="任意函数 HOOK"></a>任意函数 HOOK</h1><p>有时我们想要hook的函数不是windows api，这时应该怎么hook?,答案是通过地址。前提时该地址能够被访问。 地址可以通过硬编码或者动态获取。</p>
+<p>用IDA找到想要hook的函数。我要想hook这个函数<code>signed int sub_F5D33D0()</code></p>
+<pre><code class="cpp">HookMgr* hook = new HookMgr((PVOID)F5D33D0, youfunction);
+hook-&gt;hook();
+oMessageBoxA = (decltype(&amp;youfunction))hook-&gt;GetOriginal();
 </code></pre>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<h1 id="usercall-hook"><a href="#usercall-hook" class="headerlink" title="_usercall hook"></a>_usercall hook</h1><p>用IDA反编译时我们经常看到_usercall调用的函数，使用寄存器传参，这时又应该如何hook?</p>
+<p>以下面这个函数举例 <code>int __usercall sub_F5D4140@&lt;eax&gt;(int a1@&lt;eax&gt;, int a2@&lt;ecx&gt;, int a3, int a4)</code></p>
+<ol>
+<li>将hook函数封装成其他形式的调用，如<strong>cdecall 或者 </strong>stdcall等等。</li>
+</ol>
+<pre><code class="cpp">void __declspec(naked) sub_F5D4140()                                                  
+{                                                                                            
+        __asm                                                                                
+        {                                                                                    
+                push [esp + 08h] // a4 
+                push [esp + 08h] // a3 
+                push ecx // a2 
+                push eax // a1 
+                // Call your __cdecl function here: 
+                call func                                 
+                add esp, 4 // 
+                pop ecx // a2 
+                add esp, 4 // a3 
+                add esp, 4 // a4 
+                retn                                                                         
+        }                                                                                    
+}
+</code></pre>
+<p>如果需要调用原函数，可在func函数内嵌入汇编代码，需要注意的是_usercall调用的函数由调用者平衡堆栈。</p>
+<pre><code class="_asm">{
+    push param4
+    push param3
+    mov ecx,param2
+    mov eax,param1
+    call origin_fun
+    add esp,0x8 //压了两次，因此加8平衡堆栈
+}
+</code></pre>
 
       
       
@@ -343,12 +424,12 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/archives/undefined.html">Hello World</a></p>
+        <p><span>本文标题:</span><a href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2018年04月12日 - 23时36分</p>
-        <p><span>最后更新:</span>2018年04月12日 - 23时36分</p>
+        <p><span>发布时间:</span>2018年04月13日 - 22时19分</p>
+        <p><span>最后更新:</span>2018年04月13日 - 22时26分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/archives/undefined.html" title="Hello World">http://yoursite.com/archives/undefined.html</a>
+            <span>原始链接:</span><a class="post-url" href="/archives/undefined.html" title="polyHook,比detours更好用的hook框架">http://yoursite.com/archives/undefined.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/archives/undefined.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
@@ -361,15 +442,6 @@
 
 
 <nav id="article-nav">
-  
-    <a href="/archives/undefined.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          polyHook,比detours更好用的hook框架
-        
-      </div>
-    </a>
   
   
     <a href="/archives/d4e5fb9c.html" id="article-nav-older" class="article-nav-link-wrap">
@@ -384,7 +456,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Quick-Start"><span class="toc-number">1.</span> <span class="toc-text">Quick Start</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Create-a-new-post"><span class="toc-number">1.1.</span> <span class="toc-text">Create a new post</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Run-server"><span class="toc-number">1.2.</span> <span class="toc-text">Run server</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Generate-static-files"><span class="toc-number">1.3.</span> <span class="toc-text">Generate static files</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deploy-to-remote-sites"><span class="toc-number">1.4.</span> <span class="toc-text">Deploy to remote sites</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#配置"><span class="toc-number">1.</span> <span class="toc-text">配置</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#标准API-HOOK"><span class="toc-number"></span> <span class="toc-text">标准API HOOK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#任意函数-HOOK"><span class="toc-number"></span> <span class="toc-text">任意函数 HOOK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#usercall-hook"><span class="toc-number"></span> <span class="toc-text">_usercall hook</span></a>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
@@ -450,9 +522,7 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/archives/undefined.html" title="上一篇: polyHook,比detours更好用的hook框架">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
@@ -461,7 +531,7 @@
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">Hello World</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/archives/undefined.html">polyHook,比detours更好用的hook框架</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d4e5fb9c.html">一款勒索软件的分析(未完待续)</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/archives/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");
