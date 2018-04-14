@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   
 
-  <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.12.0/styles/monokai.min.css">
-  <script src="//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/monokai.min.css">
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/x86asm.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/cpp.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/Bash.min.js"></script>
@@ -14,17 +14,17 @@
 
   <title>内存中加载modlue | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="内存中加载modlue       $Domain = [AppDomain]::CurrentDomain      $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)      $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynA">
+  <meta name="description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
 <meta property="og:type" content="article">
 <meta property="og:title" content="内存中加载modlue">
 <meta property="og:url" content="http://yoursite.com/posts/a9796658.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="内存中加载modlue       $Domain = [AppDomain]::CurrentDomain      $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)      $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynA">
+<meta property="og:description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-04T16:57:40.442Z">
+<meta property="og:updated_time" content="2018-04-14T04:31:36.615Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="内存中加载modlue">
-<meta name="twitter:description" content="内存中加载modlue       $Domain = [AppDomain]::CurrentDomain      $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)      $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynA">
+<meta name="twitter:description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -264,18 +264,20 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>内存中加载modlue</p>
-<pre><code class="powershell">      $Domain = [AppDomain]::CurrentDomain
-     $DynAssembly = New-Object System.Reflection.AssemblyName(&#39;TempAssembly&#39;)
-     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [Reflection.Emit.AssemblyBuilderAccess]::Run)
-       $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule(&#39;TempModule&#39;)
+        <script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script>
 
-      $ModuleBuilder2 = $AssemblyBuilder.DefineDynamicModule(&#39;hello.dll&#39;)
-     $TypeBuilder = $ModuleBuilder.DefineType(&#39;TempClass&#39;, [Reflection.TypeAttributes]::Public)
-      $TypeBuilder.CreateType()
-     $HelloDllBytes = [Convert]::FromBase64String(&#39;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&#39;)
-     # Calling LoadModule doesn&#39;t pass through the internal nLoad method like Assembly/AppDomain.Load does. :)
-     $HelloDllModule = [TempClass].Assembly.LoadModule(&#39;hello.dll&#39;, $HelloDllBytes)
+<p>内存中加载modlue</p>
+<pre><code class="powershell">    $Domain = [AppDomain]::CurrentDomain
+    $DynAssembly = New-Object System.Reflection.AssemblyName(&#39;TempAssembly&#39;)
+    $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [Reflection.Emit.AssemblyBuilderAccess]::Run)
+    $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule(&#39;TempModule&#39;)
+
+    $ModuleBuilder2 = $AssemblyBuilder.DefineDynamicModule(&#39;hello.dll&#39;)
+    $TypeBuilder = $ModuleBuilder.DefineType(&#39;TempClass&#39;, [Reflection.TypeAttributes]::Public)
+    $TypeBuilder.CreateType()
+    $HelloDllBytes = [Convert]::FromBase64String(&#39;{PE base64}&#39;)
+    # Calling LoadModule doesn&#39;t pass through the internal nLoad method like Assembly/AppDomain.Load does. :)
+    $HelloDllModule = [TempClass].Assembly.LoadModule(&#39;hello.dll&#39;, $HelloDllBytes)
     # Invoke the Hello method within the hello.dll module that was loaded in memory
     $HelloDllModule.GetTypes()[0].GetMethod(&#39;Hello&#39;).Invoke($null, @())
 
@@ -339,7 +341,7 @@
         <p><span>本文标题:</span><a href="/posts/a9796658.html">内存中加载modlue</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年02月21日 - 04时44分</p>
-        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p><span>最后更新:</span>2018年04月14日 - 12时31分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/a9796658.html" title="内存中加载modlue">http://yoursite.com/posts/a9796658.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/a9796658.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
