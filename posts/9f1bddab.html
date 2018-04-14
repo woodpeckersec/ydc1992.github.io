@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  <link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/monokai.min.css">
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/x86asm.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/cpp.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/Bash.min.js"></script>
+  
+  <script>hljs.initHighlightingOnLoad();</script>
+
+  <title>Python取证技术(1):环境搭建和ctype库介绍 | ydc&#39;s blog</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
+<meta name="keywords" content="取证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python取证技术(1):环境搭建和ctype库介绍">
+<meta property="og:url" content="http://yoursite.com/posts/9f1bddab.html">
+<meta property="og:site_name" content="ydc&#39;s blog">
+<meta property="og:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-04-04T16:57:40.416Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python取证技术(1):环境搭建和ctype库介绍">
+<meta name="twitter:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
+  
+    <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.png">
+  
+  
+      <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <!-- 加载特效 -->
+    <script src="/js/pace.js"></script>
+    <link href="/css/pace/pace-theme-flash.css" rel="stylesheet" />
+  <script>
+      var yiliaConfig = {
+          rootUrl: '/',
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head>
+<body>
+  <div id="container">
+
+<script id="__bs_script__">//<![CDATA[
+  document.write("<script async src='http://HOST:3000/browser-sync/browser-sync-client.js?v=2.23.6'><\/script>".replace("HOST", location.hostname));
+//]]></script>  
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/img/head.jpg" class="js-avatar">
+            
+        </a>
+
+        <hgroup>
+          <h1 class="header-author"><a href="/" title="Hi Mate">Ken</a></h1>
+        </hgroup>
+
+        
+        
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/">博客首页</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fl mail" target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=PAkNDgsKBQ4MCnxNTRJfU1E" title="mail">mail</a>
+                            
+                                <a class="fl github" target="_blank" href="https://github.com/luuman" title="github">github</a>
+                            
+                                <a class="fl zhihu" target="_blank" href="#" title="zhihu">zhihu</a>
+                            
+                                <a class="fl weibo" target="_blank" href="#" title="weibo">weibo</a>
+                            
+                                <a class="fl google" target="_blank" href="#" title="google">google</a>
+                            
+                                <a class="fl twitter" target="_blank" href="#" title="twitter">twitter</a>
+                            
+                                <a class="fl linkedin" target="_blank" href="#" title="linkedin">linkedin</a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 10px;">爬虫</a>
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://ydc1992.github.io/">name</a>
+                    
+                    </div>
+                </section>
+                
+
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">纯海迷、爱运动、爱交友、爱旅行、喜欢接触新鲜事物、迎接新的挑战，更爱游离于错综复杂的编码与逻辑中</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>                
+</div>
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="Me">Ken</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/img/head.jpg" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="Me">Ken</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/">博客首页</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                <div class="social">
+                    
+                        <a class="mail" target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=PAkNDgsKBQ4MCnxNTRJfU1E" title="mail">mail</a>
+                    
+                        <a class="github" target="_blank" href="https://github.com/luuman" title="github">github</a>
+                    
+                        <a class="zhihu" target="_blank" href="#" title="zhihu">zhihu</a>
+                    
+                        <a class="weibo" target="_blank" href="#" title="weibo">weibo</a>
+                    
+                        <a class="google" target="_blank" href="#" title="google">google</a>
+                    
+                        <a class="twitter" target="_blank" href="#" title="twitter">twitter</a>
+                    
+                        <a class="linkedin" target="_blank" href="#" title="linkedin">linkedin</a>
+                    
+                </div>
+            </nav>
+        </header>                
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-Python取证技术-1-环境搭建和ctype库介绍" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/9f1bddab.html" class="article-date">
+      <time datetime="2016-01-18T03:18:01.000Z" itemprop="datePublished">2016-01-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Python取证技术(1):环境搭建和ctype库介绍
+    </h1>
+  
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/取证/">取证</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><h2 id="安装虚拟沙盒virtualenv"><a href="#安装虚拟沙盒virtualenv" class="headerlink" title="安装虚拟沙盒virtualenv"></a>安装虚拟沙盒virtualenv</h2><pre><code>pip install virtualenv
+</code></pre><p>创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。</p>
+<pre><code class="bash">root@kali:~# virtualenv KenEnv
+New python executable in KenEnv/bin/python
+Installing setuptools, pip, wheel...done.
+</code></pre>
+<p>创建成功后，会在当前目录建立一个专属于该python独立开发环境的目录。该目录包含了可执行python文件和pip库的复件。可用于在python独立开发环境安装其他packages。该环境的名称可以随便指定。在这里的名字是<strong>KenEnv</strong>。命令提示符<br><a id="more"></a><br>要让它开始工作，首先我们进入该目录，激活它</p>
+<pre><code class="bash">root@kali:~# cd KenEnv/
+root@kali:~/KenEnv# source ./bin/activate
+(KenEnv)root@kali:~/KenEnv# 
+</code></pre>
+<p>激活成功后，命令提示符前面会带上环境名称的前缀。</p>
+<p>如果想回到正常的shell环境，命令提示符前面的前缀也会去掉。</p>
+<pre><code class="bash">(KenEnv)root@kali:~/KenEnv# deactivate 
+root@kali:~/KenEnv# 
+</code></pre>
+<h2 id="ctype使用"><a href="#ctype使用" class="headerlink" title="ctype使用"></a>ctype使用</h2><p>ctype是python的一个外部库，提供了兼容C的数据类型和可以调用dll和共享库的函数。这意味着只用python代码就可以调用C语言的函数。ctype可以说是在python的库中最强大的库之一。<br>更详细的内容点<a href="https://docs.python.org/2/library/ctypes.html" title="官方文档" target="_blank" rel="noopener">官方文档</a></p>
+<h3 id="调用dll"><a href="#调用dll" class="headerlink" title="调用dll"></a>调用dll</h3><h4 id="标准C函数"><a href="#标准C函数" class="headerlink" title="标准C函数"></a>标准C函数</h4><pre><code class="bash">
+&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; libc = cdll.msvcrt
+&gt;&gt;&gt; print libc.time(None)
+1453083296
+</code></pre>
+<p>msvcrt是微软的标准C库，包含了很多标准c函数和使用cdecl调用。类似于Linux系统的libc。<br>注意上述语句在linux运行会报错，因为在Linux并不存在msvcrt文件。</p>
+<h4 id="Linux-动态链接库so"><a href="#Linux-动态链接库so" class="headerlink" title="Linux 动态链接库so"></a>Linux 动态链接库so</h4><p>Linux调用动态链接库(即so文件)需要提供完整的文件名。使用CDLL不是cdll，这两个函数是不同的，一个用于windows，一个用于linux。</p>
+<pre><code class="bash">&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; libc = CDLL(&quot;libc.so.6&quot;)
+&gt;&gt;&gt; print libc.time(None)
+1453083296
+</code></pre>
+<h4 id="Windows-dll"><a href="#Windows-dll" class="headerlink" title="Windows dll"></a>Windows dll</h4><p>在windows环境下，还可以调用windows的dll导出函数，kernel32.dll、user32.dll等等。使用标准call约定。</p>
+<pre><code class="bash">&gt;&gt;&gt; from ctypes import *
+&gt;&gt;&gt; hex(windll.kernel32.GetModuleHandleA(None))
+   &#39;0x1c7a0000&#39;                                   
+</code></pre>
+<p>从上面这些例子可以看到，ctype库可以很容易的调用这些dll导出的函数。</p>
+<h3 id="ctype数据类型"><a href="#ctype数据类型" class="headerlink" title="ctype数据类型"></a>ctype数据类型</h3><p>所有的python类型除了整型、字符串和unicode字符串以外。其他的类型都需要转换成在ctype中相应的类型，不然就会抛出类型异常。</p>
+<table>
+<thead>
+<tr>
+<th>ctypes type</th>
+<th>C type</th>
+<th>Python type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_bool" title="ctypes.c_bool" target="_blank" rel="noopener"><code>c_bool</code></a></td>
+<td><code>_Bool</code></td>
+<td>bool (1)</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char" title="ctypes.c_char" target="_blank" rel="noopener"><code>c_char</code></a></td>
+<td><code>char</code></td>
+<td>1-character string</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar" title="ctypes.c_wchar" target="_blank" rel="noopener"><code>c_wchar</code></a></td>
+<td><code>wchar_t</code></td>
+<td>1-character unicode string</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_byte" title="ctypes.c_byte" target="_blank" rel="noopener"><code>c_byte</code></a></td>
+<td><code>char</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ubyte" title="ctypes.c_ubyte" target="_blank" rel="noopener"><code>c_ubyte</code></a></td>
+<td><code>unsigned char</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_short" title="ctypes.c_short" target="_blank" rel="noopener"><code>c_short</code></a></td>
+<td><code>short</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ushort" title="ctypes.c_ushort" target="_blank" rel="noopener"><code>c_ushort</code></a></td>
+<td><code>unsigned short</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_int" title="ctypes.c_int" target="_blank" rel="noopener"><code>c_int</code></a></td>
+<td><code>int</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_uint" title="ctypes.c_uint" target="_blank" rel="noopener"><code>c_uint</code></a></td>
+<td><code>unsigned int</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_long" title="ctypes.c_long" target="_blank" rel="noopener"><code>c_long</code></a></td>
+<td><code>long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulong" title="ctypes.c_ulong" target="_blank" rel="noopener"><code>c_ulong</code></a></td>
+<td><code>unsigned long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longlong" title="ctypes.c_longlong" target="_blank" rel="noopener"><code>c_longlong</code></a></td>
+<td><code>__int64</code> or <code>long long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulonglong" title="ctypes.c_ulonglong" target="_blank" rel="noopener"><code>c_ulonglong</code></a></td>
+<td><code>unsigned __int64</code> or <code>unsigned long long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_float" title="ctypes.c_float" target="_blank" rel="noopener"><code>c_float</code></a></td>
+<td><code>float</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_double" title="ctypes.c_double" target="_blank" rel="noopener"><code>c_double</code></a></td>
+<td><code>double</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longdouble" title="ctypes.c_longdouble" target="_blank" rel="noopener"><code>c_longdouble</code></a></td>
+<td><code>long double</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char_p" title="ctypes.c_char_p" target="_blank" rel="noopener"><code>c_char_p</code></a></td>
+<td><code>char *</code> (NUL terminated)</td>
+<td>string or <code>None</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar_p" title="ctypes.c_wchar_p" target="_blank" rel="noopener"><code>c_wchar_p</code></a></td>
+<td><code>wchar_t *</code> (NUL terminated)</td>
+<td>unicode or <code>None</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_void_p" title="ctypes.c_void_p" target="_blank" rel="noopener"><code>c_void_p</code></a></td>
+<td><code>void *</code></td>
+<td>int/long or <code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p>下面我举一个例子：</p>
+<pre><code class="python">&gt;&gt;&gt; printf = cdll.msvcrt.printf                                                                              
+&gt;&gt;&gt; printf(&quot;整型:%d,浮点型:%f&quot;,1,1.0)                                                                             
+Traceback (most recent call last):                                                                           
+  File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;                                                                     
+ctypes.ArgumentError: argument 3: &lt;type &#39;exceptions.TypeError&#39;&gt;: Don&#39;t know how to convert parameter 3       
+</code></pre>
+<p>第三个参数抛出异常，原因是不知道该参数应该转换成什么类型。</p>
+<pre><code class="bash">&gt;&gt;&gt; printf(&quot;整型:%d,浮点型:%f&quot;,1,c_double(1.0))  
+整型:1,浮点型:1.00000022                         
+</code></pre>
+<p>将第三个参数转换成ctype中相对应的类型c_double时不再抛出异常。</p>
+<p>更多用法请参考官方文档。</p>
+
+      
+      
+        <div class="page-reward">
+          <p><a href="javascript:void(0)" onclick="dashangToggle()" class="dashang">赏</a></p>
+          <div class="hide_box"></div>
+          <div class="shang_box">
+            <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+            <div class="shang_tit">
+              <p>纯属好玩</p>
+            </div>
+            <div class="shang_payimg">
+              <img src="/img/alipayimg.jpg" alt="扫码支持" title="扫一扫" />
+            </div>
+              <div class="pay_explain">扫码打赏，你说多少就多少</div>
+            <div class="shang_payselect">
+              
+                <div class="pay_item checked" data-id="alipay">
+                  <span class="radiobox"></span>
+                  <span class="pay_logo"><img src="/img/alipay.png" alt="支付宝" /></span>
+                </div>
+              
+              
+                <div class="pay_item" data-id="wechat">
+                  <span class="radiobox"></span>
+                  <span class="pay_logo"><img src="/img/weixin.png" alt="微信" /></span>
+                </div>
+              
+            </div>
+            <div class="shang_info">
+              <p>打开<span id="shang_pay_txt">支付宝</span>扫一扫，即可进行扫码打赏哦</p>
+            </div>
+          </div>
+        </div>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+        <script type="text/javascript">
+          $(".pay_item").click(function(){
+            $(this).addClass('checked').siblings('.pay_item').removeClass('checked');
+            var dataid=$(this).attr('data-id');
+            $(".shang_payimg img").attr("src","/img/"+dataid+"img.jpg");
+            $("#shang_pay_txt").text(dataid=="alipay"?"支付宝":"微信");
+          });
+          function dashangToggle(){
+            
+            $(".hide_box").fadeToggle();
+            $(".shang_box").fadeToggle();
+          }
+        </script>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
+        <p><span>发布时间:</span>2016年01月18日 - 11时18分</p>
+        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/posts/9f1bddab.html" title="Python取证技术(1):环境搭建和ctype库介绍">http://yoursite.com/posts/9f1bddab.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/9f1bddab.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script src="/js/clipboard.min.js"></script>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target = "_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+<nav id="article-nav">
+  
+    <a href="/posts/a2e78025.html" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption"><</strong>
+      <div class="article-nav-title">
+        
+          Python取证技术(2): hash生成
+        
+      </div>
+    </a>
+  
+  
+    <a href="/posts/b751c08a.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Reversing.kr AutoHotkey1</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#环境配置"><span class="toc-number">1.</span> <span class="toc-text">环境配置</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装虚拟沙盒virtualenv"><span class="toc-number">1.1.</span> <span class="toc-text">安装虚拟沙盒virtualenv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ctype使用"><span class="toc-number">1.2.</span> <span class="toc-text">ctype使用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#调用dll"><span class="toc-number">1.2.1.</span> <span class="toc-text">调用dll</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#标准C函数"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">标准C函数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Linux-动态链接库so"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">Linux 动态链接库so</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Windows-dll"><span class="toc-number">1.2.1.3.</span> <span class="toc-text">Windows dll</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ctype数据类型"><span class="toc-number">1.2.2.</span> <span class="toc-text">ctype数据类型</span></a></li></ol></li></ol></li></ol>
+</div>
+<input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+        }
+    })
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+    }
+</script>
+
+
+
+
+
+<div class="bdsharebuttonbox">
+	<a href="#" class="fx fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="fx fa-weixin bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="fx fa-qq bds_sqq" data-cmd="sqq" title="分享到QQ好友"></a>
+	<a href="#" class="fx fa-facebook-official bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="fx fa-twitter bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="fx fa-linkedin bds_linkedin" data-cmd="linkedin" title="分享到linkedin"></a>
+	<a href="#" class="fx fa-files-o bds_copy" data-cmd="copy" title="分享到复制网址"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"2","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+
+    
+        <div id="gitments"></div>
+<script src="/js/gitment.browser.js"></script>
+<script>
+    var gitment = new Gitment({
+      id: window.location.pathname,
+      owner: 'luuman',
+      repo: 'luuman.github.io',
+      oauth: {
+        client_id: '',
+        client_secret: '',
+      },
+    })
+    gitment.render('gitments')
+</script>
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/posts/a2e78025.html" title="上一篇: Python取证技术(2): hash生成">
+                <i class="fa fa-angle-left"></i>
+            </a>
+        
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+        
+            <a href="/posts/b751c08a.html" title="下一篇: Reversing.kr AutoHotkey1">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+    <script>
+        $(".post-list").addClass("toc-article");
+        $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+            }
+        })
+    </script>
+
+
+
+    <script>
+        
+    </script>
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2018 Ken
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/luuman/hexo-theme-spfk" target="_blank">spfk</a> by luuman
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style='display:none'>
+                        <span id="site-visit" >海贼到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style='display:none'>
+                        <span id="page-visit">本页阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var backgroundnum = 24;
+            var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+            $("#mobile-nav").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+            $(".left-col").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+        })
+    </script>
+
+
+
+
+
+<div class="scroll" id="scroll">
+    <a href="#"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+  <script language="javascript">
+    $(function() {
+        $("a[title]").each(function() {
+            var a = $(this);
+            var title = a.attr('title');
+            if (title == undefined || title == "") return;
+            a.data('title', title).removeAttr('title').hover(
+
+            function() {
+                var offset = a.offset();
+                $("<div id=\"anchortitlecontainer\"></div>").appendTo($("body")).html(title).css({
+                    top: offset.top - a.outerHeight() - 15,
+                    left: offset.left + a.outerWidth()/2 + 1
+                }).fadeIn(function() {
+                    var pop = $(this);
+                    setTimeout(function() {
+                        pop.remove();
+                    }, pop.text().length * 800);
+                });
+            }, function() {
+                $("#anchortitlecontainer").remove();
+            });
+        });
+    });
+</script>
+
+
+  </div>
+  
+</body>
+</html>
