@@ -12,19 +12,17 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>python selenium 3 + Firefox 48+ 报错解决方法 | ydc&#39;s blog</title>
+  <title>go程序恶意程序分析 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这里记录下使用selenium碰到的问题。 报错信息如下时： selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; executable needs to be in PATH.        这是因为在Firefox高版本需要使用 geckodriver来驱动,不再使用Seleniu默认自带的F">
+  <meta name="keywords" content="病毒分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="python selenium 3 + Firefox 48+ 报错解决方法">
-<meta property="og:url" content="http://yoursite.com/posts/e8a649b6.html">
+<meta property="og:title" content="go程序恶意程序分析">
+<meta property="og:url" content="http://yoursite.com/posts/5e308b44.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="这里记录下使用selenium碰到的问题。 报错信息如下时： selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; executable needs to be in PATH.        这是因为在Firefox高版本需要使用 geckodriver来驱动,不再使用Seleniu默认自带的F">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-04T16:57:40.440Z">
+<meta property="og:updated_time" content="2018-04-14T15:39:37.860Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="python selenium 3 + Firefox 48+ 报错解决方法">
-<meta name="twitter:description" content="这里记录下使用selenium碰到的问题。 报错信息如下时： selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; executable needs to be in PATH.        这是因为在Firefox高版本需要使用 geckodriver来驱动,不再使用Seleniu默认自带的F">
+<meta name="twitter:title" content="go程序恶意程序分析">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -230,11 +228,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-selenium-Firefox-48-报错解决方法" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-go程序恶意程序分析" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/posts/e8a649b6.html" class="article-date">
-      <time datetime="2016-10-26T12:47:23.000Z" itemprop="datePublished">2016-10-26</time>
+      <a href="/posts/5e308b44.html" class="article-date">
+      <time datetime="2018-04-14T15:39:06.000Z" itemprop="datePublished">2018-04-14</time>
 </a>
     </div>
   
@@ -247,7 +245,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      python selenium 3 + Firefox 48+ 报错解决方法
+      go程序恶意程序分析
     </h1>
   
 
@@ -255,12 +253,12 @@
       
       <div class="article-info article-info-post">
         
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/python/">python</a>
-    </div>
-
 
         
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/病毒分析/">病毒分析</a></li></ul>
+    </div>
+
         <div class="clearfix"></div>
       </div>
       
@@ -268,21 +266,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>这里记录下使用selenium碰到的问题。</p>
-<p>报错信息如下时：</p>
-<pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       
-</code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p>
-<p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p>
-<p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p>
-<p>当报如下错误信息时，则是</p>
-<pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, 
-no &#39;moz:firefoxOptions.binary&#39; capability provided, and no binary flag set on the command line
-</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p>
-<pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)
-driver = webdriver.Firefox(firefox_binary=binary)
-</code></pre>
-<p>这样就能正常使用了。</p>
-
+        
       
       
         <div class="page-reward">
@@ -337,13 +321,13 @@ driver = webdriver.Firefox(firefox_binary=binary)
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></p>
+        <p><span>本文标题:</span><a href="/posts/5e308b44.html">go程序恶意程序分析</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2016年10月26日 - 20时47分</p>
-        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p><span>发布时间:</span>2018年04月14日 - 23时39分</p>
+        <p><span>最后更新:</span>2018年04月14日 - 23时39分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/posts/e8a649b6.html" title="python selenium 3 + Firefox 48+ 报错解决方法">http://yoursite.com/posts/e8a649b6.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/e8a649b6.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/5e308b44.html" title="go程序恶意程序分析">http://yoursite.com/posts/5e308b44.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/5e308b44.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -356,18 +340,9 @@ driver = webdriver.Firefox(firefox_binary=binary)
 
 <nav id="article-nav">
   
-    <a href="/posts/9d7b1fcb.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          豆约翰博客备份专家破解
-        
-      </div>
-    </a>
   
-  
-    <a href="/posts/8a11904.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">pycharm 远程调试kodi python plugin</div>
+    <a href="/posts/9222f001.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">病毒样本快到碗里来，一个样本下载爬虫的实现</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -444,13 +419,11 @@ driver = webdriver.Firefox(firefox_binary=binary)
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/posts/9d7b1fcb.html" title="上一篇: 豆约翰博客备份专家破解">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/posts/8a11904.html" title="下一篇: pycharm 远程调试kodi python plugin">
+            <a href="/posts/9222f001.html" title="下一篇: 病毒样本快到碗里来，一个样本下载爬虫的实现">
                 <i class="fa fa-angle-right"></i>
             </a>
         
