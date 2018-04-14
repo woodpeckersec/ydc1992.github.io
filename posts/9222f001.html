@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/4.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/5.png">
-<meta property="og:updated_time" content="2018-04-13T16:59:46.870Z">
+<meta property="og:updated_time" content="2018-04-14T04:35:47.875Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="病毒样本快到碗里来，一个样本下载爬虫的实现">
 <meta name="twitter:description" content="简介Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。页面分析 打开 https://malwr.com/analysis ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。 只有MD5的超链接可以点，点进去看看， 我写这个的爬虫的目的是下载样本，只关">
@@ -356,7 +356,7 @@ class BasicSpider(CrawlSpider):
           url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)
           yield Request(url,self.parse_item,meta = {&#39;cookiejar&#39; : 1})
 </code></pre>
-<p>我们在start_request函数里获取到登陆后的cookie,使用meta = {‘cookiejar’ : 1}将cookie传递到parse_item函数。</p>
+<p>我们在start_request函数里获取到登陆后的cookie,使用<code>meta = {&#39;cookiejar&#39; : 1}</code>将cookie传递到parse_item函数。</p>
 <p>parse_item函数的Request的两个Request也加上cookiejar,一个把cookie传给parse_item,一个传给parse_downurl,<br>下载样本</p>
 <p>scrapy本身就已经为我们提供了很好的文件下载、图片下载的功能，</p>
 <p>修改custom_settings,加上我们要用的ITEM_PIPELINES(在这里面实现下载功能)和FILES_STORE(保存到的文件夹)</p>
@@ -467,7 +467,7 @@ return
         <p><span>本文标题:</span><a href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月14日 - 00时57分</p>
-        <p><span>最后更新:</span>2018年04月14日 - 00时59分</p>
+        <p><span>最后更新:</span>2018年04月14日 - 12时35分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/9222f001.html" title="病毒样本快到碗里来，一个样本下载爬虫的实现">http://yoursite.com/posts/9222f001.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/9222f001.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
