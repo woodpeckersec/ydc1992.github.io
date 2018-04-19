@@ -14,13 +14,13 @@
 
   <title>Far Manager插件编写2 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。要插件实现功能，我们需要导出Open">
+  <meta name="description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。 开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。 要插件实现功能，我们需要导出Op">
 <meta name="keywords" content="Far Manager">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Far Manager插件编写2">
 <meta property="og:url" content="http://yoursite.com/posts/905112aa.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。要插件实现功能，我们需要导出Open">
+<meta property="og:description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。 开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。 要插件实现功能，我们需要导出Op">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/RGRNrAU">
 <meta property="og:image" content="http://t.cn/RGRNdem">
@@ -29,7 +29,7 @@
 <meta property="og:updated_time" content="2018-04-04T16:57:40.408Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Manager插件编写2">
-<meta name="twitter:description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。要插件实现功能，我们需要导出Open">
+<meta name="twitter:description" content="在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。 开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。 要插件实现功能，我们需要导出Op">
 <meta name="twitter:image" content="http://t.cn/RGRNrAU">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -254,7 +254,10 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。</p><p>开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。</p><p>要插件实现功能，我们需要导出OpenW函数。当打开插件时会调用OpenW，OpenInfo记录了该插件被触发的信息。结构如下：</p><pre><code class="cpp">struct OpenInfo
+        <p>在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。</p>
+<p>开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。</p>
+<p>要插件实现功能，我们需要导出OpenW函数。当打开插件时会调用OpenW，OpenInfo记录了该插件被触发的信息。结构如下：</p>
+<pre><code class="cpp">struct OpenInfo
 {
   size_t StructSize;  //结构大小
   enum OPENFROM OpenFrom;  //触发方式
@@ -262,7 +265,9 @@
   intptr_t Data; //取决于OpenFrom，不同触发方式，该字段表示的数据不同
 };
 
-</code></pre><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>在OpenW中我们可以根据OpenFrom打开插件方式的不同来实现不同的功能。这里就实现一个小小功能弹一个消息框。<br><a id="more"></a></p><pre><code class="cpp">HANDLE WINAPI OpenW(const struct OpenInfo *Info)
+</code></pre>
+<h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>在OpenW中我们可以根据OpenFrom打开插件方式的不同来实现不同的功能。这里就实现一个小小功能弹一个消息框。<br><a id="more"></a></p>
+<pre><code class="cpp">HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 {
     OPENFROM OpenFrom = Info-&gt;OpenFrom;
     //从插件菜单打开
@@ -272,7 +277,13 @@
     }
     return NULL; 
 }
-</code></pre><p>按F11弹出插件菜单时点击插件名会弹出消息框。</p><p><img src="http://t.cn/RGRNrAU" style="display:block;margin:auto"></p><p>其实Far Manager自己也有自己的Message显示方式。</p><p><img src="http://t.cn/RGRNdem" style="display:block;margin:auto"></p><p>这都是通过PluginStartupInfo结构的Message成员来实现的。</p><pre><code class="cpp">// {14FBA90A-2ED8-4780-970F-57C7DA73B4BC}
+</code></pre>
+<p>按F11弹出插件菜单时点击插件名会弹出消息框。</p>
+<p><img src="http://t.cn/RGRNrAU" style="display:block;margin:auto"></p>
+<p>其实Far Manager自己也有自己的Message显示方式。</p>
+<p><img src="http://t.cn/RGRNdem" style="display:block;margin:auto"></p>
+<p>这都是通过PluginStartupInfo结构的Message成员来实现的。</p>
+<pre><code class="cpp">// {14FBA90A-2ED8-4780-970F-57C7DA73B4BC}
 static const GUID messageID =
 { 0x14fba90a, 0x2ed8, 0x4780,{ 0x97, 0xf, 0x57, 0xc7, 0xda, 0x73, 0xb4, 0xbc } };
 
@@ -302,13 +313,18 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
     }
     return NULL;
 }
-</code></pre><p>在上面这些例子中，我们都是直接使用字符串做参数，但是Far Manager并不提倡我们这样做，而是另外提供了一个函数GetMsg来从文件中取得字符串。这个文件后缀.lng，也就是语言文件，创建多个不同语言版本的.lng文件，每个文件的每一行对应一个字符串的不同语言，也就实现了一个多语言版本的插件。.lng语言内容格式如下:<br>这个函数也是在PluginStartupInfo结构中中的成员。</p><pre><code class="cpp">.Language=English,English
+</code></pre>
+<p>在上面这些例子中，我们都是直接使用字符串做参数，但是Far Manager并不提倡我们这样做，而是另外提供了一个函数GetMsg来从文件中取得字符串。这个文件后缀.lng，也就是语言文件，创建多个不同语言版本的.lng文件，每个文件的每一行对应一个字符串的不同语言，也就实现了一个多语言版本的插件。.lng语言内容格式如下:<br>这个函数也是在PluginStartupInfo结构中中的成员。</p>
+<pre><code class="cpp">.Language=English,English
 
 &quot;Menu1&quot;
 &quot;Menu2&quot;
 &quot;Menu3&quot;
 &quot;Menu4&quot;
-</code></pre><p>GetMsg接收参数：插件guid和字符串在文件中的行数，返回所在行对应的字符串。<br>也就是说GetMsg(&amp;guid_PluginGuid,0)返回<code>Menu1</code>,GetMsg(&amp;guid_PluginGuid,1)返回<code>Menu2</code>……<br>后面的例子就使用GetMsg函数来使用字符串，不再另行说明。</p><h3 id="Menu显示"><a href="#Menu显示" class="headerlink" title="Menu显示"></a>Menu显示</h3><p><img src="http://t.cn/RGRNDcQ" style="display:block;margin:auto"></p><pre><code class="cpp">static const GUID MenuGuid =
+</code></pre>
+<p>GetMsg接收参数：插件guid和字符串在文件中的行数，返回所在行对应的字符串。<br>也就是说GetMsg(&amp;guid_PluginGuid,0)返回<code>Menu1</code>,GetMsg(&amp;guid_PluginGuid,1)返回<code>Menu2</code>……<br>后面的例子就使用GetMsg函数来使用字符串，不再另行说明。</p>
+<h3 id="Menu显示"><a href="#Menu显示" class="headerlink" title="Menu显示"></a>Menu显示</h3><p><img src="http://t.cn/RGRNDcQ" style="display:block;margin:auto"></p>
+<pre><code class="cpp">static const GUID MenuGuid =
 { 0xe02ce6f7, 0xc913, 0x479a,{ 0x9f, 0xfc, 0x74, 0xca, 0xd7, 0xe1, 0xbe, 0xbf } };
 
 HANDLE WINAPI OpenW(const struct OpenInfo *Info)
@@ -341,7 +357,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
     }
     return NULL;
 }
-</code></pre><h3 id="InputBox"><a href="#InputBox" class="headerlink" title="InputBox"></a>InputBox</h3><p>接下来介绍输入框，它能够接收用户的输入，并赋值到一个变量。<br><img src="http://t.cn/R49lphD" style="display:block;margin:auto"></p><pre><code class="cpp">// {14FBA90A-2ED8-4780-970F-57C7DA73B4BC}
+</code></pre>
+<h3 id="InputBox"><a href="#InputBox" class="headerlink" title="InputBox"></a>InputBox</h3><p>接下来介绍输入框，它能够接收用户的输入，并赋值到一个变量。<br><img src="http://t.cn/R49lphD" style="display:block;margin:auto"></p>
+<pre><code class="cpp">// {14FBA90A-2ED8-4780-970F-57C7DA73B4BC}
 static const GUID messageGuid =
 { 0x14fba90a, 0x2ed8, 0x4780,{ 0x97, 0xf, 0x57, 0xc7, 0xda, 0x73, 0xb4, 0xbc } };
 
@@ -361,7 +379,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
     }
     return NULL;
 }
-</code></pre><p>上面介绍的Message、Menu和GetMsg、InputBox都是在PluginStartupInfo结构中定义的，如果我们前面没有导出SetStartupInfoW获取该结构的值，那我们也无法使用这些功能。</p>
+</code></pre>
+<p>上面介绍的Message、Menu和GetMsg、InputBox都是在PluginStartupInfo结构中定义的，如果我们前面没有导出SetStartupInfoW获取该结构的值，那我们也无法使用这些功能。</p>
+
       
       
         <div class="page-reward">
@@ -534,7 +554,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

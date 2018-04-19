@@ -14,13 +14,13 @@
 
   <title>python爬虫实战:Oculus VR | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。开始编写爬虫开始之前我们先">
+  <meta name="description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。 安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。 BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。 开始编写爬虫开始之前">
 <meta name="keywords" content="爬虫">
 <meta property="og:type" content="article">
 <meta property="og:title" content="python爬虫实战:Oculus VR">
 <meta property="og:url" content="http://yoursite.com/posts/84f4a8fe.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。开始编写爬虫开始之前我们先">
+<meta property="og:description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。 安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。 BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。 开始编写爬虫开始之前">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/RGRNRtu">
 <meta property="og:image" content="http://t.cn/RGRNni7">
@@ -28,7 +28,7 @@
 <meta property="og:updated_time" content="2018-04-14T09:35:06.962Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="python爬虫实战:Oculus VR">
-<meta name="twitter:description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。开始编写爬虫开始之前我们先">
+<meta name="twitter:description" content="帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。 安装模块我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。 BeautifulSoup:中文文档pycurl:下载地址选择对应的版本下载安装。 开始编写爬虫开始之前">
 <meta name="twitter:image" content="http://t.cn/RGRNRtu">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -253,7 +253,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。</p><h2 id="安装模块"><a href="#安装模块" class="headerlink" title="安装模块"></a>安装模块</h2><p>我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。</p><p><strong>BeautifulSoup</strong>:<a href="http://beautifulsoup.readthedocs.org/zh_CN/latest/#" title="中文文档" target="_blank" rel="noopener">中文文档</a><br><strong>pycurl</strong>:<a href="http://pycurl.sourceforge.net/download/" title="下载地址" target="_blank" rel="noopener">下载地址</a>选择对应的版本下载安装。</p><h2 id="开始编写爬虫"><a href="#开始编写爬虫" class="headerlink" title="开始编写爬虫"></a>开始编写爬虫</h2><p>开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。</p><p><img src="http://t.cn/RGRNRtu" alt=""></p><p>既然是下载所有的游戏，我们就得知道每一页的网址，在这里 <a href="http://d.87870.com/xiazai-2-0603-1_.html" target="_blank" rel="noopener">http://d.87870.com/xiazai-2-0603-1_.html</a> ，<br>xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。<br><img src="http://t.cn/RGRNni7" alt=""><br>如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。<br><img src="http://t.cn/RGRNusg" alt=""></p><p>大概思路就是这样了。开始写代码。<br><a id="more"></a><br>我用pycurl封装了一个函数</p><pre><code class="python">def GetData(url, ProxyIP=None,reffer=None,cookie=None):
+        <p>帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。</p>
+<h2 id="安装模块"><a href="#安装模块" class="headerlink" title="安装模块"></a>安装模块</h2><p>我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。</p>
+<p><strong>BeautifulSoup</strong>:<a href="http://beautifulsoup.readthedocs.org/zh_CN/latest/#" title="中文文档" target="_blank" rel="noopener">中文文档</a><br><strong>pycurl</strong>:<a href="http://pycurl.sourceforge.net/download/" title="下载地址" target="_blank" rel="noopener">下载地址</a>选择对应的版本下载安装。</p>
+<h2 id="开始编写爬虫"><a href="#开始编写爬虫" class="headerlink" title="开始编写爬虫"></a>开始编写爬虫</h2><p>开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。</p>
+<p><img src="http://t.cn/RGRNRtu" alt=""></p>
+<p>既然是下载所有的游戏，我们就得知道每一页的网址，在这里 <a href="http://d.87870.com/xiazai-2-0603-1_.html" target="_blank" rel="noopener">http://d.87870.com/xiazai-2-0603-1_.html</a> ，<br>xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。<br><img src="http://t.cn/RGRNni7" alt=""><br>如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。<br><img src="http://t.cn/RGRNusg" alt=""></p>
+<p>大概思路就是这样了。开始写代码。<br><a id="more"></a><br>我用pycurl封装了一个函数</p>
+<pre><code class="python">def GetData(url, ProxyIP=None,reffer=None,cookie=None):
     b = StringIO.StringIO()
     c = pycurl.Curl()
     c.setopt(pycurl.WRITEFUNCTION, b.write)
@@ -267,7 +274,10 @@
         c.setopt(pycurl.REFERER,reffer)
     c.perform()
     return b.getvalue()
-</code></pre><p>用来获取网络数据，</p><h3 id="获取总页数"><a href="#获取总页数" class="headerlink" title="获取总页数"></a>获取总页数</h3><p>使用firebug分析游戏目录页最下方的页数，html代码如下。</p><pre><code class="html">&lt;html&gt;
+</code></pre>
+<p>用来获取网络数据，</p>
+<h3 id="获取总页数"><a href="#获取总页数" class="headerlink" title="获取总页数"></a>获取总页数</h3><p>使用firebug分析游戏目录页最下方的页数，html代码如下。</p>
+<pre><code class="html">&lt;html&gt;
  &lt;head&gt;&lt;/head&gt;
  &lt;body&gt;
   &lt;div class=&quot;pageNav&quot;&gt; 
@@ -289,13 +299,17 @@
   &lt;/div&gt;
  &lt;/body&gt;
 &lt;/html&gt;
-</code></pre><p>总页数就是60页，编写python代码如下：</p><pre><code class="python">def GetPageCount(url):
+</code></pre>
+<p>总页数就是60页，编写python代码如下：</p>
+<pre><code class="python">def GetPageCount(url):
     data = GetData(url)
     soup = BeautifulSoup(data)
     da = soup.select(&#39;.pageNav&#39;)
     page = re.findall(u&quot;共(.*?)页&quot;, da[0].text)[0]
     return page
-</code></pre><h2 id="获取游戏下载页面"><a href="#获取游戏下载页面" class="headerlink" title="获取游戏下载页面"></a>获取游戏下载页面</h2><p>现在已经知道有多少页了，随便找一页查看html源码。</p><pre><code class="html"> &lt;li&gt;&lt;a href=&quot;xiazainr-6299.html&quot; target=&quot;_blank&quot; title=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;
+</code></pre>
+<h2 id="获取游戏下载页面"><a href="#获取游戏下载页面" class="headerlink" title="获取游戏下载页面"></a>获取游戏下载页面</h2><p>现在已经知道有多少页了，随便找一页查看html源码。</p>
+<pre><code class="html"> &lt;li&gt;&lt;a href=&quot;xiazainr-6299.html&quot; target=&quot;_blank&quot; title=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;
                                         &lt;img src=&quot;http://pic.87870.com/upload/images/vr87870/2015/9/16/th_170x170_339d0126-f4c3-44f4-921e-0ff9f57534cb.jpg&quot; alt=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;
                                         &lt;/a&gt;
                                         &lt;div class=&quot;content&quot;&gt;
@@ -329,8 +343,12 @@
                                             &lt;a href=&quot;xiazainr-6296.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;
                                         &lt;/div&gt;
                                     &lt;/li&gt;
-</code></pre><p>发现游戏下载页面都在这个位置，</p><pre><code class="html">&lt;a href=&quot;xiazainr-6296.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;
-</code></pre><p>编写代码如下：</p><pre><code class="python">def GetGameDownloadPage(url):
+</code></pre>
+<p>发现游戏下载页面都在这个位置，</p>
+<pre><code class="html">&lt;a href=&quot;xiazainr-6296.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;
+</code></pre>
+<p>编写代码如下：</p>
+<pre><code class="python">def GetGameDownloadPage(url):
     DownloadPageList = []
     data = GetData(url)
     soup = BeautifulSoup(data)
@@ -339,7 +357,10 @@
     for u in da:
         DownloadPageList.append(&#39;http://d.87870.com/&#39;+u[&#39;href&#39;])
     return DownloadPageList
-</code></pre><p>每一页有很多游戏，返回这一页所有游戏的下载页面。</p><p>游戏下载页面的源码如下：</p><pre><code class="html">&lt;div class=&quot;topic relative&quot;&gt;
+</code></pre>
+<p>每一页有很多游戏，返回这一页所有游戏的下载页面。</p>
+<p>游戏下载页面的源码如下：</p>
+<pre><code class="html">&lt;div class=&quot;topic relative&quot;&gt;
                     &lt;h1&gt;恐怖医院(THE HOSPITAL HAUNTED BE LOST)&lt;/h1&gt;
                     &lt;div class=&quot;comment relative&quot;&gt;
                         &lt;i&gt;&lt;/i&gt;
@@ -357,7 +378,9 @@
 
                     &lt;div class=&quot;for_download clearfix&quot;&gt;
                         &lt;a class=&quot;download&quot; href=&quot;http://d.87870.com/dl.aspx?id=9972&quot;&gt;游戏下载&lt;/a&gt;
-</code></pre><p>游戏下载地址在最后一行。访问这个地址会重定向到游戏的真实下载地址。</p><pre><code class="python"># 得到游戏的下载地址
+</code></pre>
+<p>游戏下载地址在最后一行。访问这个地址会重定向到游戏的真实下载地址。</p>
+<pre><code class="python"># 得到游戏的下载地址
 def GetGameDownloadURL(pageURL):
     data = GetData(pageURL)
     soup = BeautifulSoup(data)
@@ -366,7 +389,9 @@ def GetGameDownloadURL(pageURL):
     except Exception,e:
         pass
     return da[0][&#39;href&#39;]
-</code></pre><p>直接使用pycurl下载游戏时会丢包，因为文件比较大，需要pycurl分块下载。最后main函数如下，我只是获取了每个游戏的真实下载地址。</p><pre><code class="python">def main():
+</code></pre>
+<p>直接使用pycurl下载游戏时会丢包，因为文件比较大，需要pycurl分块下载。最后main函数如下，我只是获取了每个游戏的真实下载地址。</p>
+<pre><code class="python">def main():
     downloadPageList = []
     count = GetPageCount(&#39;http://d.87870.com/xiazai-1-0603-1_.html&#39;)
 
@@ -381,7 +406,9 @@ def GetGameDownloadURL(pageURL):
             continue
 
         GameURL = re.findall(&#39;&lt;a href=\&quot;(.*?)\&quot;&gt;here&#39;,data,re.S)[0]
-</code></pre><p>最后附上完整的代码：<a href="https://github.com/ydc1992/pytho-script/blob/master/VR%282%29.py" title="github" target="_blank" rel="noopener">github</a></p>
+</code></pre>
+<p>最后附上完整的代码：<a href="https://github.com/ydc1992/pytho-script/blob/master/VR%282%29.py" title="github" target="_blank" rel="noopener">github</a></p>
+
       
       
         <div class="page-reward">
@@ -554,7 +581,7 @@ def GetGameDownloadURL(pageURL):
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

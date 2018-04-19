@@ -14,19 +14,19 @@
 
   <title>Python取证技术(4): Windows 注册表分析 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键，一个键和它的子键以及值统称为Hive。注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive H">
+  <meta name="description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键， 一个键和它的子键以及值统称为Hive。 注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives； HKEY_LOCAL_MACHINE\HARDWARE : Volatile hiv">
 <meta name="keywords" content="取证">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python取证技术(4): Windows 注册表分析">
 <meta property="og:url" content="http://yoursite.com/posts/a5fc00a6.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键，一个键和它的子键以及值统称为Hive。注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive H">
+<meta property="og:description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键， 一个键和它的子键以及值统称为Hive。 注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives； HKEY_LOCAL_MACHINE\HARDWARE : Volatile hiv">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/RGRNlXh">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.420Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python取证技术(4): Windows 注册表分析">
-<meta name="twitter:description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键，一个键和它的子键以及值统称为Hive。注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive H">
+<meta name="twitter:description" content="注册表介绍如下图，打开注册表编辑器，注册表有5个根键， 一个键和它的子键以及值统称为Hive。 注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives； HKEY_LOCAL_MACHINE\HARDWARE : Volatile hiv">
 <meta name="twitter:image" content="http://t.cn/RGRNlXh">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -251,10 +251,57 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="注册表介绍"><a href="#注册表介绍" class="headerlink" title="注册表介绍"></a>注册表介绍</h2><p>如下图，打开注册表编辑器，注册表有5个根键，<br><img src="http://t.cn/RGRNlXh" alt=""></p><p>一个键和它的子键以及值统称为<code>Hive</code>。</p><p>注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；</p><pre><code class="bash">HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive
+        <h2 id="注册表介绍"><a href="#注册表介绍" class="headerlink" title="注册表介绍"></a>注册表介绍</h2><p>如下图，打开注册表编辑器，注册表有5个根键，<br><img src="http://t.cn/RGRNlXh" alt=""></p>
+<p>一个键和它的子键以及值统称为<code>Hive</code>。</p>
+<p>注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；</p>
+<pre><code class="bash">HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive
 HKEY_LOCAL_MACHINE\SYSTEM\Clone : Volatile hive
-</code></pre><p>只有两个根键被保存在系统硬盘中且是nonvolatile类型的，数据在主内存中处理：<code>HKEY_LOCAL_MACHINE和HKEY_USERS</code>，其他的根键要么是这两个根键子建，要么就是volatile hive类型。</p><h2 id="不同Windows版本的注册表文件"><a href="#不同Windows版本的注册表文件" class="headerlink" title="不同Windows版本的注册表文件"></a>不同Windows版本的注册表文件</h2><table><tr><th>version</th><th>Files</th><th>contents</th></tr><tr><td>3.1x</td><td>reg.dat</td><td>complete windows 3.?? registry</td></tr><tr><td rowspan="2">95</td><td>system.dat</td><td>system-values (hkey_local_machine)</td></tr><tr><td>user.dat</td><td>user-values (hkey_users)</td></tr><tr><td rowspan="6">NT</td></tr><tr><td>system32\config\sam</td><td>用户及密码的数据库</td></tr><tr><td>system32\config\software</td><td>安装的软件信息(hkey_local_machine\software)</td></tr><tr><td>system32\config\system</td><td>存储计算机硬件和系统的信息(hkey_local_machine\system)</td></tr><tr><td>profiles\%username%\ntuser.dat</td><td>存储用户参数选择的信息（此文件放置于用户个人目录，和其他注册表文件是分开的）(hkey_current_user{s-1-xxx…})</td></tr><tr><td>profiles\%username%\ntuser.man</td><td>like ntuser.dat but a mandatory-profile</td></tr></table><a id="more"></a><h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>注册表的数据类型主要有以下五种：</p><table><thead><tr><th>显示类型（在编辑器中）</th><th>数据类型</th><th>说明</th></tr></thead><tbody><tr><td>REG_SZ</td><td>字符串</td><td>文本字符串</td></tr><tr><td>REG_BINARY</td><td>二进制数</td><td>不定长度的二进制值，以十六进制显示</td></tr><tr><td>REG_DWORD</td><td>双字</td><td>一个 32 位的二进制值，显示为 8 位的十六进制值</td></tr><tr><td>REG_MULTI_SZ</td><td>多字符串</td><td>含有多个文本值的字符串，此名来源于字符串间用 nul 分隔、结尾两个 nul</td></tr><tr><td>REG_EXPAND_SZ</td><td>可扩充字符串</td><td>含有环境变量的字符串</td></tr></tbody></table><h2 id="解析注册表"><a href="#解析注册表" class="headerlink" title="解析注册表"></a>解析注册表</h2><p>要解析windows注册表，我们需要安装一个python模块。<a href="https://github.com/williballenthin/python-registry" title="python_registry" target="_blank" rel="noopener">Github项目:python_registry</a></p><pre><code class="bash">pip install python_registry
-</code></pre><h3 id="遍历所有的注册表项和键"><a href="#遍历所有的注册表项和键" class="headerlink" title="遍历所有的注册表项和键"></a>遍历所有的注册表项和键</h3><pre><code class="python">import sys
+</code></pre>
+<p>只有两个根键被保存在系统硬盘中且是nonvolatile类型的，数据在主内存中处理：<code>HKEY_LOCAL_MACHINE和HKEY_USERS</code>，其他的根键要么是这两个根键子建，要么就是volatile hive类型。</p>
+<h2 id="不同Windows版本的注册表文件"><a href="#不同Windows版本的注册表文件" class="headerlink" title="不同Windows版本的注册表文件"></a>不同Windows版本的注册表文件</h2><table><tr><th>version</th><th>Files</th><th>contents</th></tr><tr><td>3.1x</td><td>reg.dat</td><td>complete windows 3.?? registry</td></tr><tr><td rowspan="2">95</td><td>system.dat</td><td>system-values (hkey_local_machine)</td></tr><tr><td>user.dat</td><td>user-values (hkey_users)</td></tr><tr><td rowspan="6">NT</td></tr><tr><td>system32\config\sam</td><td>用户及密码的数据库</td></tr><tr><td>system32\config\software</td><td>安装的软件信息(hkey_local_machine\software)</td></tr><tr><td>system32\config\system</td><td>存储计算机硬件和系统的信息(hkey_local_machine\system)</td></tr><tr><td>profiles\%username%\ntuser.dat</td><td>存储用户参数选择的信息（此文件放置于用户个人目录，和其他注册表文件是分开的）(hkey_current_user{s-1-xxx…})</td></tr><tr><td> profiles\%username%\ntuser.man</td><td>like ntuser.dat but a mandatory-profile</td></tr></table>
+
+<a id="more"></a>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>注册表的数据类型主要有以下五种：</p>
+<table>
+<thead>
+<tr>
+<th>显示类型（在编辑器中）</th>
+<th>数据类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REG_SZ</td>
+<td>字符串</td>
+<td>文本字符串</td>
+</tr>
+<tr>
+<td>REG_BINARY</td>
+<td>二进制数</td>
+<td>不定长度的二进制值，以十六进制显示</td>
+</tr>
+<tr>
+<td>REG_DWORD</td>
+<td>双字</td>
+<td>一个 32 位的二进制值，显示为 8 位的十六进制值</td>
+</tr>
+<tr>
+<td>REG_MULTI_SZ</td>
+<td>多字符串</td>
+<td>含有多个文本值的字符串，此名来源于字符串间用 nul 分隔、结尾两个 nul</td>
+</tr>
+<tr>
+<td>REG_EXPAND_SZ</td>
+<td>可扩充字符串</td>
+<td>含有环境变量的字符串</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析注册表"><a href="#解析注册表" class="headerlink" title="解析注册表"></a>解析注册表</h2><p>要解析windows注册表，我们需要安装一个python模块。<a href="https://github.com/williballenthin/python-registry" title="python_registry" target="_blank" rel="noopener">Github项目:python_registry</a></p>
+<pre><code class="bash">pip install python_registry
+</code></pre>
+<h3 id="遍历所有的注册表项和键"><a href="#遍历所有的注册表项和键" class="headerlink" title="遍历所有的注册表项和键"></a>遍历所有的注册表项和键</h3><pre><code class="python">import sys
 from Registry import *
 
 #递归函数
@@ -265,7 +312,9 @@ def rec(key, depth=0):
 
 reg = Registry.Registry(&#39;F:\SYSTEM&#39;)  #参照上表中的SYSTEM
 rec(reg.root())
-</code></pre><p>不断递归按层次关系打印出所有的注册表项和键，注意<code>一般情况下，是没有权限对注册表文件进行操作的，我是用火绒剑提取出来的</code>。为了方便使用，你可以改写成带接收注册表文件路径的命令行参数的python脚本 输出结果如下(限于篇幅，只贴部分):</p><pre><code class="bash">ROOT
+</code></pre>
+<p>不断递归按层次关系打印出所有的注册表项和键，注意<code>一般情况下，是没有权限对注册表文件进行操作的，我是用火绒剑提取出来的</code>。为了方便使用，你可以改写成带接收注册表文件路径的命令行参数的python脚本  输出结果如下(限于篇幅，只贴部分):</p>
+<pre><code class="bash">ROOT
     ROOT\ActivationBroker
         ROOT\ActivationBroker\Plugins
             ROOT\ActivationBroker\Plugins\{14F3C12D-7712-42CC-B7CC-64D2BB560C43}
@@ -284,7 +333,8 @@ rec(reg.root())
             ROOT\ControlSet001\Control\ACPI
             ROOT\ControlSet001\Control\AGP
             ROOT\ControlSet001\Control\AppID
-</code></pre><h3 id="遍历USB连接历史"><a href="#遍历USB连接历史" class="headerlink" title="遍历USB连接历史"></a>遍历USB连接历史</h3><pre><code class="python">import sys
+</code></pre>
+<h3 id="遍历USB连接历史"><a href="#遍历USB连接历史" class="headerlink" title="遍历USB连接历史"></a>遍历USB连接历史</h3><pre><code class="python">import sys
 from Registry import *
 sys_reg = &#39;F:\\SYSTEM&#39;  #SYSTEM为HKEY_LOCAL_MACHINE\SYSTEM
 
@@ -307,10 +357,13 @@ def main():
 
 if __name__ == &#39;__main__&#39;:
     main()
-</code></pre><p>输出结果如下：</p><pre><code>CdRom&amp;Ven_HTC&amp;Prod_Android_Phone&amp;Rev_0000
+</code></pre>
+<p>输出结果如下：</p>
+<pre><code>CdRom&amp;Ven_HTC&amp;Prod_Android_Phone&amp;Rev_0000
 Disk&amp;Ven_HTC&amp;Prod_Android_Phone&amp;Rev_0000
 Disk&amp;Ven_WD&amp;Prod_Elements_107C&amp;Rev_1065
-</code></pre><p>显示我这台电脑曾经连接三个USB设备。</p><h3 id="遍历所有服务"><a href="#遍历所有服务" class="headerlink" title="遍历所有服务"></a>遍历所有服务</h3><pre><code class="python">import sys
+</code></pre><p>显示我这台电脑曾经连接三个USB设备。</p>
+<h3 id="遍历所有服务"><a href="#遍历所有服务" class="headerlink" title="遍历所有服务"></a>遍历所有服务</h3><pre><code class="python">import sys
 from Registry import *
 sys_reg = &#39;F:\\SYSTEM&#39;
 
@@ -354,10 +407,45 @@ def main():
 if __name__ == &#39;__main__&#39;:
     main()
 
-</code></pre><p>部分输出结果如下</p><pre><code>acpipagr, @acpipagr.inf,%SvcDesc%;ACPI Processor Aggregator Driver, &quot;\SystemRoot\System32\drivers\acpipagr.sys&quot;, &quot;???&quot;, &quot;???&quot;
+</code></pre>
+<p>部分输出结果如下</p>
+<pre><code>acpipagr, @acpipagr.inf,%SvcDesc%;ACPI Processor Aggregator Driver, &quot;\SystemRoot\System32\drivers\acpipagr.sys&quot;, &quot;???&quot;, &quot;???&quot;
 AcpiPmi, @acpipmi.inf,%AcpiPmi.SvcDesc%;ACPI Power Meter Driver, &quot;\SystemRoot\System32\drivers\acpipmi.sys&quot;, &quot;???&quot;, &quot;???&quot;
 acpitime, @acpitime.inf,%AcpiTime.SvcDesc%;ACPI Wake Alarm Driver, &quot;\SystemRoot\System32\drivers\acpitime.sys&quot;, &quot;???&quot;, &quot;???&quot;
-</code></pre><h3 id="用户的历史纪录"><a href="#用户的历史纪录" class="headerlink" title="用户的历史纪录"></a>用户的历史纪录</h3><p>历史纪录有很多种，文件打开历史纪录、网页浏览记录等等。</p><table><thead><tr><th>历史纪录</th><th>在注册表中位置</th></tr></thead><tbody><tr><td>IE浏览器输入的网址</td><td>HKEY_USERS\S-1-5-21-[User Identifier] \Software\ Microsoft\Internet Explorer\TypedURLs</td></tr><tr><td>最近Office文件打开记录</td><td>HKEY_USERS\S-1-5-21-[User Identifier]\Software\Microsoft\Office\12.0\Office_App_Name\File MRU</td></tr><tr><td>最近映射的网络驱动器</td><td>HKEY_USERS\S-1-5-21-[User Identifier] \Software \Microsoft\Windows\CurrentVersion\Explorer\Map Network</td></tr><tr><td>最近在run对话框输入的命令</td><td>HKEY_USERS\S-1-5-21-[UserIdentifier]\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU</td></tr><tr><td>最近的文件夹</td><td>HKEY_USERS\S-1-5-21-[User Identifier] \Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\Folder</td></tr></tbody></table><p>User Identifier值存放在<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList</code>中。</p><p>当然还有很多，这个就靠自己去收集了。</p>
+</code></pre><h3 id="用户的历史纪录"><a href="#用户的历史纪录" class="headerlink" title="用户的历史纪录"></a>用户的历史纪录</h3><p>历史纪录有很多种，文件打开历史纪录、网页浏览记录等等。</p>
+<table>
+<thead>
+<tr>
+<th>历史纪录</th>
+<th>在注册表中位置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IE浏览器输入的网址</td>
+<td>HKEY_USERS\S-1-5-21-[User Identifier] \Software\ Microsoft\Internet Explorer\TypedURLs</td>
+</tr>
+<tr>
+<td>最近Office文件打开记录</td>
+<td>HKEY_USERS\S-1-5-21-[User Identifier]\Software\Microsoft\Office\12.0\Office_App_Name\File MRU</td>
+</tr>
+<tr>
+<td>最近映射的网络驱动器</td>
+<td>HKEY_USERS\S-1-5-21-[User Identifier] \Software \Microsoft\Windows\CurrentVersion\Explorer\Map Network</td>
+</tr>
+<tr>
+<td>最近在run对话框输入的命令</td>
+<td>HKEY_USERS\S-1-5-21-[UserIdentifier]\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU</td>
+</tr>
+<tr>
+<td>最近的文件夹</td>
+<td>HKEY_USERS\S-1-5-21-[User Identifier] \Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\Folder</td>
+</tr>
+</tbody>
+</table>
+<p>User Identifier值存放在<code>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList</code>中。</p>
+<p>当然还有很多，这个就靠自己去收集了。</p>
+
       
       
         <div class="page-reward">
@@ -530,7 +618,7 @@ acpitime, @acpitime.inf,%AcpiTime.SvcDesc%;ACPI Wake Alarm Driver, &quot;\System
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

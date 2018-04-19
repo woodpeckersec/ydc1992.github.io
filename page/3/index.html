@@ -207,6 +207,81 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-pypcap模块安装" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/6e7365c5.html" class="article-date">
+      <time datetime="2016-01-30T13:55:50.000Z" itemprop="datePublished">2016-01-30</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/6e7365c5.html">pypcap模块安装</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少<code>pcap.h</code>头文件。在网上找了很多资料，终于编译成功了。</p>
+<h2 id="编译之前"><a href="#编译之前" class="headerlink" title="编译之前"></a>编译之前</h2><p>在编译之前我们需要准备如下</p>
+<ul>
+<li>pypcap源码   <a href="https://github.com/dugsong/pypcap" target="_blank" rel="noopener">https://github.com/dugsong/pypcap</a></li>
+<li>WinPcap源码 <a href="https://www.winpcap.org/devel.htm" target="_blank" rel="noopener">https://www.winpcap.org/devel.htm</a></li>
+<li>安装pyrex  <a href="http://brl.thefreecat.org/python-pyrex/" target="_blank" rel="noopener">http://brl.thefreecat.org/python-pyrex/</a></li>
+<li>MiniGw  <a href="http://www.mingw.org/" target="_blank" rel="noopener">http://www.mingw.org/</a></li>
+</ul>
+<p>pycurl如何安装在<a href="https://github.com/dugsong/pypcap/blob/master/INSTALL" target="_blank" rel="noopener">https://github.com/dugsong/pypcap/blob/master/INSTALL</a> 的<code>Building under Windows</code>也有详细说明。<br>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/pypcap/">pypcap</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/6e7365c5.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-Python取证技术-4-Windows-注册表分析" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -234,9 +309,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <h2 id="注册表介绍"><a href="#注册表介绍" class="headerlink" title="注册表介绍"></a>注册表介绍</h2><p>如下图，打开注册表编辑器，注册表有5个根键，<br><img src="http://t.cn/RGRNlXh" alt=""></p><p>一个键和它的子键以及值统称为<code>Hive</code>。</p><p>注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；</p><pre><code class="bash">HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive
+              <h2 id="注册表介绍"><a href="#注册表介绍" class="headerlink" title="注册表介绍"></a>注册表介绍</h2><p>如下图，打开注册表编辑器，注册表有5个根键，<br><img src="http://t.cn/RGRNlXh" alt=""></p>
+<p>一个键和它的子键以及值统称为<code>Hive</code>。</p>
+<p>注册表的键有两种类型：volatile和 nonvolatile。后者在将数据保存在本地硬盘；前者则在本地硬盘没有相关的文件，系统在内存中内存中创建和管理，是临时性的，系统每次启时都会创建volatile hives；</p>
+<pre><code class="bash">HKEY_LOCAL_MACHINE\HARDWARE : Volatile hive
 HKEY_LOCAL_MACHINE\SYSTEM\Clone : Volatile hive
-</code></pre><p>只有两个根键被保存在系统硬盘中且是nonvolatile类型的，数据在主内存中处理：<code>HKEY_LOCAL_MACHINE和HKEY_USERS</code>，其他的根键要么是这两个根键子建，要么就是volatile hive类型。</p><h2 id="不同Windows版本的注册表文件"><a href="#不同Windows版本的注册表文件" class="headerlink" title="不同Windows版本的注册表文件"></a>不同Windows版本的注册表文件</h2><table><tr><th>version</th><th>Files</th><th>contents</th></tr><tr><td>3.1x</td><td>reg.dat</td><td>complete windows 3.?? registry</td></tr><tr><td rowspan="2">95</td><td>system.dat</td><td>system-values (hkey_local_machine)</td></tr><tr><td>user.dat</td><td>user-values (hkey_users)</td></tr><tr><td rowspan="6">NT</td></tr><tr><td>system32\config\sam</td><td>用户及密码的数据库</td></tr><tr><td>system32\config\software</td><td>安装的软件信息(hkey_local_machine\software)</td></tr><tr><td>system32\config\system</td><td>存储计算机硬件和系统的信息(hkey_local_machine\system)</td></tr><tr><td>profiles\%username%\ntuser.dat</td><td>存储用户参数选择的信息（此文件放置于用户个人目录，和其他注册表文件是分开的）(hkey_current_user{s-1-xxx…})</td></tr><tr><td>profiles\%username%\ntuser.man</td><td>like ntuser.dat but a mandatory-profile</td></tr></table>
+</code></pre>
+<p>只有两个根键被保存在系统硬盘中且是nonvolatile类型的，数据在主内存中处理：<code>HKEY_LOCAL_MACHINE和HKEY_USERS</code>，其他的根键要么是这两个根键子建，要么就是volatile hive类型。</p>
+<h2 id="不同Windows版本的注册表文件"><a href="#不同Windows版本的注册表文件" class="headerlink" title="不同Windows版本的注册表文件"></a>不同Windows版本的注册表文件</h2><table><tr><th>version</th><th>Files</th><th>contents</th></tr><tr><td>3.1x</td><td>reg.dat</td><td>complete windows 3.?? registry</td></tr><tr><td rowspan="2">95</td><td>system.dat</td><td>system-values (hkey_local_machine)</td></tr><tr><td>user.dat</td><td>user-values (hkey_users)</td></tr><tr><td rowspan="6">NT</td></tr><tr><td>system32\config\sam</td><td>用户及密码的数据库</td></tr><tr><td>system32\config\software</td><td>安装的软件信息(hkey_local_machine\software)</td></tr><tr><td>system32\config\system</td><td>存储计算机硬件和系统的信息(hkey_local_machine\system)</td></tr><tr><td>profiles\%username%\ntuser.dat</td><td>存储用户参数选择的信息（此文件放置于用户个人目录，和其他注册表文件是分开的）(hkey_current_user{s-1-xxx…})</td></tr><tr><td> profiles\%username%\ntuser.man</td><td>like ntuser.dat but a mandatory-profile</td></tr></table>
           
       
       
@@ -303,8 +383,11 @@ HKEY_LOCAL_MACHINE\SYSTEM\Clone : Volatile hive
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p><h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p><pre><code class="bash">pip install python-evtx
-</code></pre><p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p>
+              <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p>
+<h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p>
+<pre><code class="bash">pip install python-evtx
+</code></pre>
+<p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p>
           
       
       
@@ -371,7 +454,9 @@ HKEY_LOCAL_MACHINE\SYSTEM\Clone : Volatile hive
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p><p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p><pre><code class="python">import hashlib   #导入hash库
+              <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p>
+<p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p>
+<pre><code class="python">import hashlib   #导入hash库
 
 Text   = &quot;This is Test&quot;
 md5    = hashlib.md5()
@@ -383,7 +468,9 @@ sha256.update(Text)
 
 print &quot;md5:&quot; + md5.hexdigest()
 print &quot;sha256&quot; + sha256.hexdigest()
-</code></pre><p>输出结果:</p><pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
+</code></pre>
+<p>输出结果:</p>
+<pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
 sha256:c0944b5a36476a91b39dee68df2432eae4565c315cfe870a9f951ca643abfb61
 </code></pre>
           
@@ -453,10 +540,12 @@ sha256:c0944b5a36476a91b39dee68df2432eae4565c315cfe870a9f951ca643abfb61
       
           
               <h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><h2 id="安装虚拟沙盒virtualenv"><a href="#安装虚拟沙盒virtualenv" class="headerlink" title="安装虚拟沙盒virtualenv"></a>安装虚拟沙盒virtualenv</h2><pre><code>pip install virtualenv
-</code></pre><p>创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。</p><pre><code class="bash">root@kali:~# virtualenv KenEnv
+</code></pre><p>创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。</p>
+<pre><code class="bash">root@kali:~# virtualenv KenEnv
 New python executable in KenEnv/bin/python
 Installing setuptools, pip, wheel...done.
-</code></pre><p>创建成功后，会在当前目录建立一个专属于该python独立开发环境的目录。该目录包含了可执行python文件和pip库的复件。可用于在python独立开发环境安装其他packages。该环境的名称可以随便指定。在这里的名字是<strong>KenEnv</strong>。命令提示符<br>
+</code></pre>
+<p>创建成功后，会在当前目录建立一个专属于该python独立开发环境的目录。该目录包含了可执行python文件和pip库的复件。可用于在python独立开发环境安装其他packages。该环境的名称可以随便指定。在这里的名字是<strong>KenEnv</strong>。命令提示符<br>
           
       
       
@@ -596,7 +685,9 @@ Installing setuptools, pip, wheel...done.
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。</p><p>来到引用<code>Key</code>的地方。</p><pre><code class="cpp">.text:0044A775                 push    offset aKey     ; &quot;Key : &quot;
+              <p>首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。</p>
+<p>来到引用<code>Key</code>的地方。</p>
+<pre><code class="cpp">.text:0044A775                 push    offset aKey     ; &quot;Key : &quot;
 .text:0044A77A                 call    ds:printf
 .text:0044A780                 add     esp, 4
 .text:0044A783                 call    sub_401000
@@ -675,7 +766,10 @@ Installing setuptools, pip, wheel...done.
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。</p><p>开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。</p><p>要插件实现功能，我们需要导出OpenW函数。当打开插件时会调用OpenW，OpenInfo记录了该插件被触发的信息。结构如下：</p><pre><code class="cpp">struct OpenInfo
+              <p>在上一篇中，插件显示在插件菜单栏中，但是我们还没有实现该插件的功能。</p>
+<p>开始之前，我们先来科普一下，在Far Manager中调用插件的几种方法，除了从插件菜单中调用插件，Far Manager还提供了Alt+F1(左侧硬盘菜单)、Alt+F2(右侧硬盘菜单)、宏、lua宏、文件查找结果列表、命令行、编辑器、文件面板、对话框等等。可以说在几乎在任意位置都能调用插件。</p>
+<p>要插件实现功能，我们需要导出OpenW函数。当打开插件时会调用OpenW，OpenInfo记录了该插件被触发的信息。结构如下：</p>
+<pre><code class="cpp">struct OpenInfo
 {
   size_t StructSize;  //结构大小
   enum OPENFROM OpenFrom;  //触发方式
@@ -683,7 +777,8 @@ Installing setuptools, pip, wheel...done.
   intptr_t Data; //取决于OpenFrom，不同触发方式，该字段表示的数据不同
 };
 
-</code></pre><h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>在OpenW中我们可以根据OpenFrom打开插件方式的不同来实现不同的功能。这里就实现一个小小功能弹一个消息框。<br>
+</code></pre>
+<h3 id="Message"><a href="#Message" class="headerlink" title="Message"></a>Message</h3><p>在OpenW中我们可以根据OpenFrom打开插件方式的不同来实现不同的功能。这里就实现一个小小功能弹一个消息框。<br>
           
       
       
@@ -750,7 +845,13 @@ Installing setuptools, pip, wheel...done.
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。</p><blockquote><p>Far Manager(short for <em><strong>F</strong>ile and <strong>AR</strong>chive <strong>Manager</strong></em>),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。</p></blockquote><h2 id="插件编写"><a href="#插件编写" class="headerlink" title="插件编写"></a>插件编写</h2><p>Far插件是一个dll文件，通过Far提供的接口来实现高度可定制化的插件。将该dll文件放入Far的插件目录，调用插件时会加载该dll。</p><h3 id="GetGlobalInfoW"><a href="#GetGlobalInfoW" class="headerlink" title="GetGlobalInfoW"></a>GetGlobalInfoW</h3><p>Far加载插件时，最先加载就是插件导出的<strong>GetGlobalInfoW</strong>函数，如果没有导出该函数，这个插件也就不能被Far调用。这个函数主要的功能是提供插件的基本信息。如作者、插件版本、描述和插件路径、GUID等等。<br><img src="http://t.cn/RGRNcEJ" style="display:block;margin:auto"></p><pre><code class="cpp">// {1C6B0907-0B96-47C4-A24B-36A9B184AF25}
+              <p>由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。</p>
+<blockquote>
+<p>Far Manager(short for <em><strong>F</strong>ile and <strong>AR</strong>chive <strong>Manager</strong></em>),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。</p>
+</blockquote>
+<h2 id="插件编写"><a href="#插件编写" class="headerlink" title="插件编写"></a>插件编写</h2><p>Far插件是一个dll文件，通过Far提供的接口来实现高度可定制化的插件。将该dll文件放入Far的插件目录，调用插件时会加载该dll。</p>
+<h3 id="GetGlobalInfoW"><a href="#GetGlobalInfoW" class="headerlink" title="GetGlobalInfoW"></a>GetGlobalInfoW</h3><p>Far加载插件时，最先加载就是插件导出的<strong>GetGlobalInfoW</strong>函数，如果没有导出该函数，这个插件也就不能被Far调用。这个函数主要的功能是提供插件的基本信息。如作者、插件版本、描述和插件路径、GUID等等。<br><img src="http://t.cn/RGRNcEJ" style="display:block;margin:auto"></p>
+<pre><code class="cpp">// {1C6B0907-0B96-47C4-A24B-36A9B184AF25}
 static const GUID guid_PluginGuid =
 { 0x1c6b0907, 0xb96, 0x47c4,{ 0xa2, 0x4b, 0x36, 0xa9, 0xb1, 0x84, 0xaf, 0x25 } };  //全局变量
 
@@ -836,7 +937,7 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>一个简单的缓冲区溢出,用gdb调试，<br><img src="http://t.cn/R51Tybh" alt=""><br>程序首先传入一个参数0xdeadbeef,然后调用func函数，看看func处代码<br><img src="http://t.cn/R51Typs" alt=""><br><code>_IO_get</code>获取输入的数据，然后比较<code>ebp+8</code>和0xcafebabe是否相等，相等则打印flag。</p>
+              <p>一个简单的缓冲区溢出,用gdb调试，<br><img src="http://t.cn/R51Tybh" alt=""><br>程序首先传入一个参数0xdeadbeef,然后调用func函数，看看func处代码<br><img src="http://t.cn/R51Typs" alt=""><br> <code>_IO_get</code>获取输入的数据，然后比较<code>ebp+8</code>和0xcafebabe是否相等，相等则打印flag。</p>
           
       
       
@@ -858,73 +959,6 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
       
         <p class="article-more-link">
           <a  href="/posts/88524310.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-Pwnable-kr-random" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/741ff96a.html" class="article-date">
-      <time datetime="2016-01-03T18:34:33.000Z" itemprop="datePublished">2016-01-04</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/741ff96a.html">Pwnable.kr random</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>首先看给出的源码。生成一个随机数，与key异或等于 <code>0xdeadbeef</code>打印出flag。<br><img src="http://t.cn/R46OUXU" style="display:block;margin:auto"><br>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/posts/741ff96a.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>

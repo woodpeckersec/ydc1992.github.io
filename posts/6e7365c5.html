@@ -14,18 +14,18 @@
 
   <title>pypcap模块安装 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。编译之前在编译之前我们需要准备如下pypcap源码 https://github.com/dugsong/pypcapWinPcap源码 https://www.winpc">
+  <meta name="description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。 编译之前在编译之前我们需要准备如下  pypcap源码   https://github.com/dugsong/pypcap WinPcap源码 https://www">
 <meta name="keywords" content="pypcap">
 <meta property="og:type" content="article">
 <meta property="og:title" content="pypcap模块安装">
 <meta property="og:url" content="http://yoursite.com/posts/6e7365c5.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。编译之前在编译之前我们需要准备如下pypcap源码 https://github.com/dugsong/pypcapWinPcap源码 https://www.winpc">
+<meta property="og:description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。 编译之前在编译之前我们需要准备如下  pypcap源码   https://github.com/dugsong/pypcap WinPcap源码 https://www">
 <meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.437Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="pypcap模块安装">
-<meta name="twitter:description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。编译之前在编译之前我们需要准备如下pypcap源码 https://github.com/dugsong/pypcapWinPcap源码 https://www.winpc">
+<meta name="twitter:description" content="最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少pcap.h头文件。在网上找了很多资料，终于编译成功了。 编译之前在编译之前我们需要准备如下  pypcap源码   https://github.com/dugsong/pypcap WinPcap源码 https://www">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -249,12 +249,38 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少<code>pcap.h</code>头文件。在网上找了很多资料，终于编译成功了。</p><h2 id="编译之前"><a href="#编译之前" class="headerlink" title="编译之前"></a>编译之前</h2><p>在编译之前我们需要准备如下</p><ul><li>pypcap源码 <a href="https://github.com/dugsong/pypcap" target="_blank" rel="noopener">https://github.com/dugsong/pypcap</a></li><li>WinPcap源码 <a href="https://www.winpcap.org/devel.htm" target="_blank" rel="noopener">https://www.winpcap.org/devel.htm</a></li><li>安装pyrex <a href="http://brl.thefreecat.org/python-pyrex/" target="_blank" rel="noopener">http://brl.thefreecat.org/python-pyrex/</a></li><li>MiniGw <a href="http://www.mingw.org/" target="_blank" rel="noopener">http://www.mingw.org/</a></li></ul><p>pycurl如何安装在<a href="https://github.com/dugsong/pypcap/blob/master/INSTALL" target="_blank" rel="noopener">https://github.com/dugsong/pypcap/blob/master/INSTALL</a> 的<code>Building under Windows</code>也有详细说明。<br><a id="more"></a></p><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><ol><li><p>编辑 <code>C:\Python26\Lib\distutils\distutils.cfg</code>文件，没有则自己创建一个。往里面添加内容如下：</p><pre><code class="bash"> [build]
+        <p>最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少<code>pcap.h</code>头文件。在网上找了很多资料，终于编译成功了。</p>
+<h2 id="编译之前"><a href="#编译之前" class="headerlink" title="编译之前"></a>编译之前</h2><p>在编译之前我们需要准备如下</p>
+<ul>
+<li>pypcap源码   <a href="https://github.com/dugsong/pypcap" target="_blank" rel="noopener">https://github.com/dugsong/pypcap</a></li>
+<li>WinPcap源码 <a href="https://www.winpcap.org/devel.htm" target="_blank" rel="noopener">https://www.winpcap.org/devel.htm</a></li>
+<li>安装pyrex  <a href="http://brl.thefreecat.org/python-pyrex/" target="_blank" rel="noopener">http://brl.thefreecat.org/python-pyrex/</a></li>
+<li>MiniGw  <a href="http://www.mingw.org/" target="_blank" rel="noopener">http://www.mingw.org/</a></li>
+</ul>
+<p>pycurl如何安装在<a href="https://github.com/dugsong/pypcap/blob/master/INSTALL" target="_blank" rel="noopener">https://github.com/dugsong/pypcap/blob/master/INSTALL</a> 的<code>Building under Windows</code>也有详细说明。<br><a id="more"></a></p>
+<h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><ol>
+<li><p>编辑 <code>C:\Python26\Lib\distutils\distutils.cfg</code>文件，没有则自己创建一个。往里面添加内容如下：</p>
+<pre><code class="bash"> [build]
  compiler = mingw32
-</code></pre></li><li><p>将我们下载好的pypcap源码和WinPcap源码分别解压到<code>c:\pypcap</code>和 <code>c:\wpdpack</code>.编辑pypcap源码的makefile文件。将下面这段代码前面的注释去掉</p><pre><code class="bash">CONFIG_ARGS = --with-pcap=..\\wpdpack
-</code></pre><p>从这我们可以看出这里通过跳转到上一层目录到wpdpack目录，也就是为什么我们要把pypcap和winpcap的源码放在同一个目录里，当然你也可以修改makefile执行你的winpcap目录所在路径</p></li></ol><p>同时将</p><pre><code class="bash">pyrexc pcap.pyx
-</code></pre><p>改成</p><pre><code class="bash">$(PYTHON) c:\Python27\Scripts\pyrexc.py pcap.pyx  
-</code></pre><p>另一种方法就是将python安装路径和该目录下Scripts目录加入环境变量，也就不需要改这行了。</p><ol start="3"><li>运行<code>mingw32-make</code>和 <code>mingw32-make install</code> 就能成功编译成功了。</li></ol>
+</code></pre>
+</li>
+<li><p>将我们下载好的pypcap源码和WinPcap源码分别解压到<code>c:\pypcap</code>和 <code>c:\wpdpack</code>.编辑pypcap源码的makefile文件。将下面这段代码前面的注释去掉</p>
+<pre><code class="bash">CONFIG_ARGS = --with-pcap=..\\wpdpack
+</code></pre>
+<p>从这我们可以看出这里通过跳转到上一层目录到wpdpack目录，也就是为什么我们要把pypcap和winpcap的源码放在同一个目录里，当然你也可以修改makefile执行你的winpcap目录所在路径</p>
+</li>
+</ol>
+<p>同时将</p>
+<pre><code class="bash">pyrexc pcap.pyx
+</code></pre>
+<p>改成</p>
+<pre><code class="bash">$(PYTHON) c:\Python27\Scripts\pyrexc.py pcap.pyx  
+</code></pre>
+<p>另一种方法就是将python安装路径和该目录下Scripts目录加入环境变量，也就不需要改这行了。</p>
+<ol start="3">
+<li>运行<code>mingw32-make</code>和 <code>mingw32-make install</code> 就能成功编译成功了。</li>
+</ol>
+
       
       
         <div class="page-reward">
@@ -427,7 +453,7 @@
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

@@ -207,6 +207,73 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-Pwnable-kr-random" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/741ff96a.html" class="article-date">
+      <time datetime="2016-01-03T18:34:33.000Z" itemprop="datePublished">2016-01-04</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/741ff96a.html">Pwnable.kr random</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>首先看给出的源码。生成一个随机数，与key异或等于 <code>0xdeadbeef</code>打印出flag。<br><img src="http://t.cn/R46OUXU" style="display:block;margin:auto"><br>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/challenge/">challenge</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/741ff96a.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-powershell-hacker-三-后门安装" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -234,7 +301,11 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <font color="#ff0000">文中提及的部分技术可能带有一定攻击性，仅供安全学习和教学用途，禁止非法使用!</font><p>首先获取一个<code>agent</code>并<code>BypassUAC</code>。一切OK后，准备下一步。</p><h2 id="elevated-schtasks模块"><a href="#elevated-schtasks模块" class="headerlink" title="elevated/schtasks模块"></a>elevated/schtasks模块</h2><p>Empire提供了很多模块，这里我就拿elevated/schtasks演示了。</p><p><img src="http://t.cn/RGRNsVM" style="display:block;margin:auto"><br>
+              <font color="#ff0000">文中提及的部分技术可能带有一定攻击性，仅供安全学习和教学用途，禁止非法使用!</font>
+
+<p>首先获取一个<code>agent</code>并<code>BypassUAC</code>。一切OK后，准备下一步。</p>
+<h2 id="elevated-schtasks模块"><a href="#elevated-schtasks模块" class="headerlink" title="elevated/schtasks模块"></a>elevated/schtasks模块</h2><p>Empire提供了很多模块，这里我就拿elevated/schtasks演示了。</p>
+<p><img src="http://t.cn/RGRNsVM" style="display:block;margin:auto"><br>
           
       
       
@@ -301,7 +372,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p><img src="http://t.cn/R4i2zsi" style="display:block;margin:auto"></p><p>下载flag文件，使用file查看文件类型。发现是Linux x64文件。<br><img src="http://t.cn/R4i2b8Z" style="display:block;margin:auto"></p><p>用Hiew查看十六进制时有明显的upx壳特征<br><img src="http://t.cn/R4i2U7e" style="display:block;margin:auto"><br>
+              <p><img src="http://t.cn/R4i2zsi" style="display:block;margin:auto"></p>
+<p>下载flag文件，使用file查看文件类型。发现是Linux x64文件。<br><img src="http://t.cn/R4i2b8Z" style="display:block;margin:auto"></p>
+<p>用Hiew查看十六进制时有明显的upx壳特征<br><img src="http://t.cn/R4i2U7e" style="display:block;margin:auto"><br>
           
       
       
@@ -368,8 +441,16 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p><img src="http://t.cn/R4izlIi" style="display:block;margin:auto"><br>从源码分析，我们可以得知：</p><ul><li>该程序接受一个参数argv[1]且该参数长度为20</li><li>check_password函数返回的值等于hashcode。</li><li>check_password函数的功能就是将argv[1]的值每四位一组，分成5组相加。即<code>0x12345678912</code>就是<code>\x34\x12+\x67\x89+\x34\x12</code>，总之大家知道是什么意思就行了，注意要使用小端。</li></ul><p>那我们构造一个符合要求的参数就可以拿到flag了。</p><pre><code>    ./col `python -c &quot;print &#39;\xfd\x39\xc3\x03&#39; * 4 + &#39;\xf8\x21\xd0\x12&#39;&quot;
+        <p><img src="http://t.cn/R4izlIi" style="display:block;margin:auto"><br> 从源码分析，我们可以得知：</p>
+<ul>
+<li>该程序接受一个参数argv[1]且该参数长度为20</li>
+<li>check_password函数返回的值等于hashcode。</li>
+<li>check_password函数的功能就是将argv[1]的值每四位一组，分成5组相加。即<code>0x12345678912</code>就是<code>\x34\x12+\x67\x89+\x34\x12</code>，总之大家知道是什么意思就行了，注意要使用小端。</li>
+</ul>
+<p>那我们构造一个符合要求的参数就可以拿到flag了。</p>
+<pre><code>    ./col `python -c &quot;print &#39;\xfd\x39\xc3\x03&#39; * 4 + &#39;\xf8\x21\xd0\x12&#39;&quot;
 </code></pre><p><img src="http://t.cn/R4iwYIV" style="display:block;margin:auto"></p>
+
       
       
     </div>
@@ -431,7 +512,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-              <font color="#ff0000">文中提及的部分技术可能带有一定攻击性，仅供安全学习和教学用途，禁止非法使用!</font><blockquote><p>Empire是一个纯碎的PowerShell后期漏洞利用代理工具，它建立在密码学、安全通信和灵活的架构之上。Empire实现了无需powershell.exe就可运行PowerShell代理的功能。快速部署后期漏洞利用模块，从键盘记录器到Mimikatz，并且能够适应通信躲避网络检测，所有的这些功能都封装在一个以实用性为重点的框架中。</p></blockquote><h2 id="安装Empire"><a href="#安装Empire" class="headerlink" title="安装Empire"></a>安装Empire</h2><pre><code>git clone https://github.com/PowerShellEmpire/Empire.git
+              <font color="#ff0000">文中提及的部分技术可能带有一定攻击性，仅供安全学习和教学用途，禁止非法使用!</font>
+
+
+<blockquote>
+<p>Empire是一个纯碎的PowerShell后期漏洞利用代理工具，它建立在密码学、安全通信和灵活的架构之上。Empire实现了无需powershell.exe就可运行PowerShell代理的功能。快速部署后期漏洞利用模块，从键盘记录器到Mimikatz，并且能够适应通信躲避网络检测，所有的这些功能都封装在一个以实用性为重点的框架中。</p>
+</blockquote>
+<h2 id="安装Empire"><a href="#安装Empire" class="headerlink" title="安装Empire"></a>安装Empire</h2><pre><code>git clone https://github.com/PowerShellEmpire/Empire.git
 cd Empire/setup/
 /Empire/setup# ./install.sh
 </code></pre><p><img src="http://t.cn/R4xraYf" style="display:block;margin:auto"><br>
@@ -501,7 +588,12 @@ cd Empire/setup/
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>pwn在维基百科上的解释是</p><blockquote><p>包括电脑（<a href="">服务器</a>或<a href="">个人电脑</a>）、网站、闸道装置、或是应用程序，”pwn“在这一方面的意思是攻破（”to compromise”，危及、损害）或是控制（”to control”）。在这一方面的意义上，它与<a href="&quot;">骇客入侵</a>与破解是相同意思的。</p></blockquote><p>pwn.kr有着很多的pwn challenge，在这里可以练习和学习pwn。</p><p><img src="http://t.cn/R4xi93C" style="display:block;margin:auto"></p>
+              <p>pwn在维基百科上的解释是</p>
+<blockquote>
+<p>包括电脑（<a href="">服务器</a>或<a href="">个人电脑</a>）、网站、闸道装置、或是应用程序，”pwn“在这一方面的意思是攻破（”to compromise”，危及、损害）或是控制（”to control”）。在这一方面的意义上，它与<a href="&quot;">骇客入侵</a>与破解是相同意思的。</p>
+</blockquote>
+<p>pwn.kr有着很多的pwn challenge，在这里可以练习和学习pwn。</p>
+<p><img src="http://t.cn/R4xi93C" style="display:block;margin:auto"></p>
           
       
       
@@ -568,7 +660,11 @@ cd Empire/setup/
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>这是韩国一个做challenge的网站，用来测试你的逆向水平，有兴趣的同学可以去试试。</p><p>言归正传，这是一个ELF格式的文件，我们需要拿到Linux下运行。随便输入错误的key会提示Wrong！</p><p>拖到IDA分析。</p><p><img src="http://t.cn/R4x5UIs" style="display:block;margin:auto"></p><p>我们看到关键地方是左边比较eax与1的大小，eax等于1正确跳到正确分支，不等于1跳到错误分支。<br>
+              <p>这是韩国一个做challenge的网站，用来测试你的逆向水平，有兴趣的同学可以去试试。</p>
+<p>言归正传，这是一个ELF格式的文件，我们需要拿到Linux下运行。随便输入错误的key会提示Wrong！</p>
+<p>拖到IDA分析。</p>
+<p><img src="http://t.cn/R4x5UIs" style="display:block;margin:auto"></p>
+<p>我们看到关键地方是左边比较eax与1的大小，eax等于1正确跳到正确分支，不等于1跳到错误分支。<br>
           
       
       
@@ -635,7 +731,9 @@ cd Empire/setup/
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。</p><p><img src="http://t.cn/R4xinjL" style="display:block;margin:auto"></p><p>有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。<br>
+              <p>直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。</p>
+<p><img src="http://t.cn/R4xinjL" style="display:block;margin:auto"></p>
+<p>有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。<br>
           
       
       

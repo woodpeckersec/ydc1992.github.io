@@ -14,18 +14,18 @@
 
   <title>reversing.kr Ransomware | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。来到引用Key的地方。.text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
+  <meta name="description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。 来到引用Key的地方。 .text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
 <meta name="keywords" content="Reversing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="reversing.kr Ransomware">
 <meta property="og:url" content="http://yoursite.com/posts/ff6aab31.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。来到引用Key的地方。.text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
+<meta property="og:description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。 来到引用Key的地方。 .text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
 <meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.439Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="reversing.kr Ransomware">
-<meta name="twitter:description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。来到引用Key的地方。.text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
+<meta name="twitter:description" content="首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。 来到引用Key的地方。 .text:0044A775                 push    offset aKey     ; &amp;quot;Key : &amp;quot; .text:0044A77A                 call    ds:printf .text:0044A780">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -249,7 +249,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。</p><p>来到引用<code>Key</code>的地方。</p><pre><code class="cpp">.text:0044A775                 push    offset aKey     ; &quot;Key : &quot;
+        <p>首先看程序，发现被加了upx壳，使用脱壳工具脱掉后，看有没有关键的字符串。</p>
+<p>来到引用<code>Key</code>的地方。</p>
+<pre><code class="cpp">.text:0044A775                 push    offset aKey     ; &quot;Key : &quot;
 .text:0044A77A                 call    ds:printf
 .text:0044A780                 add     esp, 4
 .text:0044A783                 call    sub_401000
@@ -261,14 +263,19 @@
 .text:0044A7A2                 mov     eax, [ebp-18h]
 .text:0044A7A5                 add     eax, 1
 .text:0044A7A8                 mov     [ebp-1Ch], eax
-</code></pre><a id="more"></a><p>这段汇编代码把输入用来解密文件的key保存在<code>input_key</code>变量中。然后把input_key赋值给[ebp-18] 和 key值地址加一后的地址赋予[ebp-1c] (即)，继续往下走。碰到一个循环。</p><pre><code class="cpp">.text:0044A7AB loc_44A7AB:                             ; CODE XREF: _main+371DBj
+</code></pre>
+<a id="more"></a>
+<p>这段汇编代码把输入用来解密文件的key保存在<code>input_key</code>变量中。然后把input_key赋值给[ebp-18] 和 key值地址加一后的地址赋予[ebp-1c] (即)，继续往下走。碰到一个循环。</p>
+<pre><code class="cpp">.text:0044A7AB loc_44A7AB:                             ; CODE XREF: _main+371DBj
 .text:0044A7AB                 mov     ecx, [ebp-18h]
 .text:0044A7AE                 mov     dl, [ecx]
 .text:0044A7B0                 mov     [ebp-1Dh], dl
 .text:0044A7B3                 add     dword ptr [ebp-18h], 1
 .text:0044A7B7                 cmp     byte ptr [ebp-1Dh], 0
 .text:0044A7BB                 jnz     short loc_44A7AB
-</code></pre><p>依次比较key的每一位，如果为0，退出循环。</p><pre><code class="cpp">.text:0044A7BD                 mov     eax, [ebp-18h]
+</code></pre>
+<p>依次比较key的每一位，如果为0，退出循环。</p>
+<pre><code class="cpp">.text:0044A7BD                 mov     eax, [ebp-18h]
 .text:0044A7C0                 sub     eax, [ebp-1Ch]   ；计算key长度
 .text:0044A7C3                 mov     [ebp-24h], eax
 .text:0044A7C6                 mov     ecx, [ebp-24h]
@@ -290,7 +297,10 @@
 .text:0044A80C                 call    sub_401000
 .text:0044A811                 push    0
 .text:0044A813                 call    ds:exit
-</code></pre><p>通过key的最后一位的地址减去key值首地址+1来计算key长度，然后打开加密文件file，如果打开失败则退出程序。成功则跳转到loc_44a819处。汇编代码中<code>call sub_401000</code>可忽视，里面都是些垃圾代码。</p><p>来到loc_44a819代码。</p><pre><code class="cpp">.text:0044A819 loc_44A819:                             ; CODE XREF: _main+37217j
+</code></pre>
+<p>通过key的最后一位的地址减去key值首地址+1来计算key长度，然后打开加密文件file，如果打开失败则退出程序。成功则跳转到loc_44a819处。汇编代码中<code>call sub_401000</code>可忽视，里面都是些垃圾代码。</p>
+<p>来到loc_44a819代码。</p>
+<pre><code class="cpp">.text:0044A819 loc_44A819:                             ; CODE XREF: _main+37217j
 .text:0044A819                 push    2
 .text:0044A81B                 push    0
 .text:0044A81D                 mov     edx, [ebp-4]
@@ -330,7 +340,9 @@
 .text:0044A88D                 mov     [ebp-8], edx
 .text:0044A890                 call    sub_401000
 .text:0044A895                 jmp     short loc_44A856
-</code></pre><p>开头代码用 将文件指针移动到文件末尾，计算到文件头的偏移来计算文件大小。然后重新加那个文件指针指向文件头。嗯，下面又是一个循环。主要功能就是把文件内容复制到<code>byte_5415B8</code>指向的内存地址。复制完毕后则跳到loc_44A897，这里是个循环。</p><pre><code class="cpp">.text:0044A897 loc_44A897:                             ; CODE XREF: _main+37285j
+</code></pre>
+<p>开头代码用 将文件指针移动到文件末尾，计算到文件头的偏移来计算文件大小。然后重新加那个文件指针指向文件头。嗯，下面又是一个循环。主要功能就是把文件内容复制到<code>byte_5415B8</code>指向的内存地址。复制完毕后则跳到loc_44A897，这里是个循环。</p>
+<pre><code class="cpp">.text:0044A897 loc_44A897:                             ; CODE XREF: _main+37285j
 .text:0044A897                 call    sub_401000
 .text:0044A89C                 mov     dword ptr [ebp-8], 0；[ebp-8] = fileOffset
 .text:0044A8A3                 jmp     short loc_44A8AE
@@ -360,7 +372,9 @@
 .text:0044A8F2                 mov     byte_5415B8[eax], dl
 .text:0044A8F8                 call    sub_401000
 .text:0044A8FD                 jmp     short loc_44A8A5
-</code></pre><p>这段循环代码就是解密代码了。</p>
+</code></pre>
+<p>这段循环代码就是解密代码了。</p>
+
       
       
         <div class="page-reward">
@@ -533,7 +547,7 @@
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

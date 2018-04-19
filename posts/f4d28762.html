@@ -14,20 +14,20 @@
 
   <title>Far Manager插件编写1  | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。插件编写Far插件是一个dll文件，通过Far">
+  <meta name="description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。  Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。  插件编写Far插件是一个dll文件，通">
 <meta name="keywords" content="Far Manager">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Far Manager插件编写1 ">
 <meta property="og:url" content="http://yoursite.com/posts/f4d28762.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。插件编写Far插件是一个dll文件，通过Far">
+<meta property="og:description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。  Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。  插件编写Far插件是一个dll文件，通">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/RGRNcEJ">
 <meta property="og:image" content="http://t.cn/RGRNIpY">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.403Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Far Manager插件编写1 ">
-<meta name="twitter:description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。插件编写Far插件是一个dll文件，通过Far">
+<meta name="twitter:description" content="由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。  Far Manager(short for File and ARchive Manager),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。  插件编写Far插件是一个dll文件，通">
 <meta name="twitter:image" content="http://t.cn/RGRNcEJ">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -252,7 +252,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。</p><blockquote><p>Far Manager(short for <em><strong>F</strong>ile and <strong>AR</strong>chive <strong>Manager</strong></em>),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。</p></blockquote><h2 id="插件编写"><a href="#插件编写" class="headerlink" title="插件编写"></a>插件编写</h2><p>Far插件是一个dll文件，通过Far提供的接口来实现高度可定制化的插件。将该dll文件放入Far的插件目录，调用插件时会加载该dll。</p><h3 id="GetGlobalInfoW"><a href="#GetGlobalInfoW" class="headerlink" title="GetGlobalInfoW"></a>GetGlobalInfoW</h3><p>Far加载插件时，最先加载就是插件导出的<strong>GetGlobalInfoW</strong>函数，如果没有导出该函数，这个插件也就不能被Far调用。这个函数主要的功能是提供插件的基本信息。如作者、插件版本、描述和插件路径、GUID等等。<br><img src="http://t.cn/RGRNcEJ" style="display:block;margin:auto"></p><pre><code class="cpp">// {1C6B0907-0B96-47C4-A24B-36A9B184AF25}
+        <p>由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。</p>
+<blockquote>
+<p>Far Manager(short for <em><strong>F</strong>ile and <strong>AR</strong>chive <strong>Manager</strong></em>),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。</p>
+</blockquote>
+<h2 id="插件编写"><a href="#插件编写" class="headerlink" title="插件编写"></a>插件编写</h2><p>Far插件是一个dll文件，通过Far提供的接口来实现高度可定制化的插件。将该dll文件放入Far的插件目录，调用插件时会加载该dll。</p>
+<h3 id="GetGlobalInfoW"><a href="#GetGlobalInfoW" class="headerlink" title="GetGlobalInfoW"></a>GetGlobalInfoW</h3><p>Far加载插件时，最先加载就是插件导出的<strong>GetGlobalInfoW</strong>函数，如果没有导出该函数，这个插件也就不能被Far调用。这个函数主要的功能是提供插件的基本信息。如作者、插件版本、描述和插件路径、GUID等等。<br><img src="http://t.cn/RGRNcEJ" style="display:block;margin:auto"></p>
+<pre><code class="cpp">// {1C6B0907-0B96-47C4-A24B-36A9B184AF25}
 static const GUID guid_PluginGuid =
 { 0x1c6b0907, 0xb96, 0x47c4,{ 0xa2, 0x4b, 0x36, 0xa9, 0xb1, 0x84, 0xaf, 0x25 } };  //全局变量
 
@@ -271,7 +277,11 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
     Info-&gt;Title = L&quot;My First Plugin&quot;;
     Info-&gt;Guid = guid_PluginGuid;
 }
-</code></pre><a id="more"></a><p>在该函数内初始化GlobalInfo即可。注意要<strong>导出该函数</strong>。guid可使用VS的创建GUID生成，注意必须是<strong>唯一的</strong>。</p><h3 id="显示插件菜单"><a href="#显示插件菜单" class="headerlink" title="显示插件菜单"></a>显示插件菜单</h3><p>我们填充了插件的基本信息，但是按F11弹出的插件菜单是没有该插件菜单的(我截的图有该插件，不要在意这些细节)。我们就需要导出另一个函数<strong>GetPluginInfoW</strong>。该函数提供插件更多信息。<br><img src="http://t.cn/RGRNIpY" style="display:block;margin:auto"></p><pre><code class="cpp">// {1D228F40-FE40-4663-92D9-EB184E455AF1}
+</code></pre>
+<a id="more"></a>
+<p>在该函数内初始化GlobalInfo即可。注意要<strong>导出该函数</strong>。guid可使用VS的创建GUID生成，注意必须是<strong>唯一的</strong>。</p>
+<h3 id="显示插件菜单"><a href="#显示插件菜单" class="headerlink" title="显示插件菜单"></a>显示插件菜单</h3><p>我们填充了插件的基本信息，但是按F11弹出的插件菜单是没有该插件菜单的(我截的图有该插件，不要在意这些细节)。我们就需要导出另一个函数<strong>GetPluginInfoW</strong>。该函数提供插件更多信息。<br><img src="http://t.cn/RGRNIpY" style="display:block;margin:auto"></p>
+<pre><code class="cpp">// {1D228F40-FE40-4663-92D9-EB184E455AF1}
 static const GUID guid_PluginMenu =
 { 0x1d228f40, 0xfe40, 0x4663,{ 0x92, 0xd9, 0xeb, 0x18, 0x4e, 0x45, 0x5a, 0xf1 } }; //全局变量
 
@@ -289,7 +299,10 @@ void WINAPI  GetPluginInfoW(PluginInfo *Info)
     Info-&gt;PluginMenu.Guids = &amp;guid_PluginMenu;
     Info-&gt;PluginMenu.Strings = &amp;szMenu;//插件菜单显示的名字
 }
-</code></pre><p>插件和插件菜单都有一个GUID来标识插件和插件菜单。</p><h3 id="SetStartupInfoW"><a href="#SetStartupInfoW" class="headerlink" title="SetStartupInfoW"></a>SetStartupInfoW</h3><p>这个函数也是需要导出的函数，这个函数很重要，如果没有导出这个函数，Far的很多功能都不能够实现。这个函数主要的功能就是将<strong>PluginStartupInfo</strong>结构传给该插件，因此我们要定义全局变量接收这个结构以便整个插件能使用该结构。这个结构提供了对话框、消息框、插件控制、视图编辑器、文本面板控制等功能。</p><pre><code class="cpp">//固定用法
+</code></pre>
+<p>插件和插件菜单都有一个GUID来标识插件和插件菜单。</p>
+<h3 id="SetStartupInfoW"><a href="#SetStartupInfoW" class="headerlink" title="SetStartupInfoW"></a>SetStartupInfoW</h3><p>这个函数也是需要导出的函数，这个函数很重要，如果没有导出这个函数，Far的很多功能都不能够实现。这个函数主要的功能就是将<strong>PluginStartupInfo</strong>结构传给该插件，因此我们要定义全局变量接收这个结构以便整个插件能使用该结构。这个结构提供了对话框、消息框、插件控制、视图编辑器、文本面板控制等功能。</p>
+<pre><code class="cpp">//固定用法
 PluginStartupInfo psi; \\不能使用指针
 FarStandardFunctions fsf; \\不能使用指针
 
@@ -300,7 +313,9 @@ void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
     fsf = *Info-&gt;FSF; 
     psi.FSF = &amp;fsf;//因为从info传递给pis的结构中的fsf结构体不是在该插件dll文内。
 }
-</code></pre><p>这里定义的psi和fsf在后面还会用到很多。<br>导出了这三个函数我们就可以实现更多的内容了。</p>
+</code></pre>
+<p>这里定义的psi和fsf在后面还会用到很多。<br>导出了这三个函数我们就可以实现更多的内容了。</p>
+
       
       
         <div class="page-reward">
@@ -473,7 +488,7 @@ void WINAPI SetStartupInfoW(const PluginStartupInfo *Info)
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

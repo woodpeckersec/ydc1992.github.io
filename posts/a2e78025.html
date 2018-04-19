@@ -14,18 +14,18 @@
 
   <title>Python取证技术(2): hash生成 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。先通过一个实例来让大家了解怎样使用python的hashlib库。import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha25">
+  <meta name="description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。 先通过一个实例来让大家了解怎样使用python的hashlib库。 import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha">
 <meta name="keywords" content="取证">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python取证技术(2): hash生成">
 <meta property="og:url" content="http://yoursite.com/posts/a2e78025.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。先通过一个实例来让大家了解怎样使用python的hashlib库。import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha25">
+<meta property="og:description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。 先通过一个实例来让大家了解怎样使用python的hashlib库。 import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha">
 <meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.418Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python取证技术(2): hash生成">
-<meta name="twitter:description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。先通过一个实例来让大家了解怎样使用python的hashlib库。import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha25">
+<meta name="twitter:description" content="在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。 先通过一个实例来让大家了解怎样使用python的hashlib库。 import hashlib   #导入hash库  Text   = &amp;quot;This is Test&amp;quot; md5    = hashlib.md5() sha">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -249,7 +249,9 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p><p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p><pre><code class="python">import hashlib   #导入hash库
+        <p>在计算机取证中，经常会对文件计算hash，常用的hash有md5、sha256等等。pyhon中提供了hashlib库，让我们可以很方便的使用hash函数。</p>
+<p>先通过一个实例来让大家了解怎样使用python的hashlib库。</p>
+<pre><code class="python">import hashlib   #导入hash库
 
 Text   = &quot;This is Test&quot;
 md5    = hashlib.md5()
@@ -261,18 +263,30 @@ sha256.update(Text)
 
 print &quot;md5:&quot; + md5.hexdigest()
 print &quot;sha256&quot; + sha256.hexdigest()
-</code></pre><p>输出结果:</p><pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
+</code></pre>
+<p>输出结果:</p>
+<pre><code class="bash">md5:ba5e658e8787abe7f6bc473169e566aa 
 sha256:c0944b5a36476a91b39dee68df2432eae4565c315cfe870a9f951ca643abfb61
-</code></pre><a id="more"></a><h2 id="计算文件hash"><a href="#计算文件hash" class="headerlink" title="计算文件hash"></a>计算文件hash</h2><p>计算文件hash也是大同小异。读取文件内容，然后计算这段内容的hash。计算整块硬盘或多个文件的hash同理。</p><pre><code class="python">import hashlib
+</code></pre>
+<a id="more"></a>
+<h2 id="计算文件hash"><a href="#计算文件hash" class="headerlink" title="计算文件hash"></a>计算文件hash</h2><p>计算文件hash也是大同小异。读取文件内容，然后计算这段内容的hash。计算整块硬盘或多个文件的hash同理。</p>
+<pre><code class="python">import hashlib
 # 计算单个文件hash
 def CalcHash(filepath):
     with open(&quot;c:\test.txt&quot;) as f:
         data = f.read()
         md5hash = hashlib.md5.update(data)
         return md5hash.hexdigest()
-</code></pre><h2 id="签名工具"><a href="#签名工具" class="headerlink" title="签名工具"></a>签名工具</h2><p>gpg是linux系统上免费的加密解密和签名工具。如果我们把取证过程中计算出的hash保存到一个文件，没有任何保护，很容易被修改。这时我们可以用gpg的签名功能来保证文件不被修改，一旦被修改，数字证书就失效。</p><p>如果是第一次使用，我们要先生成自己的密钥。输入命令</p><pre><code class="bash">gpg --gen-key
-</code></pre><p>根据屏幕中的提示一步步创建密钥，使用clearsign选项生成ASCII码存放的数字证书。</p><pre><code class="bash">gpg --clearsign test.txt 
-</code></pre><p><a href="http://www.ruanyifeng.com/blog/2013/07/gpg.html" title="gpg更多的用法，点这里" target="_blank" rel="noopener">gpg更多的用法，点这里</a></p>
+</code></pre>
+<h2 id="签名工具"><a href="#签名工具" class="headerlink" title="签名工具"></a>签名工具</h2><p>gpg是linux系统上免费的加密解密和签名工具。如果我们把取证过程中计算出的hash保存到一个文件，没有任何保护，很容易被修改。这时我们可以用gpg的签名功能来保证文件不被修改，一旦被修改，数字证书就失效。</p>
+<p>如果是第一次使用，我们要先生成自己的密钥。输入命令</p>
+<pre><code class="bash">gpg --gen-key
+</code></pre>
+<p>根据屏幕中的提示一步步创建密钥，使用clearsign选项生成ASCII码存放的数字证书。</p>
+<pre><code class="bash">gpg --clearsign test.txt 
+</code></pre>
+<p><a href="http://www.ruanyifeng.com/blog/2013/07/gpg.html" title="gpg更多的用法，点这里" target="_blank" rel="noopener">gpg更多的用法，点这里</a></p>
+
       
       
         <div class="page-reward">
@@ -445,7 +459,7 @@ def CalcHash(filepath):
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

@@ -14,18 +14,18 @@
 
   <title>Python取证技术(1):环境搭建和ctype库介绍 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools, p">
+  <meta name="description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
 <meta name="keywords" content="取证">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python取证技术(1):环境搭建和ctype库介绍">
 <meta property="og:url" content="http://yoursite.com/posts/9f1bddab.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools, p">
+<meta property="og:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
 <meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.416Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python取证技术(1):环境搭建和ctype库介绍">
-<meta name="twitter:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools, p">
+<meta name="twitter:description" content="环境配置安装虚拟沙盒virtualenvpip install virtualenv 创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。 root@kali:~# virtualenv KenEnv New python executable in KenEnv/bin/python Installing setuptools,">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -250,34 +250,162 @@
       
           
         <h1 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h1><h2 id="安装虚拟沙盒virtualenv"><a href="#安装虚拟沙盒virtualenv" class="headerlink" title="安装虚拟沙盒virtualenv"></a>安装虚拟沙盒virtualenv</h2><pre><code>pip install virtualenv
-</code></pre><p>创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。</p><pre><code class="bash">root@kali:~# virtualenv KenEnv
+</code></pre><p>创建一个虚拟沙盒，也就是python的独立开发环境，类似于VMWare里虚拟机的操作系统一样，对外界不会产生任何影响。</p>
+<pre><code class="bash">root@kali:~# virtualenv KenEnv
 New python executable in KenEnv/bin/python
 Installing setuptools, pip, wheel...done.
-</code></pre><p>创建成功后，会在当前目录建立一个专属于该python独立开发环境的目录。该目录包含了可执行python文件和pip库的复件。可用于在python独立开发环境安装其他packages。该环境的名称可以随便指定。在这里的名字是<strong>KenEnv</strong>。命令提示符<br><a id="more"></a><br>要让它开始工作，首先我们进入该目录，激活它</p><pre><code class="bash">root@kali:~# cd KenEnv/
+</code></pre>
+<p>创建成功后，会在当前目录建立一个专属于该python独立开发环境的目录。该目录包含了可执行python文件和pip库的复件。可用于在python独立开发环境安装其他packages。该环境的名称可以随便指定。在这里的名字是<strong>KenEnv</strong>。命令提示符<br><a id="more"></a><br>要让它开始工作，首先我们进入该目录，激活它</p>
+<pre><code class="bash">root@kali:~# cd KenEnv/
 root@kali:~/KenEnv# source ./bin/activate
 (KenEnv)root@kali:~/KenEnv# 
-</code></pre><p>激活成功后，命令提示符前面会带上环境名称的前缀。</p><p>如果想回到正常的shell环境，命令提示符前面的前缀也会去掉。</p><pre><code class="bash">(KenEnv)root@kali:~/KenEnv# deactivate 
+</code></pre>
+<p>激活成功后，命令提示符前面会带上环境名称的前缀。</p>
+<p>如果想回到正常的shell环境，命令提示符前面的前缀也会去掉。</p>
+<pre><code class="bash">(KenEnv)root@kali:~/KenEnv# deactivate 
 root@kali:~/KenEnv# 
-</code></pre><h2 id="ctype使用"><a href="#ctype使用" class="headerlink" title="ctype使用"></a>ctype使用</h2><p>ctype是python的一个外部库，提供了兼容C的数据类型和可以调用dll和共享库的函数。这意味着只用python代码就可以调用C语言的函数。ctype可以说是在python的库中最强大的库之一。<br>更详细的内容点<a href="https://docs.python.org/2/library/ctypes.html" title="官方文档" target="_blank" rel="noopener">官方文档</a></p><h3 id="调用dll"><a href="#调用dll" class="headerlink" title="调用dll"></a>调用dll</h3><h4 id="标准C函数"><a href="#标准C函数" class="headerlink" title="标准C函数"></a>标准C函数</h4><pre><code class="bash">
+</code></pre>
+<h2 id="ctype使用"><a href="#ctype使用" class="headerlink" title="ctype使用"></a>ctype使用</h2><p>ctype是python的一个外部库，提供了兼容C的数据类型和可以调用dll和共享库的函数。这意味着只用python代码就可以调用C语言的函数。ctype可以说是在python的库中最强大的库之一。<br>更详细的内容点<a href="https://docs.python.org/2/library/ctypes.html" title="官方文档" target="_blank" rel="noopener">官方文档</a></p>
+<h3 id="调用dll"><a href="#调用dll" class="headerlink" title="调用dll"></a>调用dll</h3><h4 id="标准C函数"><a href="#标准C函数" class="headerlink" title="标准C函数"></a>标准C函数</h4><pre><code class="bash">
 &gt;&gt;&gt; from ctypes import *
 &gt;&gt;&gt; libc = cdll.msvcrt
 &gt;&gt;&gt; print libc.time(None)
 1453083296
-</code></pre><p>msvcrt是微软的标准C库，包含了很多标准c函数和使用cdecl调用。类似于Linux系统的libc。<br>注意上述语句在linux运行会报错，因为在Linux并不存在msvcrt文件。</p><h4 id="Linux-动态链接库so"><a href="#Linux-动态链接库so" class="headerlink" title="Linux 动态链接库so"></a>Linux 动态链接库so</h4><p>Linux调用动态链接库(即so文件)需要提供完整的文件名。使用CDLL不是cdll，这两个函数是不同的，一个用于windows，一个用于linux。</p><pre><code class="bash">&gt;&gt;&gt; from ctypes import *
+</code></pre>
+<p>msvcrt是微软的标准C库，包含了很多标准c函数和使用cdecl调用。类似于Linux系统的libc。<br>注意上述语句在linux运行会报错，因为在Linux并不存在msvcrt文件。</p>
+<h4 id="Linux-动态链接库so"><a href="#Linux-动态链接库so" class="headerlink" title="Linux 动态链接库so"></a>Linux 动态链接库so</h4><p>Linux调用动态链接库(即so文件)需要提供完整的文件名。使用CDLL不是cdll，这两个函数是不同的，一个用于windows，一个用于linux。</p>
+<pre><code class="bash">&gt;&gt;&gt; from ctypes import *
 &gt;&gt;&gt; libc = CDLL(&quot;libc.so.6&quot;)
 &gt;&gt;&gt; print libc.time(None)
 1453083296
-</code></pre><h4 id="Windows-dll"><a href="#Windows-dll" class="headerlink" title="Windows dll"></a>Windows dll</h4><p>在windows环境下，还可以调用windows的dll导出函数，kernel32.dll、user32.dll等等。使用标准call约定。</p><pre><code class="bash">&gt;&gt;&gt; from ctypes import *
+</code></pre>
+<h4 id="Windows-dll"><a href="#Windows-dll" class="headerlink" title="Windows dll"></a>Windows dll</h4><p>在windows环境下，还可以调用windows的dll导出函数，kernel32.dll、user32.dll等等。使用标准call约定。</p>
+<pre><code class="bash">&gt;&gt;&gt; from ctypes import *
 &gt;&gt;&gt; hex(windll.kernel32.GetModuleHandleA(None))
    &#39;0x1c7a0000&#39;                                   
-</code></pre><p>从上面这些例子可以看到，ctype库可以很容易的调用这些dll导出的函数。</p><h3 id="ctype数据类型"><a href="#ctype数据类型" class="headerlink" title="ctype数据类型"></a>ctype数据类型</h3><p>所有的python类型除了整型、字符串和unicode字符串以外。其他的类型都需要转换成在ctype中相应的类型，不然就会抛出类型异常。</p><table><thead><tr><th>ctypes type</th><th>C type</th><th>Python type</th></tr></thead><tbody><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_bool" title="ctypes.c_bool" target="_blank" rel="noopener"><code>c_bool</code></a></td><td><code>_Bool</code></td><td>bool (1)</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char" title="ctypes.c_char" target="_blank" rel="noopener"><code>c_char</code></a></td><td><code>char</code></td><td>1-character string</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar" title="ctypes.c_wchar" target="_blank" rel="noopener"><code>c_wchar</code></a></td><td><code>wchar_t</code></td><td>1-character unicode string</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_byte" title="ctypes.c_byte" target="_blank" rel="noopener"><code>c_byte</code></a></td><td><code>char</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ubyte" title="ctypes.c_ubyte" target="_blank" rel="noopener"><code>c_ubyte</code></a></td><td><code>unsigned char</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_short" title="ctypes.c_short" target="_blank" rel="noopener"><code>c_short</code></a></td><td><code>short</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ushort" title="ctypes.c_ushort" target="_blank" rel="noopener"><code>c_ushort</code></a></td><td><code>unsigned short</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_int" title="ctypes.c_int" target="_blank" rel="noopener"><code>c_int</code></a></td><td><code>int</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_uint" title="ctypes.c_uint" target="_blank" rel="noopener"><code>c_uint</code></a></td><td><code>unsigned int</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_long" title="ctypes.c_long" target="_blank" rel="noopener"><code>c_long</code></a></td><td><code>long</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulong" title="ctypes.c_ulong" target="_blank" rel="noopener"><code>c_ulong</code></a></td><td><code>unsigned long</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longlong" title="ctypes.c_longlong" target="_blank" rel="noopener"><code>c_longlong</code></a></td><td><code>__int64</code> or <code>long long</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulonglong" title="ctypes.c_ulonglong" target="_blank" rel="noopener"><code>c_ulonglong</code></a></td><td><code>unsigned __int64</code> or <code>unsigned long long</code></td><td>int/long</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_float" title="ctypes.c_float" target="_blank" rel="noopener"><code>c_float</code></a></td><td><code>float</code></td><td>float</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_double" title="ctypes.c_double" target="_blank" rel="noopener"><code>c_double</code></a></td><td><code>double</code></td><td>float</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longdouble" title="ctypes.c_longdouble" target="_blank" rel="noopener"><code>c_longdouble</code></a></td><td><code>long double</code></td><td>float</td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char_p" title="ctypes.c_char_p" target="_blank" rel="noopener"><code>c_char_p</code></a></td><td><code>char *</code> (NUL terminated)</td><td>string or <code>None</code></td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar_p" title="ctypes.c_wchar_p" target="_blank" rel="noopener"><code>c_wchar_p</code></a></td><td><code>wchar_t *</code> (NUL terminated)</td><td>unicode or <code>None</code></td></tr><tr><td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_void_p" title="ctypes.c_void_p" target="_blank" rel="noopener"><code>c_void_p</code></a></td><td><code>void *</code></td><td>int/long or <code>None</code></td></tr></tbody></table><p>下面我举一个例子：</p><pre><code class="python">&gt;&gt;&gt; printf = cdll.msvcrt.printf                                                                              
+</code></pre>
+<p>从上面这些例子可以看到，ctype库可以很容易的调用这些dll导出的函数。</p>
+<h3 id="ctype数据类型"><a href="#ctype数据类型" class="headerlink" title="ctype数据类型"></a>ctype数据类型</h3><p>所有的python类型除了整型、字符串和unicode字符串以外。其他的类型都需要转换成在ctype中相应的类型，不然就会抛出类型异常。</p>
+<table>
+<thead>
+<tr>
+<th>ctypes type</th>
+<th>C type</th>
+<th>Python type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_bool" title="ctypes.c_bool" target="_blank" rel="noopener"><code>c_bool</code></a></td>
+<td><code>_Bool</code></td>
+<td>bool (1)</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char" title="ctypes.c_char" target="_blank" rel="noopener"><code>c_char</code></a></td>
+<td><code>char</code></td>
+<td>1-character string</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar" title="ctypes.c_wchar" target="_blank" rel="noopener"><code>c_wchar</code></a></td>
+<td><code>wchar_t</code></td>
+<td>1-character unicode string</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_byte" title="ctypes.c_byte" target="_blank" rel="noopener"><code>c_byte</code></a></td>
+<td><code>char</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ubyte" title="ctypes.c_ubyte" target="_blank" rel="noopener"><code>c_ubyte</code></a></td>
+<td><code>unsigned char</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_short" title="ctypes.c_short" target="_blank" rel="noopener"><code>c_short</code></a></td>
+<td><code>short</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ushort" title="ctypes.c_ushort" target="_blank" rel="noopener"><code>c_ushort</code></a></td>
+<td><code>unsigned short</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_int" title="ctypes.c_int" target="_blank" rel="noopener"><code>c_int</code></a></td>
+<td><code>int</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_uint" title="ctypes.c_uint" target="_blank" rel="noopener"><code>c_uint</code></a></td>
+<td><code>unsigned int</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_long" title="ctypes.c_long" target="_blank" rel="noopener"><code>c_long</code></a></td>
+<td><code>long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulong" title="ctypes.c_ulong" target="_blank" rel="noopener"><code>c_ulong</code></a></td>
+<td><code>unsigned long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longlong" title="ctypes.c_longlong" target="_blank" rel="noopener"><code>c_longlong</code></a></td>
+<td><code>__int64</code> or <code>long long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_ulonglong" title="ctypes.c_ulonglong" target="_blank" rel="noopener"><code>c_ulonglong</code></a></td>
+<td><code>unsigned __int64</code> or <code>unsigned long long</code></td>
+<td>int/long</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_float" title="ctypes.c_float" target="_blank" rel="noopener"><code>c_float</code></a></td>
+<td><code>float</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_double" title="ctypes.c_double" target="_blank" rel="noopener"><code>c_double</code></a></td>
+<td><code>double</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_longdouble" title="ctypes.c_longdouble" target="_blank" rel="noopener"><code>c_longdouble</code></a></td>
+<td><code>long double</code></td>
+<td>float</td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_char_p" title="ctypes.c_char_p" target="_blank" rel="noopener"><code>c_char_p</code></a></td>
+<td><code>char *</code> (NUL terminated)</td>
+<td>string or <code>None</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_wchar_p" title="ctypes.c_wchar_p" target="_blank" rel="noopener"><code>c_wchar_p</code></a></td>
+<td><code>wchar_t *</code> (NUL terminated)</td>
+<td>unicode or <code>None</code></td>
+</tr>
+<tr>
+<td><a href="https://docs.python.org/2/library/ctypes.html#ctypes.c_void_p" title="ctypes.c_void_p" target="_blank" rel="noopener"><code>c_void_p</code></a></td>
+<td><code>void *</code></td>
+<td>int/long or <code>None</code></td>
+</tr>
+</tbody>
+</table>
+<p>下面我举一个例子：</p>
+<pre><code class="python">&gt;&gt;&gt; printf = cdll.msvcrt.printf                                                                              
 &gt;&gt;&gt; printf(&quot;整型:%d,浮点型:%f&quot;,1,1.0)                                                                             
 Traceback (most recent call last):                                                                           
   File &quot;&lt;stdin&gt;&quot;, line 1, in &lt;module&gt;                                                                     
 ctypes.ArgumentError: argument 3: &lt;type &#39;exceptions.TypeError&#39;&gt;: Don&#39;t know how to convert parameter 3       
-</code></pre><p>第三个参数抛出异常，原因是不知道该参数应该转换成什么类型。</p><pre><code class="bash">&gt;&gt;&gt; printf(&quot;整型:%d,浮点型:%f&quot;,1,c_double(1.0))  
+</code></pre>
+<p>第三个参数抛出异常，原因是不知道该参数应该转换成什么类型。</p>
+<pre><code class="bash">&gt;&gt;&gt; printf(&quot;整型:%d,浮点型:%f&quot;,1,c_double(1.0))  
 整型:1,浮点型:1.00000022                         
-</code></pre><p>将第三个参数转换成ctype中相对应的类型c_double时不再抛出异常。</p><p>更多用法请参考官方文档。</p>
+</code></pre>
+<p>将第三个参数转换成ctype中相对应的类型c_double时不再抛出异常。</p>
+<p>更多用法请参考官方文档。</p>
+
       
       
         <div class="page-reward">
@@ -450,7 +578,7 @@ ctypes.ArgumentError: argument 3: &lt;type &#39;exceptions.TypeError&#39;&gt;: D
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

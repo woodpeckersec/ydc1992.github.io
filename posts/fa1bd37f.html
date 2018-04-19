@@ -12,26 +12,19 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>Reversing.kr CSHOP | ydc&#39;s blog</title>
+  <title>windows内核学习:内存操作 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="CSHOP为C#编写的程序,运行改程序窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。">
-<meta name="keywords" content="Reversing">
+  <meta name="description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Reversing.kr CSHOP">
-<meta property="og:url" content="http://yoursite.com/posts/1bb8fcd6.html">
+<meta property="og:title" content="windows内核学习:内存操作">
+<meta property="og:url" content="http://yoursite.com/posts/fa1bd37f.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="CSHOP为C#编写的程序,运行改程序窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。">
+<meta property="og:description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://t.cn/RGRNJgI">
-<meta property="og:image" content="http://t.cn/RGRNXt4">
-<meta property="og:image" content="http://t.cn/RGRNScy">
-<meta property="og:image" content="http://t.cn/RGRNCUJ">
-<meta property="og:image" content="http://t.cn/RGRNp74">
-<meta property="og:updated_time" content="2018-04-04T16:57:40.423Z">
+<meta property="og:updated_time" content="2018-04-19T23:12:37.455Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Reversing.kr CSHOP">
-<meta name="twitter:description" content="CSHOP为C#编写的程序,运行改程序窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。">
-<meta name="twitter:image" content="http://t.cn/RGRNJgI">
+<meta name="twitter:title" content="windows内核学习:内存操作">
+<meta name="twitter:description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -213,11 +206,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-Reversing-kr-CSHOP" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-windows内核学习-内存操作" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/posts/1bb8fcd6.html" class="article-date">
-      <time datetime="2016-02-15T08:43:09.000Z" itemprop="datePublished">2016-02-15</time>
+      <a href="/posts/fa1bd37f.html" class="article-date">
+      <time datetime="2018-04-19T23:11:52.000Z" itemprop="datePublished">2018-04-20</time>
 </a>
     </div>
   
@@ -230,7 +223,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Reversing.kr CSHOP
+      windows内核学习:内存操作
     </h1>
   
 
@@ -238,16 +231,8 @@
       
       <div class="article-info article-info-post">
         
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
 
         
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reversing/">Reversing</a></li></ul>
-    </div>
-
         <div class="clearfix"></div>
       </div>
       
@@ -255,10 +240,76 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>CSHOP为C#编写的程序,运行改程序<br><img src="http://t.cn/RGRNJgI" alt=""><br>窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。</p>
-<a id="more"></a>
-<p>但是我们在运行的窗口中并没有看到按钮，如果仔细再看下源码，你就会发现如下图的代码。<br><img src="http://t.cn/RGRNXt4" alt=""><br>这个button的大小被设置成0了。难怪我们看不到了。我们修改此处的IL指令，修改0的值。这里我就改成20 和30了。<br><img src="http://t.cn/RGRNScy" alt=""></p>
-<p>修改完成后，点击File-SaveAll保存所有的修改，文件名需要和拖进dnspy的文件 不一样。因为后者是被占用无法修改。<br><img src="http://t.cn/RGRNCUJ" alt=""><br>打开修改后的文件，点击按钮就会在下面出现flag。<br><img src="http://t.cn/RGRNp74" alt=""></p>
+        <p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p>
+<p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p>
+<pre><code>void test()
+{
+    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);
+    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);
+    RtlFillMemory(ptr2,0x200,0x90);
+    RtlMoveMemory(ptr1,ptr2,0x50);
+    ExFreePool(ptr1);
+    ExFreePool(ptr2);
+}
+</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p>
+<pre><code>KIRQL WPOFFx64()
+{
+    KIRQL irql=KeRaiseIrqlToDpcLevel();
+    UINT64 cr0=__readcr0();
+    cr0 &amp;= 0xfffffffffffeffff;
+    __writecr0(cr0);
+    _disable();
+    return irql;
+}
+void WPONx64(KIRQL irql)
+{
+    UINT64 cr0=__readcr0();
+    cr0 |= 0x10000;
+    _enable();
+    __writecr0(cr0);
+    KeLowerIrql(irql);
+}
+void test()
+{
+   KIRQL irql=WPOFF();
+   RtlMoveMemory(NtOpenProcess,HookCode,15);
+   WPON(irql);
+}
+</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p>
+<pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy )
+{
+    PMDL pMdl = NULL;
+    PVOID pSafeAddress = NULL;
+   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )
+      return FALSE;
+    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );
+      if( !pMdl )
+     return FALSE;
+  __try
+{
+     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );
+}
+__except(EXCEPTION_EXECUTE_HANDLER)
+{
+    IoFreeMdl( pMdl );
+    return FALSE;
+}
+    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );
+    if( !pSafeAddress )
+     return FALSE;
+__try
+{
+    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );
+}
+__except(EXCEPTION_EXECUTE_HANDLER)
+{
+   ;
+}
+    MmUnlockPages( pMdl );
+   IoFreeMdl( pMdl );
+   return TRUE;
+}
+</code></pre>
 
       
       
@@ -314,13 +365,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></p>
+        <p><span>本文标题:</span><a href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2016年02月15日 - 16时43分</p>
-        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p><span>发布时间:</span>2018年04月20日 - 07时11分</p>
+        <p><span>最后更新:</span>2018年04月20日 - 07时12分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/posts/1bb8fcd6.html" title="Reversing.kr CSHOP">http://yoursite.com/posts/1bb8fcd6.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/1bb8fcd6.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/fa1bd37f.html" title="windows内核学习:内存操作">http://yoursite.com/posts/fa1bd37f.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/fa1bd37f.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -333,18 +384,9 @@
 
 <nav id="article-nav">
   
-    <a href="/posts/c240cede.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          Pwnable.kr leg
-        
-      </div>
-    </a>
   
-  
-    <a href="/posts/84f4a8fe.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">python爬虫实战:Oculus VR</div>
+    <a href="/posts/15ab7b57.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">windows内核学习:文件操作</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -421,13 +463,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/posts/c240cede.html" title="上一篇: Pwnable.kr leg">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/posts/84f4a8fe.html" title="下一篇: python爬虫实战:Oculus VR">
+            <a href="/posts/15ab7b57.html" title="下一篇: windows内核学习:文件操作">
                 <i class="fa fa-angle-right"></i>
             </a>
         

@@ -14,20 +14,20 @@
 
   <title>Pwnable.kr leg | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="先看题目提供的源码；分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。key1()+key2()+key3()) == key">
+  <meta name="description" content="先看题目提供的源码； 分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。 key1()+key2()+key3()) == key">
 <meta name="keywords" content="Pwnable">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Pwnable.kr leg">
 <meta property="og:url" content="http://yoursite.com/posts/c240cede.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="先看题目提供的源码；分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。key1()+key2()+key3()) == key">
+<meta property="og:description" content="先看题目提供的源码； 分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。 key1()+key2()+key3()) == key">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/RGROoB4">
 <meta property="og:image" content="http://t.cn/RGRO9tC">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.411Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Pwnable.kr leg">
-<meta name="twitter:description" content="先看题目提供的源码；分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。key1()+key2()+key3()) == key">
+<meta name="twitter:description" content="先看题目提供的源码； 分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。 key1()+key2()+key3()) == key">
 <meta name="twitter:image" content="http://t.cn/RGROoB4">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -252,8 +252,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>先看题目提供的源码；<br><img src="http://t.cn/RGROoB4" alt=""></p><p>分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。</p><pre><code class="cpp">key1()+key2()+key3()) == key 
-</code></pre><a id="more"></a><p>这三个函数都是内嵌的汇编。我们在来看题目提供的 gdb反汇编的代码。</p><p><strong>key1()</strong></p><pre><code class="bash">(gdb) disass key1                                                              
+        <p>先看题目提供的源码；<br><img src="http://t.cn/RGROoB4" alt=""></p>
+<p>分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。</p>
+<pre><code class="cpp">key1()+key2()+key3()) == key 
+</code></pre>
+<a id="more"></a>
+<p>这三个函数都是内嵌的汇编。我们在来看题目提供的 gdb反汇编的代码。</p>
+<p><strong>key1()</strong></p>
+<pre><code class="bash">(gdb) disass key1                                                              
 Dump of assembler code for function key1:                                      
    0x00008cd4 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)        
    0x00008cd8 &lt;+4&gt;:     add     r11, sp, #0                                    
@@ -263,9 +269,14 @@ Dump of assembler code for function key1:
    0x00008ce8 &lt;+20&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)          
    0x00008cec &lt;+24&gt;:    bx      lr                                             
 End of assembler dump.                                                         
-</code></pre><p>关键部分：</p><pre><code class="bash">   0x00008cdc &lt;+8&gt;:     mov     r3, pc                                         
+</code></pre>
+<p>关键部分：</p>
+<pre><code class="bash">   0x00008cdc &lt;+8&gt;:     mov     r3, pc                                         
    0x00008ce0 &lt;+12&gt;:    mov     r0, r3 
-</code></pre><p>arm汇编是以r0作为函数的返回值的，pc的值为当前地址+8 即0x00008cdc+ 8</p><p><strong>key2()</strong></p><pre><code class="bash">(gdb) disass key2                                                           
+</code></pre>
+<p>arm汇编是以r0作为函数的返回值的，pc的值为当前地址+8 即0x00008cdc+ 8</p>
+<p><strong>key2()</strong></p>
+<pre><code class="bash">(gdb) disass key2                                                           
 Dump of assembler code for function key2:                                   
    0x00008cf0 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)     
    0x00008cf4 &lt;+4&gt;:     add     r11, sp, #0                                 
@@ -282,12 +293,17 @@ Dump of assembler code for function key2:
    0x00008d18 &lt;+40&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)       
    0x00008d1c &lt;+44&gt;:    bx      lr                                          
 End of assembler dump.                                                      
-</code></pre><p>关键部分：</p><pre><code class="bash">   0x00008d00 &lt;+16&gt;:    bx      r6                                          
+</code></pre>
+<p>关键部分：</p>
+<pre><code class="bash">   0x00008d00 &lt;+16&gt;:    bx      r6                                          
    0x00008d04 &lt;+20&gt;:    mov     r3, pc                                      
    0x00008d06 &lt;+22&gt;:    adds    r3, #4   
    ......
    0x00008d10  &lt;+32&gt;:   mov r0, r3          
-</code></pre><p>r6 = 0x00008cfc + 8 +1 = 0x00008d04。 bx r6在r6地址处切换成thumb模式。在thumb模式下pc = 当前地址+4。r0 =r3 = 0x00008d04 +4+4</p><p><strong>key3()</strong></p><pre><code class="bash">(gdb) disass key3                                                             
+</code></pre>
+<p>r6 = 0x00008cfc + 8 +1 = 0x00008d04。 bx r6在r6地址处切换成thumb模式。在thumb模式下pc = 当前地址+4。r0 =r3 = 0x00008d04 +4+4</p>
+<p><strong>key3()</strong></p>
+<pre><code class="bash">(gdb) disass key3                                                             
 Dump of assembler code for function key3:                                     
    0x00008d20 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)       
    0x00008d24 &lt;+4&gt;:     add     r11, sp, #0                                   
@@ -297,9 +313,13 @@ Dump of assembler code for function key3:
    0x00008d34 &lt;+20&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)         
    0x00008d38 &lt;+24&gt;:    bx      lr                                            
 End of assembler dump.                                                        
-</code></pre><p>关键部分</p><pre><code class="bash">   0x00008d28 &lt;+8&gt;:     mov     r3, lr                                        
+</code></pre>
+<p>关键部分</p>
+<pre><code class="bash">   0x00008d28 &lt;+8&gt;:     mov     r3, lr                                        
    0x00008d2c &lt;+12&gt;:    mov     r0, r3  
-</code></pre><p>r0等于lr即key3()函数的返回地址0x00008d80。<br>最后得到的值全部相加就得108400。<br><img src="http://t.cn/RGRO9tC" alt=""></p>
+</code></pre>
+<p>r0等于lr即key3()函数的返回地址0x00008d80。<br>最后得到的值全部相加就得108400。<br><img src="http://t.cn/RGRO9tC" alt=""></p>
+
       
       
         <div class="page-reward">
@@ -472,7 +492,7 @@ End of assembler dump.
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

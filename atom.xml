@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-04-19T22:23:23.654Z</updated>
+  <updated>2018-04-19T23:12:37.455Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -17,11 +17,32 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>windows内核学习:内存操作</title>
+    <link href="http://yoursite.com/posts/fa1bd37f.html"/>
+    <id>http://yoursite.com/posts/fa1bd37f.html</id>
+    <published>2018-04-19T23:11:52.000Z</published>
+    <updated>2018-04-19T23:12:37.455Z</updated>
+    
+    <content type="html"><![CDATA[<p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p><p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p><pre><code>void test(){    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);    RtlFillMemory(ptr2,0x200,0x90);    RtlMoveMemory(ptr1,ptr2,0x50);    ExFreePool(ptr1);    ExFreePool(ptr2);}</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p><pre><code>KIRQL WPOFFx64(){    KIRQL irql=KeRaiseIrqlToDpcLevel();    UINT64 cr0=__readcr0();    cr0 &amp;= 0xfffffffffffeffff;    __writecr0(cr0);    _disable();    return irql;}void WPONx64(KIRQL irql){    UINT64 cr0=__readcr0();    cr0 |= 0x10000;    _enable();    __writecr0(cr0);    KeLowerIrql(irql);}void test(){   KIRQL irql=WPOFF();   RtlMoveMemory(NtOpenProcess,HookCode,15);   WPON(irql);}</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p><pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy ){    PMDL pMdl = NULL;    PVOID pSafeAddress = NULL;   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )      return FALSE;    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );      if( !pMdl )     return FALSE;  __try{     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );}__except(EXCEPTION_EXECUTE_HANDLER){    IoFreeMdl( pMdl );    return FALSE;}    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );    if( !pSafeAddress )     return FALSE;__try{    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );}__except(EXCEPTION_EXECUTE_HANDLER){   ;}    MmUnlockPages( pMdl );   IoFreeMdl( pMdl );   return TRUE;}</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;在内核中有以下四种内存操作&lt;br&gt;PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);&lt;br&gt;VOID RtlMoveMemory(PVOID Destination, PVOID Source, S
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>windows内核学习:文件操作</title>
     <link href="http://yoursite.com/posts/15ab7b57.html"/>
     <id>http://yoursite.com/posts/15ab7b57.html</id>
     <published>2018-04-19T22:05:46.000Z</published>
-    <updated>2018-04-19T22:23:23.654Z</updated>
+    <updated>2018-04-19T22:24:52.588Z</updated>
     
     <content type="html"><![CDATA[<h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="cpp">NTSTATUS ntCreateFile(WCHAR *szFileName)//L&quot;\\??\\c:\\doc\\1.txt&quot;{    OBJECT_ATTRIBUTES       objAttrib   ={0};    UNICODE_STRING          uFileName   ={0};    IO_STATUS_BLOCK         io_status   = {0};    HANDLE                  hFile       = NULL;    NTSTATUS                status      = 0;    //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。    RtlInitUnicodeString(&amp;uFileName, szFileName);    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,NULL,NULL);    status = ZwCreateFile(            &amp;hFile,             GENERIC_WRITE,            &amp;objAttrib,             &amp;io_status,             NULL,             FILE_ATTRIBUTE_NORMAL,//如果是创建目录，此处应该为FILE_ATTRIBUTE_DIRECTORY            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,             FILE_OPEN_IF,            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,             NULL,             0);    if(NT_SUCCESS(status))        ZwClose(hFile);    //读文件    FILE_STANDARD_INFORMATION   fsi = {0};    PUCHAR pReadBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);//申请一段内存保存读到的buffer    if (pReadBuffer == NULL)    {        ZwClose(hfile);        return STATUS_INSUFFICIENT_RESOURCES;    }    RtlZeroMemory(pReadBuffer,1024);    ntStatus = ZwReadFile(                hfile,                NULL,                NULL,                NULL,                &amp;iostatus,                pReadBuffer,                (LONG)fsi.EndOfFile.QuadPart,                NULL,NULL);    //写文件   PUCHAR  pWriteBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);    if ( pWriteBuffer == NULL)    {        ZwClose(hfile);        return STATUS_INSUFFICIENT_RESOURCES;    }    RtlZeroMemory(pWriteBuffer,1024);    RtlCopyMemory(pWriteBuffer, L&quot;Hello, world&quot;, wcslen(L&quot;Hello, world&quot;)*sizeof(WCHAR));    //写文件    ntStatus = ZwWriteFile(hfile,NULL,NULL,NULL,&amp;iostatus, pWriteBuffer,1024,NULL,NULL);    ZwClose(hfile);    ExFreePool(pReadBuffer);    ExFreePool(pWriteBuffer);    return status;}</code></pre>]]></content>
     
@@ -64,7 +85,13 @@
     
     <summary type="html">
     
-      &lt;hr&gt;&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。&lt;br&gt;页面分析&lt;/p&gt;&lt;p&gt;打开 &lt;a href=&quot;https://malwr.com/analysis&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://malwr.com/analysis&lt;/a&gt; ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;只有MD5的超链接可以点，点进去看看，&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。&lt;/p&gt;&lt;p&gt;现在我们可以理清下思路：&lt;/p&gt;&lt;pre&gt;&lt;code&gt;   获取每一页的网页源码
+      &lt;hr&gt;
+&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。&lt;br&gt;页面分析&lt;/p&gt;
+&lt;p&gt;打开 &lt;a href=&quot;https://malwr.com/analysis&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://malwr.com/analysis&lt;/a&gt; ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;
+&lt;p&gt;只有MD5的超链接可以点，点进去看看，&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。&lt;/p&gt;
+&lt;p&gt;现在我们可以理清下思路：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;   获取每一页的网页源码
    解析当前页的每一个md5对应的详细信息链接
    在详细信息页面解析下载地址。
 &lt;/code&gt;&lt;/pre&gt;
@@ -83,11 +110,18 @@
     <published>2018-04-13T16:56:09.000Z</published>
     <updated>2018-04-13T16:59:56.805Z</updated>
     
-    <content type="html"><![CDATA[<blockquote><p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p></blockquote><h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p><p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p><p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p><p>最终通过</p><pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)</code></pre><p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p><p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p><h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"></p><p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p><p>来到0x83d2107处，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p><p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p><pre><code class="x86asm">        mov ecx,0xDEADBEEF        call 083D216C          mov dword ptr ss:[esp],eax ;esp=0x83d2118        mov ebx,dword ptr ss:[esp]        inc ebx        cmp dword ptr ds:[ebx],ecx        jnz X083D211E</code></pre><p>0xDEADBEEF后面有2个比较重要的数据。</p><pre><code class="cpp">struct stc_encode{    DWORD flag; //0xDEDBEEF    DWORD codeSize;    DWORD originCode_head; //未加密代码头四个字节    char  encode_code[codeSize];}</code></pre><p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p><p>0x6b891276</p><pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部        mov edx,dword ptr ds:[edx]        xor edx,ebx        cmp edx,dword ptr ss:[esp+0x8] ;[esp+0x8] 原始函数头部        je X083D214B        inc ebx       ;从0开始递增xor key,        jmp X083D213A</code></pre><p>找到key，随后就是解密异或后的代码。</p><pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key        nop        nop        nop        mov edx,dword ptr ss:[esp+0xC]        xor ecx,ecx        xor dword ptr ds:[edx+ecx],ebx        cmp ecx,dword ptr ss:[esp+0x4]        jge X083D2166        add ecx,0x4        jmp X083D2158        mov esp,ebp        pop ebp        pop ebx        jmp edx ;跳到解密后的函数执行</code></pre><p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p><h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"></p><p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"></p><blockquote><p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p></blockquote><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"></p>]]></content>
+    <content type="html"><![CDATA[<blockquote><p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p></blockquote><h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p><p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p><p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p><p>最终通过</p><pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)</code></pre><p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p><p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p><h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"> </p><p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p><p>来到0x83d2107处，</p><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p><p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p><pre><code class="x86asm">        mov ecx,0xDEADBEEF        call 083D216C          mov dword ptr ss:[esp],eax ;esp=0x83d2118        mov ebx,dword ptr ss:[esp]        inc ebx        cmp dword ptr ds:[ebx],ecx        jnz X083D211E</code></pre><p>0xDEADBEEF后面有2个比较重要的数据。</p><pre><code class="cpp">struct stc_encode{    DWORD flag; //0xDEDBEEF    DWORD codeSize;    DWORD originCode_head; //未加密代码头四个字节    char  encode_code[codeSize];}</code></pre><p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p><p>0x6b891276</p><pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部        mov edx,dword ptr ds:[edx]        xor edx,ebx        cmp edx,dword ptr ss:[esp+0x8] ;[esp+0x8] 原始函数头部        je X083D214B        inc ebx       ;从0开始递增xor key,        jmp X083D213A</code></pre><p>找到key，随后就是解密异或后的代码。</p><pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key        nop        nop        nop        mov edx,dword ptr ss:[esp+0xC]        xor ecx,ecx        xor dword ptr ds:[edx+ecx],ebx        cmp ecx,dword ptr ss:[esp+0x4]        jge X083D2166        add ecx,0x4        jmp X083D2158        mov esp,ebp        pop ebp        pop ebx        jmp edx ;跳到解密后的函数执行</code></pre><p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p><h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"> </p><p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"> </p><blockquote><p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p></blockquote><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"> </p>]]></content>
     
     <summary type="html">
     
-      &lt;blockquote&gt;&lt;p&gt;文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb&lt;/p&gt;&lt;/blockquote&gt;&lt;h2 id=&quot;NSIS脚本分析&quot;&gt;&lt;a href=&quot;#NSIS脚本分析&quot; class=&quot;headerlink&quot; title=&quot;NSIS脚本分析&quot;&gt;&lt;/a&gt;NSIS脚本分析&lt;/h2&gt;&lt;p&gt;使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。&lt;/p&gt;&lt;p&gt;我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;br&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&quot;NSIS脚本分析&quot;&gt;&lt;a href=&quot;#NSIS脚本分析&quot; class=&quot;headerlink&quot; title=&quot;NSIS脚本分析&quot;&gt;&lt;/a&gt;NSIS脚本分析&lt;/h2&gt;&lt;p&gt;使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;
+&lt;p&gt;下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。&lt;/p&gt;
+&lt;p&gt;我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,&lt;/p&gt;
+&lt;p&gt; &lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;br&gt;
     
     </summary>
     
@@ -105,7 +139,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。&lt;/p&gt;&lt;p&gt;自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。&lt;/p&gt;&lt;p&gt;推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。&lt;br&gt;
+      &lt;p&gt;看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。&lt;/p&gt;
+&lt;p&gt;自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。&lt;/p&gt;
+&lt;p&gt;推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。&lt;br&gt;
     
     </summary>
     
@@ -125,7 +161,10 @@
     
       
       
-        &lt;script src=&quot;https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js&quot;&gt;&lt;/script&gt;&lt;p&gt;内存中加载modlue&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;powershel
+        &lt;script src=&quot;https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js&quot;&gt;&lt;/script&gt;
+
+&lt;p&gt;内存中加载modlue&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;powers
       
     
     </summary>
@@ -144,7 +183,12 @@
     
     <summary type="html">
     
-      &lt;p&gt;文笔不好，路过的看官求勿喷。&lt;/p&gt;&lt;p&gt;官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuofGm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;F5开始调试。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoITs&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoMD5&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RVuoJ4G&quot; alt=&quot;&quot;&gt;&lt;br&gt;
+      &lt;p&gt;文笔不好，路过的看官求勿喷。&lt;/p&gt;
+&lt;p&gt;官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuofGm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;F5开始调试。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoITs&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoMD5&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://t.cn/RVuoJ4G&quot; alt=&quot;&quot;&gt;&lt;br&gt;
     
     </summary>
     
@@ -164,7 +208,9 @@
     
       
       
-        &lt;p&gt;这里记录下使用selenium碰到的问题。&lt;/p&gt;&lt;p&gt;报错信息如下时：&lt;/p&gt;&lt;pre&gt;&lt;code&gt;selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; executab
+        &lt;p&gt;这里记录下使用selenium碰到的问题。&lt;/p&gt;
+&lt;p&gt;报错信息如下时：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; execut
       
     
     </summary>
@@ -181,11 +227,13 @@
     <published>2016-06-18T07:23:11.000Z</published>
     <updated>2018-04-04T16:57:40.436Z</updated>
     
-    <content type="html"><![CDATA[<p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p><p><img src="http://t.cn/R5Kc2nO" alt=""></p><p>但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br>我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p><a id="more"></a><p>官方教程是使用Eclipse来调试，但是这个并不是很好用。网上也没有相关的资料。<br><a href="kodi.wiki/view/How-to:Debug_Python_Scripts_with_Eclipse" title="Debug_Python_Scripts_with_Eclipse">Debug_Python_Scripts_with_Eclipse</a></p><p>这里我就介绍如何使用pycharm这款python IDE来远程调试Kodi python插件。</p><h2 id="pycharm安装pydevd"><a href="#pycharm安装pydevd" class="headerlink" title="pycharm安装pydevd"></a>pycharm安装pydevd</h2><p>pydevd是用来调试的模块，安装也比较简单，直接运行</p><pre><code>pip install pydevd</code></pre><p>或者使用pycharm安装</p><p>选择File → Setting → Project:Addons → Project:Interpreter 单击右边绿色的 + 号，在弹出的窗口输入<code>pydevd</code>单击下方的<code>install package</code>。</p><p><img src="http://t.cn/R5KcyQz" alt=""></p><h2 id="开始远程调试"><a href="#开始远程调试" class="headerlink" title="开始远程调试"></a>开始远程调试</h2><p>在开始调试前，我们还需要配置一些选项。</p><p>首先用pycharm打开kodi的插件目录，我的插件目录在<br><code>C:\Users\Ken\AppData\Roaming\Kodi\addons</code>,具体路径可能会因为版本和系统或其他的原因不同。<br><img src="http://t.cn/R5KcUFy" alt=""><br>文件夹名类似上图那就对了。</p><p>选择菜单Run → Edit Configurations打开下图窗口。单击绿色的 + 号 选择python remote debug。<br><img src="http://t.cn/R5Kcb4k" alt=""></p><p>把ip和端口设置好，这里我们需要将3处的代码粘贴到你想要断下的地方，这里3处的代码是</p><pre><code>pydevd.settrace(&#39;localhost&#39;, port=56789, stdoutToServer=True, stderrToServer=True)</code></pre><p>kodi自己并没有pydevd模块，也就是说我们必须自己从外部导入pydevd模块。在pycharm的debug-eggs文件夹有两个文件，这时用来调试的，如果是python3，则需要用<code>pycharm-debug-py3k.egg</code>,</p><p>将此文件添加至pythonpath然后导入pydevd。<br><img src="http://t.cn/R5KctKL" alt=""></p><p>开始调试，<br><img src="http://t.cn/R5Kc5c2" alt=""></p><p>在playvideo处设置了远程断点，当开始播放视频时断下。<br><img src="http://t.cn/R5KcGkK" alt=""></p>]]></content>
+    <content type="html"><![CDATA[<p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p><p> <img src="http://t.cn/R5Kc2nO" alt=""></p><p> 但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br> 我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p> <a id="more"></a><p> 官方教程是使用Eclipse来调试，但是这个并不是很好用。网上也没有相关的资料。<br> <a href="kodi.wiki/view/How-to:Debug_Python_Scripts_with_Eclipse" title="Debug_Python_Scripts_with_Eclipse">Debug_Python_Scripts_with_Eclipse</a></p><p> 这里我就介绍如何使用pycharm这款python IDE来远程调试Kodi python插件。</p><h2 id="pycharm安装pydevd"><a href="#pycharm安装pydevd" class="headerlink" title="pycharm安装pydevd"></a>pycharm安装pydevd</h2><p> pydevd是用来调试的模块，安装也比较简单，直接运行</p><pre><code>pip install pydevd</code></pre><p>或者使用pycharm安装</p><p>选择File → Setting → Project:Addons → Project:Interpreter 单击右边绿色的 + 号，在弹出的窗口输入<code>pydevd</code>单击下方的<code>install package</code>。</p><p><img src="http://t.cn/R5KcyQz" alt=""></p><h2 id="开始远程调试"><a href="#开始远程调试" class="headerlink" title="开始远程调试"></a>开始远程调试</h2><p>在开始调试前，我们还需要配置一些选项。</p><p>首先用pycharm打开kodi的插件目录，我的插件目录在<br><code>C:\Users\Ken\AppData\Roaming\Kodi\addons</code>,具体路径可能会因为版本和系统或其他的原因不同。<br><img src="http://t.cn/R5KcUFy" alt=""><br>文件夹名类似上图那就对了。</p><p>选择菜单Run → Edit Configurations打开下图窗口。单击绿色的 + 号 选择python remote debug。<br><img src="http://t.cn/R5Kcb4k" alt=""></p><p>把ip和端口设置好，这里我们需要将3处的代码粘贴到你想要断下的地方，这里3处的代码是</p><pre><code>pydevd.settrace(&#39;localhost&#39;, port=56789, stdoutToServer=True, stderrToServer=True)</code></pre><p>kodi自己并没有pydevd模块，也就是说我们必须自己从外部导入pydevd模块。在pycharm的debug-eggs文件夹有两个文件，这时用来调试的，如果是python3，则需要用<code>pycharm-debug-py3k.egg</code>,</p><p>将此文件添加至pythonpath然后导入pydevd。<br><img src="http://t.cn/R5KctKL" alt=""></p><p>开始调试，<br><img src="http://t.cn/R5Kc5c2" alt=""></p><p>在playvideo处设置了远程断点，当开始播放视频时断下。<br><img src="http://t.cn/R5KcGkK" alt=""></p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/R5Kc2nO&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。&lt;br&gt;我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。&lt;/p&gt;
+      &lt;p&gt;kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。&lt;/p&gt;
+&lt;p&gt; &lt;img src=&quot;http://t.cn/R5Kc2nO&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt; 但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。&lt;br&gt; 我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。&lt;/p&gt;
     
     </summary>
     
@@ -201,11 +249,12 @@
     <published>2016-04-09T03:37:51.000Z</published>
     <updated>2018-04-04T16:57:40.425Z</updated>
     
-    <content type="html"><![CDATA[<p><img src="http://t.cn/RqaVxsK" alt=""><br>一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key<br><img src="http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg" alt=""></p><p>我们使用ffdec来反编译这个swf文件，<br><img src="http://t.cn/RqaV6l4" alt=""></p><a id="more"></a><p>这个swf由很多个不同的frame组成，除了显示key的那个frame，每个frame都只有编辑框和按钮，只是位置不断变化。<br>鼠标选择对应的对象，在上方会显示相应的属性，如下图，我选中的按钮按钮名是<code>DefineButton2 (9)</code><br><img src="http://t.cn/RqaVSPB" alt=""></p><p>swf一般都是从frame1开始的，选中frame1，按钮名是<code>DefineButton2 (4)</code></p><p>来看<code>DefineButton2 (4)</code>的脚本代码<br><img src="http://t.cn/RqaVSgO" alt=""></p><p>这里有个spw变量，其实就是编辑框用来保存我们输入数据的变量。<br>frame1的编辑框对应的是<code>DefineEditText (6)</code>,变量是<code>spw</code>。如下图，<br><img src="http://t.cn/RqaVKJr" alt=""></p><p>这段代码<code>spw</code> 也就是我们输入的数据等于<code>1456</code>就会跳转到frame3执行。gotoandplay是跳转到某frame的函数。</p><p>frame3对应的按钮是<code>DefineButton2 (7)</code>，大家看到没，这里的变量变了，因为frame3的编辑框是用<code>spwd</code>来存储我们输入的数据不是<code>spw</code>,计算出的结果是</p><pre><code class="bash">spwd = 8 spw = 1456/8 = 182</code></pre><p><img src="http://t.cn/RqafPns" alt=""></p><p>后面也是一样，每次都输入正确的话key就会出来了。</p>]]></content>
+    <content type="html"><![CDATA[<p><img src="http://t.cn/RqaVxsK" alt=""><br>一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key<br><img src="http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg" alt=""></p><p>我们使用ffdec来反编译这个swf文件，<br><img src="http://t.cn/RqaV6l4" alt=""></p><a id="more"></a><p>这个swf由很多个不同的frame组成，除了显示key的那个frame，每个frame都只有编辑框和按钮，只是位置不断变化。<br>鼠标选择对应的对象，在上方会显示相应的属性，如下图，我选中的按钮按钮名是<code>DefineButton2 (9)</code><br><img src="http://t.cn/RqaVSPB" alt=""></p><p>swf一般都是从frame1开始的，选中frame1，按钮名是<code>DefineButton2 (4)</code></p><p>来看<code>DefineButton2 (4)</code>的脚本代码<br><img src="http://t.cn/RqaVSgO" alt=""></p><p>这里有个spw变量，其实就是编辑框用来保存我们输入数据的变量。<br>frame1的编辑框对应的是<code>DefineEditText (6)</code>,变量是<code>spw</code>。如下图，<br><img src="http://t.cn/RqaVKJr" alt=""></p><p>这段代码<code>spw</code> 也就是我们输入的数据等于<code>1456</code>就会跳转到frame3执行。gotoandplay是跳转到某frame的函数。 </p><p>frame3对应的按钮是<code>DefineButton2 (7)</code>，大家看到没，这里的变量变了，因为frame3的编辑框是用<code>spwd</code>来存储我们输入的数据不是<code>spw</code>,计算出的结果是</p><pre><code class="bash">spwd = 8 spw = 1456/8 = 182</code></pre><p><img src="http://t.cn/RqafPns" alt=""></p><p>后面也是一样，每次都输入正确的话key就会出来了。</p>]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;&lt;img src=&quot;http://t.cn/RqaVxsK&quot; alt=&quot;&quot;&gt;&lt;br&gt;一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key&lt;br&gt;&lt;img src=&quot;http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;我们使用ffdec来反编译这个swf文件，&lt;br&gt;&lt;img src=&quot;http://t.cn/RqaV6l4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+      &lt;p&gt;&lt;img src=&quot;http://t.cn/RqaVxsK&quot; alt=&quot;&quot;&gt;&lt;br&gt;一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key&lt;br&gt;&lt;img src=&quot;http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们使用ffdec来反编译这个swf文件，&lt;br&gt;&lt;img src=&quot;http://t.cn/RqaV6l4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -229,8 +278,9 @@
     
       
       
-        &lt;p&gt;这道题比较简单，对”破壳”漏洞了解的同学都能做出来。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;c++&quot;&gt;#include &amp;lt;stdio.h&amp;gt;                                                
-int main(){
+        &lt;p&gt;这道题比较简单，对”破壳”漏洞了解的同学都能做出来。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;c++&quot;&gt;#include &amp;lt;stdio.h&amp;gt;                                                
+int main()
       
     
     </summary>
@@ -273,7 +323,8 @@ int main(){
     
     <summary type="html">
     
-      &lt;p&gt;写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。&lt;br&gt;这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;    d = downloader(downloadurl,out_filePath,None,None,None)
+      &lt;p&gt;写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。&lt;br&gt;这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;    d = downloader(downloadurl,out_filePath,None,None,None)
     d.download() #调用下载功能下载
 &lt;/code&gt;&lt;/pre&gt;
     
@@ -313,7 +364,9 @@ int main(){
     
     <summary type="html">
     
-      &lt;p&gt;先看题目提供的源码；&lt;br&gt;&lt;img src=&quot;http://t.cn/RGROoB4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;cpp&quot;&gt;key1()+key2()+key3()) == key 
+      &lt;p&gt;先看题目提供的源码；&lt;br&gt;&lt;img src=&quot;http://t.cn/RGROoB4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;cpp&quot;&gt;key1()+key2()+key3()) == key 
 &lt;/code&gt;&lt;/pre&gt;
     
     </summary>
@@ -358,7 +411,13 @@ int main(){
     
     <summary type="html">
     
-      &lt;p&gt;帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。&lt;/p&gt;&lt;h2 id=&quot;安装模块&quot;&gt;&lt;a href=&quot;#安装模块&quot; class=&quot;headerlink&quot; title=&quot;安装模块&quot;&gt;&lt;/a&gt;安装模块&lt;/h2&gt;&lt;p&gt;我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;BeautifulSoup&lt;/strong&gt;:&lt;a href=&quot;http://beautifulsoup.readthedocs.org/zh_CN/latest/#&quot; title=&quot;中文文档&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;中文文档&lt;/a&gt;&lt;br&gt;&lt;strong&gt;pycurl&lt;/strong&gt;:&lt;a href=&quot;http://pycurl.sourceforge.net/download/&quot; title=&quot;下载地址&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;下载地址&lt;/a&gt;选择对应的版本下载安装。&lt;/p&gt;&lt;h2 id=&quot;开始编写爬虫&quot;&gt;&lt;a href=&quot;#开始编写爬虫&quot; class=&quot;headerlink&quot; title=&quot;开始编写爬虫&quot;&gt;&lt;/a&gt;开始编写爬虫&lt;/h2&gt;&lt;p&gt;开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNRtu&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;既然是下载所有的游戏，我们就得知道每一页的网址，在这里 &lt;a href=&quot;http://d.87870.com/xiazai-2-0603-1_.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://d.87870.com/xiazai-2-0603-1_.html&lt;/a&gt; ，&lt;br&gt;xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNni7&quot; alt=&quot;&quot;&gt;&lt;br&gt;如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNusg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;大概思路就是这样了。开始写代码。&lt;br&gt;
+      &lt;p&gt;帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。&lt;/p&gt;
+&lt;h2 id=&quot;安装模块&quot;&gt;&lt;a href=&quot;#安装模块&quot; class=&quot;headerlink&quot; title=&quot;安装模块&quot;&gt;&lt;/a&gt;安装模块&lt;/h2&gt;&lt;p&gt;我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;BeautifulSoup&lt;/strong&gt;:&lt;a href=&quot;http://beautifulsoup.readthedocs.org/zh_CN/latest/#&quot; title=&quot;中文文档&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;中文文档&lt;/a&gt;&lt;br&gt;&lt;strong&gt;pycurl&lt;/strong&gt;:&lt;a href=&quot;http://pycurl.sourceforge.net/download/&quot; title=&quot;下载地址&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;下载地址&lt;/a&gt;选择对应的版本下载安装。&lt;/p&gt;
+&lt;h2 id=&quot;开始编写爬虫&quot;&gt;&lt;a href=&quot;#开始编写爬虫&quot; class=&quot;headerlink&quot; title=&quot;开始编写爬虫&quot;&gt;&lt;/a&gt;开始编写爬虫&lt;/h2&gt;&lt;p&gt;开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNRtu&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;既然是下载所有的游戏，我们就得知道每一页的网址，在这里 &lt;a href=&quot;http://d.87870.com/xiazai-2-0603-1_.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://d.87870.com/xiazai-2-0603-1_.html&lt;/a&gt; ，&lt;br&gt;xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNni7&quot; alt=&quot;&quot;&gt;&lt;br&gt;如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNusg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;大概思路就是这样了。开始写代码。&lt;br&gt;
     
     </summary>
     
@@ -382,7 +441,9 @@ int main(){
     
       
       
-        &lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNYlx&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;分析源码，发现下面这段代码有点可疑。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400) &amp;
+        &lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNYlx&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;分析源码，发现下面这段代码有点可疑。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400)
       
     
     </summary>
@@ -401,11 +462,14 @@ int main(){
     <published>2016-01-31T12:11:59.000Z</published>
     <updated>2018-04-04T16:57:40.443Z</updated>
     
-    <content type="html"><![CDATA[<h1 id="安卓游戏资源解密"><a href="#安卓游戏资源解密" class="headerlink" title="安卓游戏资源解密"></a>安卓游戏资源解密</h1><p>一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。</p><p><img src="http://t.cn/RGRCrxm" alt=""></p><p>在网上搜了下 打开PAK文件的软件，发现都不能打开。 搞不定就不搞了。</p><p>这几天看了 &lt;&lt;揭秘数据解密的关键技术&gt;&gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。<br><img src="http://t.cn/RGRCgpS" alt=""></p><a id="more"></a><p>解析文件推荐使用010 editor，写文件解析模板方便分析。</p><p>我们可以看出第一个文件名从0xA开始， 对比每个文件名，发现名字前面的一字节数据表示这个文件名字符串的长度，前面8个字符未知，每两个字符串之间差8个数据，我们可以利用010 editor的模板功能写一个模板文件。</p><p>前8字节的数据暂时定义成结构</p><pre><code class="c"> typedef struct unkown{    char  unk[8];}</code></pre><p>包含文件名的数据定义成</p><pre><code class="bash">typedef struct{     BYTE  FilenameLen;     char  Filename[nameLen];     char  unkonw[8];   //未知数据}FILE_LIST;</code></pre><p><img src="http://t.cn/RGRCkDz" alt=""></p><p>找到最后一个文件名的字符串</p><p><img src="http://t.cn/RGRNhLS" alt=""></p><p>然后不断的改变模板文件中i的值计算总共有多少个文件名，最后算出有总共有292个文件名。发现开头的四字节数据刚好为292，因此可以判断该数据为文件的个数。模板文件改写代码</p><pre><code class="bash">typedef struct{int FileNum;int unk;}PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     CHAR  unk[8];}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.FileNum;i++){    FILE_LIST fileList;  };</code></pre><p>继续分析最后一个文件名后面的数据。后面的数据的起止地址0x2D80h.<br><img src="http://t.cn/RqtewpY" alt=""></p><p><img src="http://t.cn/RqteUgm" alt=""></p><p>而第一个FileList结构(模板文件定义的那个结构)的unk字段的第一个4字节为0x2d80;可以判断Unk的前四个字节为偏移地址，比较 多个FileLidy结构，可以发现相邻两个FIleList结构的 unk字段的前4字节刚好就是相邻两个FileList结构unk字段指向的数据之差。</p><p>模板文件现在修改为</p><pre><code class="cpp">typedef struct{      int fileNum;      int unknow2;    }PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     int   fileoff&lt;format=hex&gt;;     int   filesize&lt;format=hex&gt;;}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.fileNum;i++){    FILE_LIST fileList;};</code></pre><p>随便找一个文件名查看</p><p><img src="http://t.cn/RGRNAnc" alt=""></p><p>后缀spritr文件名的文件头SPRX，可以知道该数据为这个文件的数据，并且没有加密。</p><p>资源中最重要的是图片，这里面最多的就是PNG图片，查看数据时文件头并不是PNG，而是RIFF文件头。用图片浏览器也打不开，通过搜索得知这是一种比较新的文件格式，查阅资料知道XnView支持这个文件格式。</p><p><img src="http://t.cn/RGRNyz4" alt=""></p><p>用XnView打开的图像就是</p><p><img src="http://t.cn/RGRNboR" alt=""></p><p>解密到此就差不多，接下来就是写个小程序把资源都提取出来了。</p>]]></content>
+    <content type="html"><![CDATA[<h1 id="安卓游戏资源解密"><a href="#安卓游戏资源解密" class="headerlink" title="安卓游戏资源解密"></a>安卓游戏资源解密</h1><p>一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。</p><p><img src="http://t.cn/RGRCrxm" alt=""></p><p>在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。</p><p>这几天看了 &lt;&lt;揭秘数据解密的关键技术&gt;&gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。<br><img src="http://t.cn/RGRCgpS" alt=""></p><a id="more"></a><p>解析文件推荐使用010 editor，写文件解析模板方便分析。</p><p>我们可以看出第一个文件名从0xA开始， 对比每个文件名，发现名字前面的一字节数据表示这个文件名字符串的长度，前面8个字符未知，每两个字符串之间差8个数据，我们可以利用010 editor的模板功能写一个模板文件。</p><p>前8字节的数据暂时定义成结构</p><pre><code class="c"> typedef struct unkown{    char  unk[8];}</code></pre><p>包含文件名的数据定义成</p><pre><code class="bash">typedef struct{     BYTE  FilenameLen;     char  Filename[nameLen];     char  unkonw[8];   //未知数据}FILE_LIST;</code></pre><p><img src="http://t.cn/RGRCkDz" alt=""></p><p>找到最后一个文件名的字符串</p><p><img src="http://t.cn/RGRNhLS" alt=""></p><p>然后不断的改变模板文件中i的值计算总共有多少个文件名，最后算出有总共有292个文件名。发现开头的四字节数据刚好为292，因此可以判断该数据为文件的个数。模板文件改写代码</p><pre><code class="bash">typedef struct{int FileNum;int unk;}PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     CHAR  unk[8];}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.FileNum;i++){    FILE_LIST fileList;  };</code></pre><p>继续分析最后一个文件名后面的数据。后面的数据的起止地址0x2D80h.<br><img src="http://t.cn/RqtewpY" alt=""></p><p><img src="http://t.cn/RqteUgm" alt=""></p><p>而第一个FileList结构(模板文件定义的那个结构)的unk字段的第一个4字节为0x2d80;可以判断Unk的前四个字节为偏移地址，比较 多个FileLidy结构，可以发现相邻两个FIleList结构的 unk字段的前4字节刚好就是相邻两个FileList结构unk字段指向的数据之差。</p><p>模板文件现在修改为</p><pre><code class="cpp">typedef struct{      int fileNum;      int unknow2;    }PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     int   fileoff&lt;format=hex&gt;;     int   filesize&lt;format=hex&gt;;}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.fileNum;i++){    FILE_LIST fileList;};</code></pre><p>随便找一个文件名查看</p><p><img src="http://t.cn/RGRNAnc" alt=""></p><p>后缀spritr文件名的文件头SPRX，可以知道该数据为这个文件的数据，并且没有加密。</p><p>资源中最重要的是图片，这里面最多的就是PNG图片，查看数据时文件头并不是PNG，而是RIFF文件头。用图片浏览器也打不开，通过搜索得知这是一种比较新的文件格式，查阅资料知道XnView支持这个文件格式。</p><p><img src="http://t.cn/RGRNyz4" alt=""></p><p>用XnView打开的图像就是</p><p><img src="http://t.cn/RGRNboR" alt=""></p><p>解密到此就差不多，接下来就是写个小程序把资源都提取出来了。</p>]]></content>
     
     <summary type="html">
     
-      &lt;h1 id=&quot;安卓游戏资源解密&quot;&gt;&lt;a href=&quot;#安卓游戏资源解密&quot; class=&quot;headerlink&quot; title=&quot;安卓游戏资源解密&quot;&gt;&lt;/a&gt;安卓游戏资源解密&lt;/h1&gt;&lt;p&gt;一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRCrxm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;在网上搜了下 打开PAK文件的软件，发现都不能打开。 搞不定就不搞了。&lt;/p&gt;&lt;p&gt;这几天看了 &amp;lt;&amp;lt;揭秘数据解密的关键技术&amp;gt;&amp;gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRCgpS&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+      &lt;h1 id=&quot;安卓游戏资源解密&quot;&gt;&lt;a href=&quot;#安卓游戏资源解密&quot; class=&quot;headerlink&quot; title=&quot;安卓游戏资源解密&quot;&gt;&lt;/a&gt;安卓游戏资源解密&lt;/h1&gt;&lt;p&gt;一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRCrxm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。&lt;/p&gt;
+&lt;p&gt;这几天看了 &amp;lt;&amp;lt;揭秘数据解密的关键技术&amp;gt;&amp;gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRCgpS&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -413,28 +477,6 @@ int main(){
     
     
       <category term="Android" scheme="http://yoursite.com/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>pypcap模块安装</title>
-    <link href="http://yoursite.com/posts/6e7365c5.html"/>
-    <id>http://yoursite.com/posts/6e7365c5.html</id>
-    <published>2016-01-30T13:55:50.000Z</published>
-    <updated>2018-04-04T16:57:40.437Z</updated>
-    
-    <content type="html"><![CDATA[<p>最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少<code>pcap.h</code>头文件。在网上找了很多资料，终于编译成功了。</p><h2 id="编译之前"><a href="#编译之前" class="headerlink" title="编译之前"></a>编译之前</h2><p>在编译之前我们需要准备如下</p><ul><li>pypcap源码 <a href="https://github.com/dugsong/pypcap" target="_blank" rel="noopener">https://github.com/dugsong/pypcap</a></li><li>WinPcap源码 <a href="https://www.winpcap.org/devel.htm" target="_blank" rel="noopener">https://www.winpcap.org/devel.htm</a></li><li>安装pyrex <a href="http://brl.thefreecat.org/python-pyrex/" target="_blank" rel="noopener">http://brl.thefreecat.org/python-pyrex/</a></li><li>MiniGw <a href="http://www.mingw.org/" target="_blank" rel="noopener">http://www.mingw.org/</a></li></ul><p>pycurl如何安装在<a href="https://github.com/dugsong/pypcap/blob/master/INSTALL" target="_blank" rel="noopener">https://github.com/dugsong/pypcap/blob/master/INSTALL</a> 的<code>Building under Windows</code>也有详细说明。<br><a id="more"></a></p><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><ol><li><p>编辑 <code>C:\Python26\Lib\distutils\distutils.cfg</code>文件，没有则自己创建一个。往里面添加内容如下：</p><pre><code class="bash"> [build] compiler = mingw32</code></pre></li><li><p>将我们下载好的pypcap源码和WinPcap源码分别解压到<code>c:\pypcap</code>和 <code>c:\wpdpack</code>.编辑pypcap源码的makefile文件。将下面这段代码前面的注释去掉</p><pre><code class="bash">CONFIG_ARGS = --with-pcap=..\\wpdpack</code></pre><p>从这我们可以看出这里通过跳转到上一层目录到wpdpack目录，也就是为什么我们要把pypcap和winpcap的源码放在同一个目录里，当然你也可以修改makefile执行你的winpcap目录所在路径</p></li></ol><p>同时将</p><pre><code class="bash">pyrexc pcap.pyx</code></pre><p>改成</p><pre><code class="bash">$(PYTHON) c:\Python27\Scripts\pyrexc.py pcap.pyx  </code></pre><p>另一种方法就是将python安装路径和该目录下Scripts目录加入环境变量，也就不需要改这行了。</p><ol start="3"><li>运行<code>mingw32-make</code>和 <code>mingw32-make install</code> 就能成功编译成功了。</li></ol>]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少&lt;code&gt;pcap.h&lt;/code&gt;头文件。在网上找了很多资料，终于编译成功了。&lt;/p&gt;&lt;h2 id=&quot;编译之前&quot;&gt;&lt;a href=&quot;#编译之前&quot; class=&quot;headerlink&quot; title=&quot;编译之前&quot;&gt;&lt;/a&gt;编译之前&lt;/h2&gt;&lt;p&gt;在编译之前我们需要准备如下&lt;/p&gt;&lt;ul&gt;&lt;li&gt;pypcap源码 &lt;a href=&quot;https://github.com/dugsong/pypcap&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/dugsong/pypcap&lt;/a&gt;&lt;/li&gt;&lt;li&gt;WinPcap源码 &lt;a href=&quot;https://www.winpcap.org/devel.htm&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.winpcap.org/devel.htm&lt;/a&gt;&lt;/li&gt;&lt;li&gt;安装pyrex &lt;a href=&quot;http://brl.thefreecat.org/python-pyrex/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://brl.thefreecat.org/python-pyrex/&lt;/a&gt;&lt;/li&gt;&lt;li&gt;MiniGw &lt;a href=&quot;http://www.mingw.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://www.mingw.org/&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;pycurl如何安装在&lt;a href=&quot;https://github.com/dugsong/pypcap/blob/master/INSTALL&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/dugsong/pypcap/blob/master/INSTALL&lt;/a&gt; 的&lt;code&gt;Building under Windows&lt;/code&gt;也有详细说明。&lt;br&gt;
-    
-    </summary>
-    
-      <category term="python" scheme="http://yoursite.com/categories/python/"/>
-    
-    
-      <category term="pypcap" scheme="http://yoursite.com/tags/pypcap/"/>
     
   </entry>
   

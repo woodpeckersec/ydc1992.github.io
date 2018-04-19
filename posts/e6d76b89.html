@@ -14,13 +14,13 @@
 
   <title>Reversing.kr Direct3D FPS | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
+  <meta name="description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。  有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
 <meta name="keywords" content="Reversing">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Reversing.kr Direct3D FPS">
 <meta property="og:url" content="http://yoursite.com/posts/e6d76b89.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
+<meta property="og:description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。  有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://t.cn/R4xinjL">
 <meta property="og:image" content="http://t.cn/R4xiuKo">
@@ -32,7 +32,7 @@
 <meta property="og:updated_time" content="2018-04-04T16:57:40.424Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Reversing.kr Direct3D FPS">
-<meta name="twitter:description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
+<meta name="twitter:description" content="直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。  有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。">
 <meta name="twitter:image" content="http://t.cn/R4xinjL">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -257,10 +257,27 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。</p><p><img src="http://t.cn/R4xinjL" style="display:block;margin:auto"></p><p>有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。<br><a id="more"></a></p><p><img src="http://t.cn/R4xiuKo" style="display:block;margin:auto"></p><p>国际惯例，用od打开，搜索字符串，</p><p><img src="http://t.cn/R4xi1bW" style="display:block;margin:auto"></p><p>这个很明了，Game Over和Game Clear。肯定就是游戏失败和游戏胜利。我们跟随Game Clear。</p><p><img src="http://t.cn/R4xirxU" style="display:block;margin:auto"></p><p>看到没有，这里弹窗的文本被加密了，跟随到数据窗口，这个加密后的字符总共有52字节大小。解密该段数据时肯定要访问这段内存，在00d47028下个硬件访问断点，大小随意，都可以断下的。</p><p><img src="http://t.cn/R4xig5L" style="display:block;margin:auto"></p><p>然后运行，开始打怪升级，打死几个怪，然后OD断下停在pop ecx的位置，这里的代码段解密数据的代码了。</p><p><img src="http://t.cn/R4xiDjs" style="display:block;margin:auto"></p><p>我们可以看出这是一个简单异或加密，没有用到循环，表示这里只解密一个字节。根据这算法用python写个脚本代码如下</p><pre><code class="python">for i in range(0,52):
+        <p>直接上图，经典第一人称射击游戏，不过这走路也走的太慢了。</p>
+<p><img src="http://t.cn/R4xinjL" style="display:block;margin:auto"></p>
+<p>有点像玩我的世界的既视感，再附一张妹子图，话说长着这么漂亮一定是一个男孩子。<br><a id="more"></a></p>
+<p><img src="http://t.cn/R4xiuKo" style="display:block;margin:auto"></p>
+<p>国际惯例，用od打开，搜索字符串，</p>
+<p><img src="http://t.cn/R4xi1bW" style="display:block;margin:auto"></p>
+<p>这个很明了，Game Over和Game Clear。肯定就是游戏失败和游戏胜利。我们跟随Game Clear。</p>
+<p><img src="http://t.cn/R4xirxU" style="display:block;margin:auto"></p>
+<p>看到没有，这里弹窗的文本被加密了，跟随到数据窗口，这个加密后的字符总共有52字节大小。解密该段数据时肯定要访问这段内存，在00d47028下个硬件访问断点，大小随意，都可以断下的。</p>
+<p><img src="http://t.cn/R4xig5L" style="display:block;margin:auto"></p>
+<p>然后运行，开始打怪升级，打死几个怪，然后OD断下停在pop ecx的位置，这里的代码段解密数据的代码了。</p>
+<p><img src="http://t.cn/R4xiDjs" style="display:block;margin:auto"></p>
+<p>我们可以看出这是一个简单异或加密，没有用到循环，表示这里只解密一个字节。根据这算法用python写个脚本代码如下</p>
+<pre><code class="python">for i in range(0,52):
  text = chr( (byte_47028+i)^(byte_49184+i*0x210))
-</code></pre><p>需要操作两个数，但是xorkey存放在不连续的内存，需要动态获取，用IDA写python脚本解密比较方便。IDA在0xD43400 解密代码处下断。</p><p>运行脚本</p><pre><code>print bytearray( [(Byte( 0xd47028+i )^Byte(0xd49184+(i*0x210))) for i in range(52)] )
+</code></pre>
+<p>需要操作两个数，但是xorkey存放在不连续的内存，需要动态获取，用IDA写python脚本解密比较方便。IDA在0xD43400 解密代码处下断。</p>
+<p>运行脚本</p>
+<pre><code>print bytearray( [(Byte( 0xd47028+i )^Byte(0xd49184+(i*0x210))) for i in range(52)] )
 </code></pre><p><img src="http://t.cn/R4xiFxL" style="display:block;margin:auto"></p>
+
       
       
         <div class="page-reward">
@@ -426,7 +443,7 @@
             <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

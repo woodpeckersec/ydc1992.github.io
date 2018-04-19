@@ -14,18 +14,18 @@
 
   <title>Python取证技术(3): Windows 事件日志分析 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。安装python_Evtx直接使用如下命令安装即可。pip install python-evtx 如果没有安装pip，下载get-pi">
+  <meta name="description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
 <meta name="keywords" content="取证">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Python取证技术(3): Windows 事件日志分析">
 <meta property="og:url" content="http://yoursite.com/posts/ddac3f57.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。安装python_Evtx直接使用如下命令安装即可。pip install python-evtx 如果没有安装pip，下载get-pi">
+<meta property="og:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
 <meta property="og:locale" content="default">
 <meta property="og:updated_time" content="2018-04-04T16:57:40.422Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python取证技术(3): Windows 事件日志分析">
-<meta name="twitter:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。安装python_Evtx直接使用如下命令安装即可。pip install python-evtx 如果没有安装pip，下载get-pi">
+<meta name="twitter:description" content="Windows的事件日志都存放在C:\Windows\System32\winevt\Logs目录下。以evtx后缀结尾。事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对我的电脑右键菜单管理→事件查看器可以查看。 安装python_Evtx直接使用如下命令安装即可。 pip install python-evtx  如果没有安装pip，下载get">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -249,8 +249,14 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p><h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p><pre><code class="bash">pip install python-evtx
-</code></pre><p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p><a id="more"></a><h2 id="python-Evtx-解析日志文件"><a href="#python-Evtx-解析日志文件" class="headerlink" title="python_Evtx 解析日志文件"></a>python_Evtx 解析日志文件</h2><p>python_Evtx能够Evtx格式的日志文件解析成可读的XML文件</p><pre><code class="bash">import mmap
+        <p>Windows的事件日志都存放在<code>C:\Windows\System32\winevt\Logs</code>目录下。以evtx后缀结尾。<br>事件日志是在windows上记录重要事件发生的特殊文件，当用户登录系统或者程序报错时，就会被记录。对<code>我的电脑右键菜单管理→事件查看器可以查看</code>。</p>
+<h2 id="安装python-Evtx"><a href="#安装python-Evtx" class="headerlink" title="安装python_Evtx"></a>安装python_Evtx</h2><p>直接使用如下命令安装即可。</p>
+<pre><code class="bash">pip install python-evtx
+</code></pre>
+<p>如果没有安装pip，下载<a href="https://bootstrap.pypa.io/get-pip.py" title="get-pip.py" target="_blank" rel="noopener">get-pip.py</a>运行后，在python安装目录有个script目录，里面有安装好后的脚本，将该目录设为环境变量，就可以直接使用pip命令。</p>
+<a id="more"></a>
+<h2 id="python-Evtx-解析日志文件"><a href="#python-Evtx-解析日志文件" class="headerlink" title="python_Evtx 解析日志文件"></a>python_Evtx 解析日志文件</h2><p>python_Evtx能够Evtx格式的日志文件解析成可读的XML文件</p>
+<pre><code class="bash">import mmap
 import contextlib
 
 from Evtx.Evtx import FileHeader
@@ -272,7 +278,9 @@ def MyFun():
 
 if __name__ == &#39;__main__&#39;:
     MyFun()
-</code></pre><p>输出的事件如下(只取了其中一个)，有很多节点:</p><pre><code class="xml">&lt;Event xmlns=&quot;http://schemas.microsoft.com/win/2004/08/events/event&quot;&gt;&lt;System&gt;&lt;Provider Name=&quot;Microsoft-Windows-EventSystem&quot; Guid=&quot;{899daace-4868-4295-afcd-9eb8fb497561}&quot; EventSourceName=&quot;EventSystem&quot;&gt;&lt;/Provider&gt;
+</code></pre>
+<p>输出的事件如下(只取了其中一个)，有很多节点:</p>
+<pre><code class="xml">&lt;Event xmlns=&quot;http://schemas.microsoft.com/win/2004/08/events/event&quot;&gt;&lt;System&gt;&lt;Provider Name=&quot;Microsoft-Windows-EventSystem&quot; Guid=&quot;{899daace-4868-4295-afcd-9eb8fb497561}&quot; EventSourceName=&quot;EventSystem&quot;&gt;&lt;/Provider&gt;
 &lt;EventID Qualifiers=&quot;16384&quot;&gt;4625&lt;/EventID&gt;
 &lt;Version&gt;0&lt;/Version&gt;
 &lt;Level&gt;4&lt;/Level&gt;
@@ -292,7 +300,10 @@ if __name__ == &#39;__main__&#39;:
 &lt;Data Name=&quot;param3&quot;&gt;Software\Microsoft\EventSystem\EventLog&lt;/Data&gt;
 &lt;/EventData&gt;
 &lt;/Event&gt;
-</code></pre><p>我们需要着重关注的是EventID、EventData、TimeCreated。</p><p>这段脚本运行完毕后会将该文件所有的事件日志信息输出，但我们并不需要如此对所有的事件分析，只分析我们感兴趣的部分。下面就是我改进后的代码：</p><pre><code class="python">import mmap
+</code></pre>
+<p>我们需要着重关注的是EventID、EventData、TimeCreated。</p>
+<p>这段脚本运行完毕后会将该文件所有的事件日志信息输出，但我们并不需要如此对所有的事件分析，只分析我们感兴趣的部分。下面就是我改进后的代码：</p>
+<pre><code class="python">import mmap
 import contextlib
 
 from Evtx.Evtx import FileHeader
@@ -323,7 +334,65 @@ def InterestEvent(xml,EventID):
 if __name__ == &#39;__main__&#39;:
     MyFun()
 
-</code></pre><h2 id="常见的一些事件ID"><a href="#常见的一些事件ID" class="headerlink" title="常见的一些事件ID"></a>常见的一些事件ID</h2><p><a href="http://windowsir.blogspot.de/2014/10/windows-event-logs.html" title="WindowsEventLog" target="_blank" rel="noopener">WindowsEventLog</a></p><table><thead><tr><th>事件ID</th><th>名称</th><th>描述</th></tr></thead><tbody><tr><td>20, 24, 25, 31, 34, 35</td><td>Windows-Update-Failure</td><td>windows更新失败</td></tr><tr><td>104, 1102</td><td>Microsoft-Windows-Eventlog</td><td>正常情况下是不可能被清除的，除非是攻击者为了清除痕迹。</td></tr><tr><td>106</td><td>Microsoft-Windows-TaskScheduler</td><td>显示最新注册的计划任务</td></tr><tr><td>1014</td><td>Microsoft-Windows-DNS-Client</td><td>DNS解析超时。这个也是非常有用的，恶意程序经常用来测试是否连接到目标网站。</td></tr><tr><td>2004, 2005, 2006, 2033</td><td>Firewall-Rule-Add/Change/Delete</td><td>正常用户一般不会修改防火墙规则</td></tr><tr><td>3004</td><td>Microsoft-Windows-Windows Defender</td><td>WD杀毒检测日志</td></tr><tr><td>4720, 4724, 4725, 4728, 4732, 4635,4740, 4748, 4756</td><td>Microsoft-Windows-Security-Auditing</td><td>能够找到远程登录信息，以及用户提权等相关信息</td></tr><tr><td>7030, 7045</td><td>Service-Control-Manager</td><td>监视服务是配置成与桌面交互还是安装在系统中。</td></tr><tr><td>8003, 8004, 8006, 8007</td><td>App-Locker-Block/Warning</td><td>记录被阻止运行或警告的程序信息</td></tr></tbody></table>
+</code></pre>
+<h2 id="常见的一些事件ID"><a href="#常见的一些事件ID" class="headerlink" title="常见的一些事件ID"></a>常见的一些事件ID</h2><p><a href="http://windowsir.blogspot.de/2014/10/windows-event-logs.html" title="WindowsEventLog" target="_blank" rel="noopener">WindowsEventLog</a></p>
+<table>
+<thead>
+<tr>
+<th>事件ID</th>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20, 24, 25, 31, 34, 35</td>
+<td>Windows-Update-Failure</td>
+<td>windows更新失败</td>
+</tr>
+<tr>
+<td>104, 1102</td>
+<td>Microsoft-Windows-Eventlog</td>
+<td>正常情况下是不可能被清除的，除非是攻击者为了清除痕迹。</td>
+</tr>
+<tr>
+<td>106</td>
+<td>Microsoft-Windows-TaskScheduler</td>
+<td>显示最新注册的计划任务</td>
+</tr>
+<tr>
+<td>1014</td>
+<td>Microsoft-Windows-DNS-Client</td>
+<td>DNS解析超时。这个也是非常有用的，恶意程序经常用来测试是否连接到目标网站。</td>
+</tr>
+<tr>
+<td>2004, 2005, 2006, 2033</td>
+<td>Firewall-Rule-Add/Change/Delete</td>
+<td>正常用户一般不会修改防火墙规则</td>
+</tr>
+<tr>
+<td>3004</td>
+<td>Microsoft-Windows-Windows Defender</td>
+<td>WD杀毒检测日志</td>
+</tr>
+<tr>
+<td>4720, 4724, 4725, 4728, 4732, 4635,4740, 4748, 4756</td>
+<td>Microsoft-Windows-Security-Auditing</td>
+<td>能够找到远程登录信息，以及用户提权等相关信息</td>
+</tr>
+<tr>
+<td>7030, 7045</td>
+<td>Service-Control-Manager</td>
+<td>监视服务是配置成与桌面交互还是安装在系统中。</td>
+</tr>
+<tr>
+<td>8003, 8004, 8006, 8007</td>
+<td>App-Locker-Block/Warning</td>
+<td>记录被阻止运行或警告的程序信息</td>
+</tr>
+</tbody>
+</table>
+
       
       
         <div class="page-reward">
@@ -496,7 +565,7 @@ if __name__ == &#39;__main__&#39;:
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");

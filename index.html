@@ -207,6 +207,130 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-windows内核学习-内存操作" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/fa1bd37f.html" class="article-date">
+      <time datetime="2018-04-19T23:11:52.000Z" itemprop="datePublished">2018-04-20</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p>
+<p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p>
+<pre><code>void test()
+{
+    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);
+    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);
+    RtlFillMemory(ptr2,0x200,0x90);
+    RtlMoveMemory(ptr1,ptr2,0x50);
+    ExFreePool(ptr1);
+    ExFreePool(ptr2);
+}
+</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p>
+<pre><code>KIRQL WPOFFx64()
+{
+    KIRQL irql=KeRaiseIrqlToDpcLevel();
+    UINT64 cr0=__readcr0();
+    cr0 &amp;= 0xfffffffffffeffff;
+    __writecr0(cr0);
+    _disable();
+    return irql;
+}
+void WPONx64(KIRQL irql)
+{
+    UINT64 cr0=__readcr0();
+    cr0 |= 0x10000;
+    _enable();
+    __writecr0(cr0);
+    KeLowerIrql(irql);
+}
+void test()
+{
+   KIRQL irql=WPOFF();
+   RtlMoveMemory(NtOpenProcess,HookCode,15);
+   WPON(irql);
+}
+</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p>
+<pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy )
+{
+    PMDL pMdl = NULL;
+    PVOID pSafeAddress = NULL;
+   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )
+      return FALSE;
+    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );
+      if( !pMdl )
+     return FALSE;
+  __try
+{
+     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );
+}
+__except(EXCEPTION_EXECUTE_HANDLER)
+{
+    IoFreeMdl( pMdl );
+    return FALSE;
+}
+    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );
+    if( !pSafeAddress )
+     return FALSE;
+__try
+{
+    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );
+}
+__except(EXCEPTION_EXECUTE_HANDLER)
+{
+   ;
+}
+    MmUnlockPages( pMdl );
+   IoFreeMdl( pMdl );
+   return TRUE;
+}
+</code></pre>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-windows内核学习-文件操作" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -244,8 +368,7 @@
     NTSTATUS                status      = 0;
     //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。
     RtlInitUnicodeString(&amp;uFileName, szFileName);
-    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-NULL,NULL);
+    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,NULL,NULL);
 
     status = ZwCreateFile(
             &amp;hFile, 
@@ -291,7 +414,6 @@ NULL,NULL);
         return STATUS_INSUFFICIENT_RESOURCES;
     }
     RtlZeroMemory(pWriteBuffer,1024);
-
     RtlCopyMemory(pWriteBuffer, L&quot;Hello, world&quot;, wcslen(L&quot;Hello, world&quot;)*sizeof(WCHAR));
     //写文件
     ntStatus = ZwWriteFile(hfile,NULL,NULL,NULL,&amp;iostatus, pWriteBuffer,1024,NULL,NULL);
@@ -419,7 +541,13 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-              <hr><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p><p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p><p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p><p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p><p>现在我们可以理清下思路：</p><pre><code>   获取每一页的网页源码
+              <hr>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p>
+<p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p>
+<p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p>
+<p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p>
+<p>现在我们可以理清下思路：</p>
+<pre><code>   获取每一页的网页源码
    解析当前页的每一个md5对应的详细信息链接
    在详细信息页面解析下载地址。
 </code></pre>
@@ -485,7 +613,14 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-              <blockquote><p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p></blockquote><h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p><p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p><p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br>
+              <blockquote>
+<p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
+</blockquote>
+<h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
+<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p>
+<p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p>
+<p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br>
           
       
       
@@ -544,7 +679,9 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p><p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p><p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
+              <p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p>
+<p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p>
+<p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br>
           
       
       
@@ -603,7 +740,10 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-        <script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script><p>内存中加载modlue</p><pre><code class="powershell">    $Domain = [AppDomain]::CurrentDomain
+        <script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script>
+
+<p>内存中加载modlue</p>
+<pre><code class="powershell">    $Domain = [AppDomain]::CurrentDomain
     $DynAssembly = New-Object System.Reflection.AssemblyName(&#39;TempAssembly&#39;)
     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [Reflection.Emit.AssemblyBuilderAccess]::Run)
     $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule(&#39;TempModule&#39;)
@@ -619,6 +759,7 @@ NULL,NULL);
 
 
 </code></pre>
+
       
       
     </div>
@@ -672,7 +813,12 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>文笔不好，路过的看官求勿喷。</p><p>官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。<br><img src="http://t.cn/RVuofGm" alt=""></p><p>F5开始调试。<br><img src="http://t.cn/RVuoITs" alt=""></p><p>点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。<br><img src="http://t.cn/RVuoMD5" alt=""></p><p>跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。</p><p><img src="http://t.cn/RVuoJ4G" alt=""><br>
+              <p>文笔不好，路过的看官求勿喷。</p>
+<p>官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。<br><img src="http://t.cn/RVuofGm" alt=""></p>
+<p>F5开始调试。<br><img src="http://t.cn/RVuoITs" alt=""></p>
+<p>点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。<br><img src="http://t.cn/RVuoMD5" alt=""></p>
+<p>跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。</p>
+<p><img src="http://t.cn/RVuoJ4G" alt=""><br>
           
       
       
@@ -731,12 +877,21 @@ NULL,NULL);
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>这里记录下使用selenium碰到的问题。</p><p>报错信息如下时：</p><pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       
-</code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p><p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p><p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p><p>当报如下错误信息时，则是</p><pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, 
+        <p>这里记录下使用selenium碰到的问题。</p>
+<p>报错信息如下时：</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       
+</code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p>
+<p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p>
+<p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p>
+<p>当报如下错误信息时，则是</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, 
 no &#39;moz:firefoxOptions.binary&#39; capability provided, and no binary flag set on the command line
-</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p><pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)
+</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p>
+<pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)
 driver = webdriver.Firefox(firefox_binary=binary)
-</code></pre><p>这样就能正常使用了。</p>
+</code></pre>
+<p>这样就能正常使用了。</p>
+
       
       
     </div>
@@ -794,7 +949,9 @@ driver = webdriver.Firefox(firefox_binary=binary)
     <div class="article-entry" itemprop="articleBody">
       
           
-              <p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p><p><img src="http://t.cn/R5Kc2nO" alt=""></p><p>但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br>我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p>
+              <p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p>
+<p> <img src="http://t.cn/R5Kc2nO" alt=""></p>
+<p> 但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br> 我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p>
           
       
       
@@ -812,73 +969,6 @@ driver = webdriver.Firefox(firefox_binary=binary)
       
         <p class="article-more-link">
           <a  href="/posts/8a11904.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-Reversing-kr-Flash-Encrypt" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/672ac0b8.html" class="article-date">
-      <time datetime="2016-04-09T03:37:51.000Z" itemprop="datePublished">2016-04-09</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p><img src="http://t.cn/RqaVxsK" alt=""><br>一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key<br><img src="http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg" alt=""></p><p>我们使用ffdec来反编译这个swf文件，<br><img src="http://t.cn/RqaV6l4" alt=""></p>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reversing/">Reversing</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/posts/672ac0b8.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>

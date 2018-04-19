@@ -14,12 +14,12 @@
 
   <title>一款勒索软件的分析-未完待续 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddbNSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内">
+  <meta name="description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一款勒索软件的分析-未完待续">
 <meta property="og:url" content="http://yoursite.com/posts/4c8ebd7f.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddbNSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内">
+<meta property="og:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta property="og:locale" content="default">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png">
 <meta property="og:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png">
@@ -31,7 +31,7 @@
 <meta property="og:updated_time" content="2018-04-13T16:59:56.805Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一款勒索软件的分析-未完待续">
-<meta name="twitter:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddbNSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内">
+<meta name="twitter:description" content="文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb  NSIS脚本分析使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。  下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。 我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellco">
 <meta name="twitter:image" content="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
@@ -248,29 +248,54 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <blockquote><p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p></blockquote><h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p><p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p><p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p><p>最终通过</p><pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)
-</code></pre><p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p><p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p><h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"></p><p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p><p>来到0x83d2107处，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p><p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p><pre><code class="x86asm">        mov ecx,0xDEADBEEF
+        <blockquote>
+<p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p>
+</blockquote>
+<h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p>
+<p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p>
+<p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p>
+<p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p>
+<p>最终通过</p>
+<pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)
+</code></pre>
+<p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p>
+<p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p>
+<h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"> </p>
+<p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p>
+<p>来到0x83d2107处，</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p>
+<p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p>
+<pre><code class="x86asm">        mov ecx,0xDEADBEEF
         call 083D216C  
         mov dword ptr ss:[esp],eax ;esp=0x83d2118
         mov ebx,dword ptr ss:[esp]
         inc ebx
         cmp dword ptr ds:[ebx],ecx
         jnz X083D211E
-</code></pre><p>0xDEADBEEF后面有2个比较重要的数据。</p><pre><code class="cpp">struct stc_encode
+</code></pre>
+<p>0xDEADBEEF后面有2个比较重要的数据。</p>
+<pre><code class="cpp">struct stc_encode
 {
     DWORD flag; //0xDEDBEEF
     DWORD codeSize;
     DWORD originCode_head; //未加密代码头四个字节
     char  encode_code[codeSize];
 }
-</code></pre><p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p><p>0x6b891276</p><pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部
+</code></pre>
+<p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p>
+<p>0x6b891276</p>
+<pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部
         mov edx,dword ptr ds:[edx]
         xor edx,ebx
         cmp edx,dword ptr ss:[esp+0x8] ;[esp+0x8] 原始函数头部
         je X083D214B
         inc ebx       ;从0开始递增xor key,
         jmp X083D213A
-</code></pre><p>找到key，随后就是解密异或后的代码。</p><pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key
+</code></pre>
+<p>找到key，随后就是解密异或后的代码。</p>
+<pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key
         nop
         nop
         nop
@@ -285,7 +310,16 @@
         pop ebp
         pop ebx
         jmp edx ;跳到解密后的函数执行
-</code></pre><p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p><h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"></p><p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"></p><blockquote><p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p></blockquote><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"></p>
+</code></pre>
+<p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p>
+<h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"> </p>
+<p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"> </p>
+<blockquote>
+<p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p>
+</blockquote>
+<p> <img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"> </p>
+
       
       
         <div class="page-reward">
@@ -458,7 +492,7 @@
             </a>
         
     </div>
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15ab7b57.html">windows内核学习:文件操作</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/5e308b44.html">go程序恶意程序分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9222f001.html">病毒样本快到碗里来，一个样本下载爬虫的实现</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/4c8ebd7f.html">一款勒索软件的分析-未完待续</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/7b82cd68.html">AOSP-docker编译安卓源码绕过反调试</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a9796658.html">内存中加载modlue</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9d7b1fcb.html">豆约翰博客备份专家破解</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/8f13cc3.html">Pwnable.kr shellshock</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/62077d14.html">VirusTotal扫描器 python版</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6155f940.html">pycurl 分块下载</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/2bf6b638.html">Reversing.kr Windows kernal</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/c240cede.html">Pwnable.kr leg</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/1bb8fcd6.html">Reversing.kr CSHOP</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/84f4a8fe.html">python爬虫实战:Oculus VR</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9e24c54e.html">安卓游戏资源解密</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6e7365c5.html">pypcap模块安装</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a5fc00a6.html">Python取证技术(4): Windows 注册表分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ddac3f57.html">Python取证技术(3): Windows 事件日志分析</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a2e78025.html">Python取证技术(2): hash生成</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/9f1bddab.html">Python取证技术(1):环境搭建和ctype库介绍</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/b751c08a.html">Reversing.kr AutoHotkey1</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/ff6aab31.html">reversing.kr Ransomware</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/905112aa.html">Far Manager插件编写2</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/f4d28762.html">Far Manager插件编写1 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/88524310.html">pwnable.kr bof</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/741ff96a.html">Pwnable.kr random</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/d8e13760.html">powershell hacker(三): 后门安装 </a></li><li class="post-list-item"><a class="post-list-link" href="/posts/564bd806.html">Pwnable.kr flag</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/a421b8e1.html">Pwnable.kr col</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e2bbbc71.html">powershell hacker(一): Empirse</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/15b3d1e1.html">Pwnable.kr fd</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/6ca4092b.html">Reversing.kr Easy ELF</a></li><li class="post-list-item"><a class="post-list-link" href="/posts/e6d76b89.html">Reversing.kr Direct3D FPS</a></li></ul>
     <script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
     <script>
         $(".post-list").addClass("toc-article");
