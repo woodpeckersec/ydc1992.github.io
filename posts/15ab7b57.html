@@ -21,7 +21,7 @@
 <meta property="og:site_name" content="ydc&#39;s blog">
 <meta property="og:description" content="文件基本操作NTSTATUS ntCreateFile(WCHAR *szFileName) //L&amp;quot;\\??\\c:\\doc\\1.txt&amp;quot; {     OBJECT_ATTRIBUTES       objAttrib   ={0};     UNICODE_STRING          uFileName   ={0};     IO_STATUS_BLOCK">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-19T22:16:06.694Z">
+<meta property="og:updated_time" content="2018-04-19T22:23:23.654Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="windows内核学习:文件操作">
 <meta name="twitter:description" content="文件基本操作NTSTATUS ntCreateFile(WCHAR *szFileName) //L&amp;quot;\\??\\c:\\doc\\1.txt&amp;quot; {     OBJECT_ATTRIBUTES       objAttrib   ={0};     UNICODE_STRING          uFileName   ={0};     IO_STATUS_BLOCK">
@@ -268,6 +268,46 @@ NULL,NULL);
 
     if(NT_SUCCESS(status))
         ZwClose(hFile);
+
+    //读文件
+    FILE_STANDARD_INFORMATION   fsi = {0};
+    PUCHAR pReadBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);//申请一段内存保存读到的buffer
+    if (pReadBuffer == NULL)
+    {
+        ZwClose(hfile);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+
+    RtlZeroMemory(pReadBuffer,1024);
+    ntStatus = ZwReadFile(
+                hfile,
+                NULL,
+                NULL,
+                NULL,
+                &amp;iostatus,
+                pReadBuffer,
+                (LONG)fsi.EndOfFile.QuadPart,
+                NULL,NULL);
+
+    //写文件
+   PUCHAR  pWriteBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);
+    if ( pWriteBuffer == NULL)
+    {
+        ZwClose(hfile);
+        return STATUS_INSUFFICIENT_RESOURCES;
+    }
+    RtlZeroMemory(pWriteBuffer,1024);
+
+    RtlCopyMemory(pWriteBuffer, L&quot;Hello, world&quot;, wcslen(L&quot;Hello, world&quot;)*sizeof(WCHAR));
+    //写文件
+    ntStatus = ZwWriteFile(hfile,NULL,NULL,NULL,&amp;iostatus, pWriteBuffer,1024,NULL,NULL);
+
+
+
+    ZwClose(hfile);
+    ExFreePool(pReadBuffer);
+    ExFreePool(pWriteBuffer);
+
     return status;
 }
 
@@ -331,7 +371,7 @@ NULL,NULL);
         <p><span>本文标题:</span><a href="/posts/15ab7b57.html">windows内核学习:文件操作</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月20日 - 06时05分</p>
-        <p><span>最后更新:</span>2018年04月20日 - 06时16分</p>
+        <p><span>最后更新:</span>2018年04月20日 - 06时23分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/15ab7b57.html" title="windows内核学习:文件操作">http://yoursite.com/posts/15ab7b57.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/15ab7b57.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

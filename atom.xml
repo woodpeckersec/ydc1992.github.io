@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-04-19T22:16:06.694Z</updated>
+  <updated>2018-04-19T22:23:23.654Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,9 +21,9 @@
     <link href="http://yoursite.com/posts/15ab7b57.html"/>
     <id>http://yoursite.com/posts/15ab7b57.html</id>
     <published>2018-04-19T22:05:46.000Z</published>
-    <updated>2018-04-19T22:16:06.694Z</updated>
+    <updated>2018-04-19T22:23:23.654Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="cpp">NTSTATUS ntCreateFile(WCHAR *szFileName)//L&quot;\\??\\c:\\doc\\1.txt&quot;{    OBJECT_ATTRIBUTES       objAttrib   ={0};    UNICODE_STRING          uFileName   ={0};    IO_STATUS_BLOCK         io_status   = {0};    HANDLE                  hFile       = NULL;    NTSTATUS                status      = 0;    //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。    RtlInitUnicodeString(&amp;uFileName, szFileName);    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,NULL,NULL);    status = ZwCreateFile(            &amp;hFile,             GENERIC_WRITE,            &amp;objAttrib,             &amp;io_status,             NULL,             FILE_ATTRIBUTE_NORMAL,//如果是创建目录，此处应该为FILE_ATTRIBUTE_DIRECTORY            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,             FILE_OPEN_IF,            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,             NULL,             0);    if(NT_SUCCESS(status))        ZwClose(hFile);    return status;}</code></pre>]]></content>
+    <content type="html"><![CDATA[<h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="cpp">NTSTATUS ntCreateFile(WCHAR *szFileName)//L&quot;\\??\\c:\\doc\\1.txt&quot;{    OBJECT_ATTRIBUTES       objAttrib   ={0};    UNICODE_STRING          uFileName   ={0};    IO_STATUS_BLOCK         io_status   = {0};    HANDLE                  hFile       = NULL;    NTSTATUS                status      = 0;    //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。    RtlInitUnicodeString(&amp;uFileName, szFileName);    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,NULL,NULL);    status = ZwCreateFile(            &amp;hFile,             GENERIC_WRITE,            &amp;objAttrib,             &amp;io_status,             NULL,             FILE_ATTRIBUTE_NORMAL,//如果是创建目录，此处应该为FILE_ATTRIBUTE_DIRECTORY            FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,             FILE_OPEN_IF,            FILE_SYNCHRONOUS_IO_NONALERT | FILE_NON_DIRECTORY_FILE,             NULL,             0);    if(NT_SUCCESS(status))        ZwClose(hFile);    //读文件    FILE_STANDARD_INFORMATION   fsi = {0};    PUCHAR pReadBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);//申请一段内存保存读到的buffer    if (pReadBuffer == NULL)    {        ZwClose(hfile);        return STATUS_INSUFFICIENT_RESOURCES;    }    RtlZeroMemory(pReadBuffer,1024);    ntStatus = ZwReadFile(                hfile,                NULL,                NULL,                NULL,                &amp;iostatus,                pReadBuffer,                (LONG)fsi.EndOfFile.QuadPart,                NULL,NULL);    //写文件   PUCHAR  pWriteBuffer = (PUCHAR)ExAllocatePoolWithTag(PagedPool,1024, &#39;ELIF&#39;);    if ( pWriteBuffer == NULL)    {        ZwClose(hfile);        return STATUS_INSUFFICIENT_RESOURCES;    }    RtlZeroMemory(pWriteBuffer,1024);    RtlCopyMemory(pWriteBuffer, L&quot;Hello, world&quot;, wcslen(L&quot;Hello, world&quot;)*sizeof(WCHAR));    //写文件    ntStatus = ZwWriteFile(hfile,NULL,NULL,NULL,&amp;iostatus, pWriteBuffer,1024,NULL,NULL);    ZwClose(hfile);    ExFreePool(pReadBuffer);    ExFreePool(pWriteBuffer);    return status;}</code></pre>]]></content>
     
     <summary type="html">
     
