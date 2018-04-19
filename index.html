@@ -234,7 +234,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="c">NTSTATUS ntCreateFile(WCHAR *szFileName)
+        <h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><pre><code class="cpp">NTSTATUS ntCreateFile(WCHAR *szFileName)
 //L&quot;\\??\\c:\\doc\\1.txt&quot;
 {
     OBJECT_ATTRIBUTES       objAttrib   ={0};
@@ -244,14 +244,8 @@
     NTSTATUS                status      = 0;
     //创建文件对象之前需要初始化OBJECT_ATTRIBUTES对象。
     RtlInitUnicodeString(&amp;uFileName, szFileName);
-    InitializeObjectAttributes(
-        &amp;objAttrib,
-        &amp; uFileName,
-        OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
-        NULL,
-        NULL
-        );
-
+    InitializeObjectAttributes(&amp;objAttrib,&amp; uFileName,OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE,
+NULL,NULL);
 
     status = ZwCreateFile(
             &amp;hFile, 
@@ -267,10 +261,7 @@
             0);
 
     if(NT_SUCCESS(status))
-    {
         ZwClose(hFile);
-    }
-
     return status;
 }
 
