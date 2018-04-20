@@ -12,19 +12,19 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>内存中加载modlue | ydc&#39;s blog</title>
+  <title>windows内核学习:SSDT Hook | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
+  <meta name="description" content="内核函数HOOK static ZWCREATEFILE                OldZwCreateFile; //原函数地址  NTSTATUS Hook_ZwWriteFile(   IN HANDLE              FileHandle,   IN HANDLE              Event OPTIONAL,   IN PIO_APC_ROUTINE">
 <meta property="og:type" content="article">
-<meta property="og:title" content="内存中加载modlue">
-<meta property="og:url" content="http://yoursite.com/posts/a9796658.html">
+<meta property="og:title" content="windows内核学习:SSDT Hook">
+<meta property="og:url" content="http://yoursite.com/posts/77d5c310.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
+<meta property="og:description" content="内核函数HOOK static ZWCREATEFILE                OldZwCreateFile; //原函数地址  NTSTATUS Hook_ZwWriteFile(   IN HANDLE              FileHandle,   IN HANDLE              Event OPTIONAL,   IN PIO_APC_ROUTINE">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-14T04:34:12.904Z">
+<meta property="og:updated_time" content="2018-04-20T14:04:20.085Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="内存中加载modlue">
-<meta name="twitter:description" content="内存中加载modlue     $Domain = [AppDomain]::CurrentDomain     $DynAssembly = New-Object System.Reflection.AssemblyName(&amp;#39;TempAssembly&amp;#39;)     $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAss">
+<meta name="twitter:title" content="windows内核学习:SSDT Hook">
+<meta name="twitter:description" content="内核函数HOOK static ZWCREATEFILE                OldZwCreateFile; //原函数地址  NTSTATUS Hook_ZwWriteFile(   IN HANDLE              FileHandle,   IN HANDLE              Event OPTIONAL,   IN PIO_APC_ROUTINE">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -206,11 +206,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-内存中加载modlue" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-windows内核学习-SSDT-Hook" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/posts/a9796658.html" class="article-date">
-      <time datetime="2018-02-20T20:44:29.000Z" itemprop="datePublished">2018-02-21</time>
+      <a href="/posts/77d5c310.html" class="article-date">
+      <time datetime="2018-04-20T13:54:47.000Z" itemprop="datePublished">2018-04-20</time>
 </a>
     </div>
   
@@ -223,7 +223,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      内存中加载modlue
+      windows内核学习:SSDT Hook
     </h1>
   
 
@@ -240,24 +240,58 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <script src="https://cdn.bootcss.com/highlight.js/9.12.0/languages/powershell.min.js"></script>
+        <h2 id="内核函数HOOK"><a href="#内核函数HOOK" class="headerlink" title="内核函数HOOK"></a>内核函数HOOK</h2><pre><code class="cpp">
+static ZWCREATEFILE                OldZwCreateFile; //原函数地址
 
-<p>内存中加载modlue</p>
-<pre><code class="powershell">    $Domain = [AppDomain]::CurrentDomain
-    $DynAssembly = New-Object System.Reflection.AssemblyName(&#39;TempAssembly&#39;)
-    $AssemblyBuilder = $Domain.DefineDynamicAssembly($DynAssembly, [Reflection.Emit.AssemblyBuilderAccess]::Run)
-    $ModuleBuilder = $AssemblyBuilder.DefineDynamicModule(&#39;TempModule&#39;)
+NTSTATUS Hook_ZwWriteFile(
+  IN HANDLE              FileHandle,
+  IN HANDLE              Event OPTIONAL,
+  IN PIO_APC_ROUTINE      ApcRoutine OPTIONAL,
+  IN PVOID                ApcContext OPTIONAL,
+  OUT PIO_STATUS_BLOCK    IoStatusBlock,
+  IN PVOID                Buffer,
+  IN ULONG                Length,
+  IN PLARGE_INTEGER      ByteOffset OPTIONAL,
+  IN PULONG              Key OPTIONAL )
+{
+    NTSTATUS rc;
+    rc = OldZwWriteFile(FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,Buffer,Length,ByteOffset,Key);
+    return rc;
+}
 
-    $ModuleBuilder2 = $AssemblyBuilder.DefineDynamicModule(&#39;hello.dll&#39;)
-    $TypeBuilder = $ModuleBuilder.DefineType(&#39;TempClass&#39;, [Reflection.TypeAttributes]::Public)
-    $TypeBuilder.CreateType()
-    $HelloDllBytes = [Convert]::FromBase64String(&#39;{PE base64}&#39;)
-    # Calling LoadModule doesn&#39;t pass through the internal nLoad method like Assembly/AppDomain.Load does. :)
-    $HelloDllModule = [TempClass].Assembly.LoadModule(&#39;hello.dll&#39;, $HelloDllBytes)
-    # Invoke the Hello method within the hello.dll module that was loaded in memory
-    $HelloDllModule.GetTypes()[0].GetMethod(&#39;Hello&#39;).Invoke($null, @())
 
+void StartHook (void)
+{
+    //获取未导出的服务函数索引号
+    HANDLE    hFile;
+    PCHAR    pDllFile;
+    ULONG  ulSize;
+    ULONG  ulByteReaded;
 
+    __asm
+    {
+        push    eax
+        mov        eax, CR0
+        and        eax, 0FFFEFFFFh
+        mov        CR0, eax
+        pop        eax
+    }
+    //用我们自己写的hook函数替换原函数地址，并把原函数地址返回
+    OldZwCreateFile    = (ZWCREATEFILE) InterlockedExchange((PLONG)
+                              &amp;SDT(ZwCreateFile),
+                              (LONG)Hook_ZwCreateFile);
+
+    //关闭
+    __asm
+    {
+        push       eax
+        mov        eax, CR0
+        or         eax, NOT 0FFFEFFFFh
+        mov        CR0, eax
+        pop        eax
+    }
+    return ;
+}
 </code></pre>
 
       
@@ -314,13 +348,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/posts/a9796658.html">内存中加载modlue</a></p>
+        <p><span>本文标题:</span><a href="/posts/77d5c310.html">windows内核学习:SSDT Hook</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2018年02月21日 - 04时44分</p>
-        <p><span>最后更新:</span>2018年04月14日 - 12时34分</p>
+        <p><span>发布时间:</span>2018年04月20日 - 21时54分</p>
+        <p><span>最后更新:</span>2018年04月20日 - 22时04分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/posts/a9796658.html" title="内存中加载modlue">http://yoursite.com/posts/a9796658.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/a9796658.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/77d5c310.html" title="windows内核学习:SSDT Hook">http://yoursite.com/posts/77d5c310.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/77d5c310.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -333,18 +367,9 @@
 
 <nav id="article-nav">
   
-    <a href="/posts/7b82cd68.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          AOSP-docker编译安卓源码绕过反调试
-        
-      </div>
-    </a>
   
-  
-    <a href="/posts/9d7b1fcb.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">豆约翰博客备份专家破解</div>
+    <a href="/posts/fa1bd37f.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">windows内核学习:内存操作</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -355,7 +380,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#内核函数HOOK"><span class="toc-number">1.</span> <span class="toc-text">内核函数HOOK</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
@@ -421,13 +446,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/posts/7b82cd68.html" title="上一篇: AOSP-docker编译安卓源码绕过反调试">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/posts/9d7b1fcb.html" title="下一篇: 豆约翰博客备份专家破解">
+            <a href="/posts/fa1bd37f.html" title="下一篇: windows内核学习:内存操作">
                 <i class="fa fa-angle-right"></i>
             </a>
         

@@ -207,6 +207,113 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-windows内核学习-SSDT-Hook" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/77d5c310.html" class="article-date">
+      <time datetime="2018-04-20T13:54:47.000Z" itemprop="datePublished">2018-04-20</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/77d5c310.html">windows内核学习:SSDT Hook</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <h2 id="内核函数HOOK"><a href="#内核函数HOOK" class="headerlink" title="内核函数HOOK"></a>内核函数HOOK</h2><pre><code class="cpp">
+static ZWCREATEFILE                OldZwCreateFile; //原函数地址
+
+NTSTATUS Hook_ZwWriteFile(
+  IN HANDLE              FileHandle,
+  IN HANDLE              Event OPTIONAL,
+  IN PIO_APC_ROUTINE      ApcRoutine OPTIONAL,
+  IN PVOID                ApcContext OPTIONAL,
+  OUT PIO_STATUS_BLOCK    IoStatusBlock,
+  IN PVOID                Buffer,
+  IN ULONG                Length,
+  IN PLARGE_INTEGER      ByteOffset OPTIONAL,
+  IN PULONG              Key OPTIONAL )
+{
+    NTSTATUS rc;
+    rc = OldZwWriteFile(FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,Buffer,Length,ByteOffset,Key);
+    return rc;
+}
+
+
+void StartHook (void)
+{
+    //获取未导出的服务函数索引号
+    HANDLE    hFile;
+    PCHAR    pDllFile;
+    ULONG  ulSize;
+    ULONG  ulByteReaded;
+
+    __asm
+    {
+        push    eax
+        mov        eax, CR0
+        and        eax, 0FFFEFFFFh
+        mov        CR0, eax
+        pop        eax
+    }
+    //用我们自己写的hook函数替换原函数地址，并把原函数地址返回
+    OldZwCreateFile    = (ZWCREATEFILE) InterlockedExchange((PLONG)
+                              &amp;SDT(ZwCreateFile),
+                              (LONG)Hook_ZwCreateFile);
+
+    //关闭
+    __asm
+    {
+        push       eax
+        mov        eax, CR0
+        or         eax, NOT 0FFFEFFFFh
+        mov        CR0, eax
+        pop        eax
+    }
+    return ;
+}
+</code></pre>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-windows内核学习-内存操作" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -849,71 +956,6 @@ driver = webdriver.Firefox(firefox_binary=binary)
 
 
       
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-pycharm-远程调试kodi-python-plugin" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/8a11904.html" class="article-date">
-      <time datetime="2016-06-18T07:23:11.000Z" itemprop="datePublished">2016-06-18</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p>
-<p> <img src="http://t.cn/R5Kc2nO" alt=""></p>
-<p> 但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br> 我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
-    </div>
-
-      
-        <p class="article-more-link">
-          <a  href="/posts/8a11904.html#more">大航海 >></a>
-        </p>
       
       <div class="clearfix"></div>
     </div>

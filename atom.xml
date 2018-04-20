@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-04-20T12:19:23.656Z</updated>
+  <updated>2018-04-20T14:04:20.085Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>windows内核学习:SSDT Hook</title>
+    <link href="http://yoursite.com/posts/77d5c310.html"/>
+    <id>http://yoursite.com/posts/77d5c310.html</id>
+    <published>2018-04-20T13:54:47.000Z</published>
+    <updated>2018-04-20T14:04:20.085Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="内核函数HOOK"><a href="#内核函数HOOK" class="headerlink" title="内核函数HOOK"></a>内核函数HOOK</h2><pre><code class="cpp">static ZWCREATEFILE                OldZwCreateFile; //原函数地址NTSTATUS Hook_ZwWriteFile(  IN HANDLE              FileHandle,  IN HANDLE              Event OPTIONAL,  IN PIO_APC_ROUTINE      ApcRoutine OPTIONAL,  IN PVOID                ApcContext OPTIONAL,  OUT PIO_STATUS_BLOCK    IoStatusBlock,  IN PVOID                Buffer,  IN ULONG                Length,  IN PLARGE_INTEGER      ByteOffset OPTIONAL,  IN PULONG              Key OPTIONAL ){    NTSTATUS rc;    rc = OldZwWriteFile(FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,Buffer,Length,ByteOffset,Key);    return rc;}void StartHook (void){    //获取未导出的服务函数索引号    HANDLE    hFile;    PCHAR    pDllFile;    ULONG  ulSize;    ULONG  ulByteReaded;    __asm    {        push    eax        mov        eax, CR0        and        eax, 0FFFEFFFFh        mov        CR0, eax        pop        eax    }    //用我们自己写的hook函数替换原函数地址，并把原函数地址返回    OldZwCreateFile    = (ZWCREATEFILE) InterlockedExchange((PLONG)                              &amp;SDT(ZwCreateFile),                              (LONG)Hook_ZwCreateFile);    //关闭    __asm    {        push       eax        mov        eax, CR0        or         eax, NOT 0FFFEFFFFh        mov        CR0, eax        pop        eax    }    return ;}</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;内核函数HOOK&quot;&gt;&lt;a href=&quot;#内核函数HOOK&quot; class=&quot;headerlink&quot; title=&quot;内核函数HOOK&quot;&gt;&lt;/a&gt;内核函数HOOK&lt;/h2&gt;&lt;pre&gt;&lt;code class=&quot;cpp&quot;&gt;
+static ZWCREATEFILE      
+      
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>windows内核学习:内存操作</title>
@@ -455,31 +477,6 @@ int main()
     
     
       <category term="Pwnable" scheme="http://yoursite.com/tags/Pwnable/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>安卓游戏资源解密</title>
-    <link href="http://yoursite.com/posts/9e24c54e.html"/>
-    <id>http://yoursite.com/posts/9e24c54e.html</id>
-    <published>2016-01-31T12:11:59.000Z</published>
-    <updated>2018-04-04T16:57:40.443Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="安卓游戏资源解密"><a href="#安卓游戏资源解密" class="headerlink" title="安卓游戏资源解密"></a>安卓游戏资源解密</h1><p>一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。</p><p><img src="http://t.cn/RGRCrxm" alt=""></p><p>在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。</p><p>这几天看了 &lt;&lt;揭秘数据解密的关键技术&gt;&gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。<br><img src="http://t.cn/RGRCgpS" alt=""></p><a id="more"></a><p>解析文件推荐使用010 editor，写文件解析模板方便分析。</p><p>我们可以看出第一个文件名从0xA开始， 对比每个文件名，发现名字前面的一字节数据表示这个文件名字符串的长度，前面8个字符未知，每两个字符串之间差8个数据，我们可以利用010 editor的模板功能写一个模板文件。</p><p>前8字节的数据暂时定义成结构</p><pre><code class="c"> typedef struct unkown{    char  unk[8];}</code></pre><p>包含文件名的数据定义成</p><pre><code class="bash">typedef struct{     BYTE  FilenameLen;     char  Filename[nameLen];     char  unkonw[8];   //未知数据}FILE_LIST;</code></pre><p><img src="http://t.cn/RGRCkDz" alt=""></p><p>找到最后一个文件名的字符串</p><p><img src="http://t.cn/RGRNhLS" alt=""></p><p>然后不断的改变模板文件中i的值计算总共有多少个文件名，最后算出有总共有292个文件名。发现开头的四字节数据刚好为292，因此可以判断该数据为文件的个数。模板文件改写代码</p><pre><code class="bash">typedef struct{int FileNum;int unk;}PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     CHAR  unk[8];}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.FileNum;i++){    FILE_LIST fileList;  };</code></pre><p>继续分析最后一个文件名后面的数据。后面的数据的起止地址0x2D80h.<br><img src="http://t.cn/RqtewpY" alt=""></p><p><img src="http://t.cn/RqteUgm" alt=""></p><p>而第一个FileList结构(模板文件定义的那个结构)的unk字段的第一个4字节为0x2d80;可以判断Unk的前四个字节为偏移地址，比较 多个FileLidy结构，可以发现相邻两个FIleList结构的 unk字段的前4字节刚好就是相邻两个FileList结构unk字段指向的数据之差。</p><p>模板文件现在修改为</p><pre><code class="cpp">typedef struct{      int fileNum;      int unknow2;    }PAK;typedef struct{     BYTE  nameLen;     char  name[nameLen];     int   fileoff&lt;format=hex&gt;;     int   filesize&lt;format=hex&gt;;}FILE_LIST;/////////////////////////////LittleEndian();PAK pak;FSeek(0x8);local int i;for(i=0;i&lt;pak.fileNum;i++){    FILE_LIST fileList;};</code></pre><p>随便找一个文件名查看</p><p><img src="http://t.cn/RGRNAnc" alt=""></p><p>后缀spritr文件名的文件头SPRX，可以知道该数据为这个文件的数据，并且没有加密。</p><p>资源中最重要的是图片，这里面最多的就是PNG图片，查看数据时文件头并不是PNG，而是RIFF文件头。用图片浏览器也打不开，通过搜索得知这是一种比较新的文件格式，查阅资料知道XnView支持这个文件格式。</p><p><img src="http://t.cn/RGRNyz4" alt=""></p><p>用XnView打开的图像就是</p><p><img src="http://t.cn/RGRNboR" alt=""></p><p>解密到此就差不多，接下来就是写个小程序把资源都提取出来了。</p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;安卓游戏资源解密&quot;&gt;&lt;a href=&quot;#安卓游戏资源解密&quot; class=&quot;headerlink&quot; title=&quot;安卓游戏资源解密&quot;&gt;&lt;/a&gt;安卓游戏资源解密&lt;/h1&gt;&lt;p&gt;一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://t.cn/RGRCrxm&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。&lt;/p&gt;
-&lt;p&gt;这几天看了 &amp;lt;&amp;lt;揭秘数据解密的关键技术&amp;gt;&amp;gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。&lt;br&gt;&lt;img src=&quot;http://t.cn/RGRCgpS&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Android" scheme="http://yoursite.com/categories/Android/"/>
-    
-    
-      <category term="Android" scheme="http://yoursite.com/tags/Android/"/>
     
   </entry>
   

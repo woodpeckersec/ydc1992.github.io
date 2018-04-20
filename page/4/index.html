@@ -207,6 +207,73 @@
 </nav>
       <div class="body-wrap">
   
+    <article id="post-pwnable-kr-bof" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/88524310.html" class="article-date">
+      <time datetime="2016-01-06T14:29:25.000Z" itemprop="datePublished">2016-01-06</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/88524310.html">pwnable.kr bof</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>一个简单的缓冲区溢出,用gdb调试，<br><img src="http://t.cn/R51Tybh" alt=""><br>程序首先传入一个参数0xdeadbeef,然后调用func函数，看看func处代码<br><img src="http://t.cn/R51Typs" alt=""><br> <code>_IO_get</code>获取输入的数据，然后比较<code>ebp+8</code>和0xcafebabe是否相等，相等则打印flag。</p>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/challenge/">challenge</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/88524310.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
     <article id="post-Pwnable-kr-random" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
