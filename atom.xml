@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-04-19T23:12:37.455Z</updated>
+  <updated>2018-04-20T12:19:23.656Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -21,15 +21,17 @@
     <link href="http://yoursite.com/posts/fa1bd37f.html"/>
     <id>http://yoursite.com/posts/fa1bd37f.html</id>
     <published>2018-04-19T23:11:52.000Z</published>
-    <updated>2018-04-19T23:12:37.455Z</updated>
+    <updated>2018-04-20T12:19:23.656Z</updated>
     
-    <content type="html"><![CDATA[<p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p><p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p><pre><code>void test(){    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);    RtlFillMemory(ptr2,0x200,0x90);    RtlMoveMemory(ptr1,ptr2,0x50);    ExFreePool(ptr1);    ExFreePool(ptr2);}</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p><pre><code>KIRQL WPOFFx64(){    KIRQL irql=KeRaiseIrqlToDpcLevel();    UINT64 cr0=__readcr0();    cr0 &amp;= 0xfffffffffffeffff;    __writecr0(cr0);    _disable();    return irql;}void WPONx64(KIRQL irql){    UINT64 cr0=__readcr0();    cr0 |= 0x10000;    _enable();    __writecr0(cr0);    KeLowerIrql(irql);}void test(){   KIRQL irql=WPOFF();   RtlMoveMemory(NtOpenProcess,HookCode,15);   WPON(irql);}</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p><pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy ){    PMDL pMdl = NULL;    PVOID pSafeAddress = NULL;   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )      return FALSE;    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );      if( !pMdl )     return FALSE;  __try{     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );}__except(EXCEPTION_EXECUTE_HANDLER){    IoFreeMdl( pMdl );    return FALSE;}    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );    if( !pSafeAddress )     return FALSE;__try{    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );}__except(EXCEPTION_EXECUTE_HANDLER){   ;}    MmUnlockPages( pMdl );   IoFreeMdl( pMdl );   return TRUE;}</code></pre>]]></content>
+    <content type="html"><![CDATA[<p>在内核中有以下四种内存操作</p><pre><code class="cpp">PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);VOID ExFreePool(PVOID P);</code></pre><p>分别对应C语言的<code>malloc memcpy memset free</code>;</p><p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p><pre><code>void test(){    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);    RtlFillMemory(ptr2,0x200,0x90);    RtlMoveMemory(ptr1,ptr2,0x50);    ExFreePool(ptr1);    ExFreePool(ptr2);}</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p><pre><code>KIRQL WPOFFx64(){    KIRQL irql=KeRaiseIrqlToDpcLevel();    UINT64 cr0=__readcr0();    cr0 &amp;= 0xfffffffffffeffff;    __writecr0(cr0);    _disable();    return irql;}void WPONx64(KIRQL irql){    UINT64 cr0=__readcr0();    cr0 |= 0x10000;    _enable();    __writecr0(cr0);    KeLowerIrql(irql);}void test(){   KIRQL irql=WPOFF();   RtlMoveMemory(NtOpenProcess,HookCode,15);   WPON(irql);}</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p><pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy ){    PMDL pMdl = NULL;    PVOID pSafeAddress = NULL;   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )      return FALSE;    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );      if( !pMdl )     return FALSE;  __try{     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );}__except(EXCEPTION_EXECUTE_HANDLER){    IoFreeMdl( pMdl );    return FALSE;}    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );    if( !pSafeAddress )     return FALSE;__try{    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );}__except(EXCEPTION_EXECUTE_HANDLER){   ;}    MmUnlockPages( pMdl );   IoFreeMdl( pMdl );   return TRUE;}</code></pre>]]></content>
     
     <summary type="html">
     
       
       
-        &lt;p&gt;在内核中有以下四种内存操作&lt;br&gt;PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);&lt;br&gt;VOID RtlMoveMemory(PVOID Destination, PVOID Source, S
+        &lt;p&gt;在内核中有以下四种内存操作&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;cpp&quot;&gt;PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);
+VOID RtlMoveMemory(PVOID Destina
       
     
     </summary>

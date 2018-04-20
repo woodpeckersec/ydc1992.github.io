@@ -14,17 +14,17 @@
 
   <title>windows内核学习:内存操作 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
+  <meta name="description" content="在内核中有以下四种内存操作 PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes); VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length); VOID RtlFillMemory(PVOID Destination, SIZE_T Length, U">
 <meta property="og:type" content="article">
 <meta property="og:title" content="windows内核学习:内存操作">
 <meta property="og:url" content="http://yoursite.com/posts/fa1bd37f.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
+<meta property="og:description" content="在内核中有以下四种内存操作 PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes); VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length); VOID RtlFillMemory(PVOID Destination, SIZE_T Length, U">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-19T23:12:37.455Z">
+<meta property="og:updated_time" content="2018-04-20T12:19:23.656Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="windows内核学习:内存操作">
-<meta name="twitter:description" content="在内核中有以下四种内存操作PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHA">
+<meta name="twitter:description" content="在内核中有以下四种内存操作 PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes); VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length); VOID RtlFillMemory(PVOID Destination, SIZE_T Length, U">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -240,7 +240,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p>
+        <p>在内核中有以下四种内存操作</p>
+<pre><code class="cpp">PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);
+VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);
+VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);
+VOID ExFreePool(PVOID P);
+</code></pre>
+<p>分别对应C语言的<code>malloc memcpy memset free</code>;</p>
 <p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p>
 <pre><code>void test()
 {
@@ -368,7 +374,7 @@ __except(EXCEPTION_EXECUTE_HANDLER)
         <p><span>本文标题:</span><a href="/posts/fa1bd37f.html">windows内核学习:内存操作</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月20日 - 07时11分</p>
-        <p><span>最后更新:</span>2018年04月20日 - 07时12分</p>
+        <p><span>最后更新:</span>2018年04月20日 - 20时19分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/fa1bd37f.html" title="windows内核学习:内存操作">http://yoursite.com/posts/fa1bd37f.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/fa1bd37f.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>

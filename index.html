@@ -234,7 +234,13 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>在内核中有以下四种内存操作<br>PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);<br>VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);<br>VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);<br>VOID ExFreePool(PVOID P);<br>分别对应C语言的malloc memcpy memset free;</p>
+        <p>在内核中有以下四种内存操作</p>
+<pre><code class="cpp">PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);
+VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);
+VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);
+VOID ExFreePool(PVOID P);
+</code></pre>
+<p>分别对应C语言的<code>malloc memcpy memset free</code>;</p>
 <p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p>
 <pre><code>void test()
 {
