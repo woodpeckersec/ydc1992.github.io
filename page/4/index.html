@@ -143,7 +143,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 10px;">病毒分析</a>
+                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 12.5px;">病毒分析</a>
                     </div>
                 </section>
                 
@@ -206,6 +206,98 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-Far-Manager插件编写1" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/f4d28762.html" class="article-date">
+      <time datetime="2016-01-09T01:21:28.000Z" itemprop="datePublished">2016-01-09</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/f4d28762.html">Far Manager插件编写1 </a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>由于大部分时间都是使用Far程序，于是想写个插件提升效率，但是网上都没有相关的资料，而且官方提供的文档也只有老毛子语。只能自己摸索摸索。写在博客希望能帮助更多的人少走弯路。</p>
+<blockquote>
+<p>Far Manager(short for <em><strong>F</strong>ile and <strong>AR</strong>chive <strong>Manager</strong></em>),是一款Windows文件管理视图，并且可以执行cmd命令。提供了高度可定制的插件接口。</p>
+</blockquote>
+<h2 id="插件编写"><a href="#插件编写" class="headerlink" title="插件编写"></a>插件编写</h2><p>Far插件是一个dll文件，通过Far提供的接口来实现高度可定制化的插件。将该dll文件放入Far的插件目录，调用插件时会加载该dll。</p>
+<h3 id="GetGlobalInfoW"><a href="#GetGlobalInfoW" class="headerlink" title="GetGlobalInfoW"></a>GetGlobalInfoW</h3><p>Far加载插件时，最先加载就是插件导出的<strong>GetGlobalInfoW</strong>函数，如果没有导出该函数，这个插件也就不能被Far调用。这个函数主要的功能是提供插件的基本信息。如作者、插件版本、描述和插件路径、GUID等等。<br><img src="http://t.cn/RGRNcEJ" style="display:block;margin:auto"></p>
+<pre><code class="cpp">// {1C6B0907-0B96-47C4-A24B-36A9B184AF25}
+static const GUID guid_PluginGuid =
+{ 0x1c6b0907, 0xb96, 0x47c4,{ 0xa2, 0x4b, 0x36, 0xa9, 0xb1, 0x84, 0xaf, 0x25 } };  //全局变量
+
+void WINAPI GetGlobalInfoW(GlobalInfo *Info)
+{
+    Info-&gt;MinFarVersion = MAKEFARVERSION(
+        FARMANAGERVERSION_MAJOR,
+        FARMANAGERVERSION_MINOR,
+        FARMANAGERVERSION_REVISION,
+        FARMANAGERVERSION_BUILD,
+        FARMANAGERVERSION_STAGE);
+
+    Info-&gt;StructSize = sizeof(GlobalInfo);
+    Info-&gt;Author = L&quot;Ken&quot;;
+    Info-&gt;Description = L&quot;My First Plugin&quot;;
+    Info-&gt;Title = L&quot;My First Plugin&quot;;
+    Info-&gt;Guid = guid_PluginGuid;
+}
+</code></pre>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Far-Manager/">Far Manager</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Far-Manager/">Far Manager</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/f4d28762.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-pwnable-kr-bof" class="article article-type-post" itemscope itemprop="blogPost">
   

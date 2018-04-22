@@ -143,7 +143,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 10px;">病毒分析</a>
+                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 12.5px;">病毒分析</a>
                     </div>
                 </section>
                 
@@ -206,6 +206,78 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-selenium-Firefox-48-报错解决方法" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/e8a649b6.html" class="article-date">
+      <time datetime="2016-10-26T12:47:23.000Z" itemprop="datePublished">2016-10-26</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>这里记录下使用selenium碰到的问题。</p>
+<p>报错信息如下时：</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       
+</code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p>
+<p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p>
+<p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p>
+<p>当报如下错误信息时，则是</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, 
+no &#39;moz:firefoxOptions.binary&#39; capability provided, and no binary flag set on the command line
+</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p>
+<pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)
+driver = webdriver.Firefox(firefox_binary=binary)
+</code></pre>
+<p>这样就能正常使用了。</p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-pycharm-远程调试kodi-python-plugin" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -803,85 +875,6 @@ Segmentation fault
         <p class="article-more-link">
           <a  href="/posts/84f4a8fe.html#more">大航海 >></a>
         </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-pwnable-kr-mistake" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/f6e7b5bf.html" class="article-date">
-      <time datetime="2016-01-31T15:34:20.000Z" itemprop="datePublished">2016-01-31</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/f6e7b5bf.html">pwnable.kr mistake</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p><img src="http://t.cn/RGRNYlx" alt=""></p>
-<p>分析源码，发现下面这段代码有点可疑。</p>
-<pre><code>fd=open(&quot;/home/mistake/password&quot;,O_RDONLY,0400) &lt; 0
-</code></pre><p>熟悉Linux的童鞋都知道文件描述符是不可能小于0的。计算得fd等于0，因为”&lt;”比”=”优先级高，先计算等式右边，打开的文件描述符不可能小于0，因此右边等式等于0，最后fd=0；<br>文件描述符为0是标准输入，也就是说这个程序实际上并没有读取password文件，而是从标准输入中读取数据。</p>
-<p>继续往下看，有个比较，两个buff相等则输出flag。</p>
-<pre><code class="cpp">if(!strncmp(pw_buf, pw_buf2, PW_LEN)){     
-      printf(&quot;Password OK\n&quot;);           
-      system(&quot;/bin/cat flag\n&quot;);         
-}                                          
-</code></pre>
-<p>这样，我们只要构造一个满足条件的buffer通过管道传给mistake。buffer满足下面这个条件就能成功拿到key。</p>
-<pre><code class="c">pw_buf = pw_buf2^0x1111111111
-</code></pre>
-<p>执行如下命令。</p>
-<pre><code class="bash">(python -c &quot;print &#39;\x12&#39;*10 + &#39;\x13&#39;*10 &quot;) | ./mistake
-</code></pre>
-<p><img src="http://t.cn/RGRNH93" alt=""></p>
-
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/challenge/">challenge</a>
-    </div>
-
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Pwnable/">Pwnable</a></li></ul>
-    </div>
-
       
       <div class="clearfix"></div>
     </div>
