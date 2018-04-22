@@ -22,7 +22,7 @@
 <meta property="og:site_name" content="ydc&#39;s blog">
 <meta property="og:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-22T06:28:26.047Z">
+<meta property="og:updated_time" content="2018-04-22T09:47:45.162Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="调用jscript引擎接口的malware分析">
 <meta name="twitter:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
@@ -261,7 +261,14 @@
 <h2 id="com调用jscript代码"><a href="#com调用jscript代码" class="headerlink" title="com调用jscript代码"></a>com调用jscript代码</h2><pre><code>      1.  CoCreateInstance()创建javascript的引擎，获得jscript引擎的接口的IActiveScript 
       2.  实现回调调用接口IActiveScriptSite，通过IActiveScript-&gt;SetScriptSite()交给脚本回调
       3.  IActiveScript-&gt;QueryInterface()取得IActiveScriptParse接口，IActiveScriptParse接口用来解析执行jscript脚本
-</code></pre><h2 id="脚本行为"><a href="#脚本行为" class="headerlink" title="脚本行为"></a>脚本行为</h2><p>脚本会释放出一个powershell脚本，可能是c2c连接已经失效，后续的行为没跑出来</p>
+</code></pre><h3 id="获得IActiveScript接口"><a href="#获得IActiveScript接口" class="headerlink" title="获得IActiveScript接口"></a>获得IActiveScript接口</h3><p>先调用<code>CLSIDFromProgID</code>拿到对应脚本语言引擎接口的guid,这里是jscript，然后用<code>CoCreateInstance</code>创建一个脚本引擎实例，riid为<code>IID_IActiveScript</code>;<br>返回一个<code>IActiveScript</code>对象指针。</p>
+<body bgcolor="#232323"><br><span style="white-space: pre; font-family: Consolas; "><br><br><span style="color:#ffd200">HRESULT __thiscall get_jscript_engine(LPVOID <em>this, LPCOLESTR lpszProgID, LPUNKNOWN pUnkOuter, DWORD dwClsContext)<br></em></span><span><span style="color:#c0c0c0">{                                                                            </span></span><br>  <span style="color:#73adad">LPVOID ppv</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+0h] [ebp-1Ch]<br>  </span><span style="color:#73adad">HRESULT v6</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+4h] [ebp-18h]<br>  </span><span style="color:#73adad">const IID guid</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+8h] [ebp-14h]<br><br>  ppv </span><span style="color:#c0c0c0">= </span><span style="color:#00ffff">this</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#ff633c">// lpSzProgID &quot;jscript&quot;<br>  </span><span style="color:#00ffff">v6 </span><span style="color:#c0c0c0">= </span><span style="color:#f187ff">CLSIDFromProgID</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">lpszProgID</span><span style="color:#c0c0c0">, &amp;</span><span style="color:#00ffff">guid</span><span style="color:#c0c0c0">);<br>  if…<br>  </span><span style="color:#ababab">if </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">v6 &gt;</span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0 </span><span style="color:#c0c0c0">)<br>    </span><span style="color:#ff633c">// riid =  &#039;{BB1A2AE1-A4F9-11cf-8F20-00805F2CD064}&#039;;<br>    </span><span style="color:#00ffff">v6 </span><span style="color:#c0c0c0">= </span><span style="color:#f187ff">CoCreateInstance</span><span style="color:#c0c0c0">(&amp;</span><span style="color:#00ffff">guid</span><span style="color:#c0c0c0">, </span><span style="color:#00ffff">pUnkOuter</span><span style="color:#c0c0c0">, </span><span style="color:#00ffff">dwClsContext</span><span style="color:#c0c0c0">, &amp;</span><span style="color:#ffecbb">riid</span><span style="color:#c0c0c0">, </span><span style="color:#00ffff">ppv</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#ababab">return </span><span style="color:#00ffff">v6</span><span style="color:#c0c0c0">;<br></span><span style="background:#646464"></span><span style="background:#00ffff"></span><span><span style="color:#c0c0c0">}                                                                            </span></span><br></span></body>
+
+
+
+
+
+<h2 id="脚本行为"><a href="#脚本行为" class="headerlink" title="脚本行为"></a>脚本行为</h2><p>脚本会释放出一个powershell脚本，可能是c2c连接已经失效，后续的行为没跑出来</p>
 <pre><code class="powershell">$SH_TYPE_SCHEDULED_TASK=1;
 $SH_TYPE_TASK_SCHEDULER=2;
 $schedulerType=$SH_TYPE_SCHEDULED_TASK;
@@ -496,7 +503,7 @@ IwoPMc;
         <p><span>本文标题:</span><a href="/posts/6193d55c.html">调用jscript引擎接口的malware分析</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月22日 - 11时11分</p>
-        <p><span>最后更新:</span>2018年04月22日 - 14时28分</p>
+        <p><span>最后更新:</span>2018年04月22日 - 17时47分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/6193d55c.html" title="调用jscript引擎接口的malware分析">http://yoursite.com/posts/6193d55c.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/6193d55c.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -525,7 +532,7 @@ IwoPMc;
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jscript代码解密"><span class="toc-number">1.</span> <span class="toc-text">jscript代码解密</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#com调用jscript代码"><span class="toc-number">2.</span> <span class="toc-text">com调用jscript代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#脚本行为"><span class="toc-number">3.</span> <span class="toc-text">脚本行为</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jscript代码解密"><span class="toc-number">1.</span> <span class="toc-text">jscript代码解密</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#com调用jscript代码"><span class="toc-number">2.</span> <span class="toc-text">com调用jscript代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#获得IActiveScript接口"><span class="toc-number">2.1.</span> <span class="toc-text">获得IActiveScript接口</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#脚本行为"><span class="toc-number">3.</span> <span class="toc-text">脚本行为</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
