@@ -22,7 +22,7 @@
 <meta property="og:site_name" content="ydc&#39;s blog">
 <meta property="og:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-04-22T06:07:47.816Z">
+<meta property="og:updated_time" content="2018-04-22T06:28:26.047Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="调用jscript引擎接口的malware分析">
 <meta name="twitter:description" content="文件SHA256: f47717a4ae920921b69e8fd590c7a6353be08cad3cfc1a438c490b38e248d3f7  用IDA反编译代码,入口处函数如下：   主要功能解密jscript代码，通过com调用脚本引擎来执行脚本代码  int __cdecl main(int argc, const char argv, const char envp){">
@@ -207,7 +207,7 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-c-读取WPD设备详细信息" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-c-调用jscript引擎接口的malware分析" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="/posts/6193d55c.html" class="article-date">
@@ -258,8 +258,10 @@
 </code></pre><body bgcolor="#232323"><br><span style="white-space: pre; font-family: Consolas; "><br><br><span style="color:#73adad">_BYTE <em>__cdecl decrypt_code(char </em>a1, unsigned int size)<br></span><span><span>{</span></span><br>  <span style="color:#ffd200">_BYTE <em>v2</em></span><span style="color:#c0c0c0">; </span><span style="color:#ffd200">// </span><span style="color:#00ffff">edx<br>  </span><span style="color:#73adad">_BYTE result</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">eax<br>  </span><span style="color:#73adad">unsigned int v4</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+0h] [ebp-1Ch]<br>  </span><span style="color:#ffd200">_BYTE <em>v5</em></span><span style="color:#c0c0c0">; </span><span style="color:#ffd200">// </span><span style="color:#00ffff">[esp+10h] [ebp-Ch]<br>  </span><span style="color:#73adad">unsigned int i</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+14h] [ebp-8h]<br>  </span><span style="color:#73adad">unsigned int j</span><span style="color:#c0c0c0">; </span><span style="color:#73adad">// </span><span style="color:#00ffff">[esp+18h] [ebp-4h]<br><br>  v4 </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0x7FFFFFFF </span><span style="color:#c0c0c0">- </span><span style="color:#ababab">8</span><span style="color:#c0c0c0"></span><span style="color:#ffecbb">fun</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">size</span><span style="color:#c0c0c0">, </span><span style="color:#ababab">6</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= </span><span style="color:#ffecbb">operator new</span><span style="color:#c0c0c0">(</span><span style="color:#ababab">1u</span><span style="color:#c0c0c0">);<br>  </span><span style="color:#00ffff">v5 </span><span style="color:#c0c0c0">= </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#00ffff">v2 </span><span style="color:#c0c0c0">= </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#ffecbb">LOBYTE</span><span style="color:#c0c0c0">(</span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">) = </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">;
   </span><span style="color:#00ffff">v2 </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">;<br>  </span><span style="color:#ff633c">// 生成xor key<br>  </span><span style="color:#ababab">for </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0</span><span style="color:#c0c0c0">; </span><span style="color:#00ffff">i &lt; </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">; ++</span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">)<br>  {<br>    </span><span style="color:#00ffff">v5</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">] = </span><span style="color:#00ffff">v4 &gt;&gt; </span><span style="color:#ababab">8 </span><span style="color:#c0c0c0">* </span><span style="color:#00ffff">i</span><span style="color:#c0c0c0">;<br>    </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= (</span><span style="color:#00ffff">i </span><span style="color:#c0c0c0">+ </span><span style="color:#ababab">1</span><span style="color:#c0c0c0">);<br>  </span><span style="background:#c0c0c0"></span><span style="color:#c0c0c0">}<br>  </span><span style="color:#ababab">for </span><span style="color:#c0c0c0">( </span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">= </span><span style="color:#ababab">0</span><span style="color:#c0c0c0">; </span><span style="color:#00ffff">j &lt; size</span><span style="color:#c0c0c0">; ++</span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">)<br>  {<br>    </span><span style="color:#00ffff">result </span><span style="color:#c0c0c0">= (</span><span style="color:#00ffff">v5</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j </span><span style="color:#c0c0c0">% </span><span style="color:#ababab">4</span><span style="color:#c0c0c0">] ^ </span><span style="color:#00ffff">a1</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j</span><span style="color:#c0c0c0">]);<br>    </span><span style="color:#00ffff">a1</span><span style="color:#c0c0c0">[</span><span style="color:#00ffff">j</span><span style="color:#c0c0c0">] = </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br>  </span><span style="background:#00ffff"></span><span style="color:#c0c0c0">}<br>  </span><span style="color:#ababab">return </span><span style="color:#00ffff">result</span><span style="color:#c0c0c0">;<br></span><span style="background:#646464"></span><span style="background:#00ffff"></span><span><span style="color:#c0c0c0">} </span></span><br></span></body>
 
-
-<h3 id="脚本行为"><a href="#脚本行为" class="headerlink" title="脚本行为"></a>脚本行为</h3><p>脚本会释放出一个powershell脚本，可能是c2c连接已经失效，后续的行为没跑出来</p>
+<h2 id="com调用jscript代码"><a href="#com调用jscript代码" class="headerlink" title="com调用jscript代码"></a>com调用jscript代码</h2><pre><code>      1.  CoCreateInstance()创建javascript的引擎，获得jscript引擎的接口的IActiveScript 
+      2.  实现回调调用接口IActiveScriptSite，通过IActiveScript-&gt;SetScriptSite()交给脚本回调
+      3.  IActiveScript-&gt;QueryInterface()取得IActiveScriptParse接口，IActiveScriptParse接口用来解析执行jscript脚本
+</code></pre><h2 id="脚本行为"><a href="#脚本行为" class="headerlink" title="脚本行为"></a>脚本行为</h2><p>脚本会释放出一个powershell脚本，可能是c2c连接已经失效，后续的行为没跑出来</p>
 <pre><code class="powershell">$SH_TYPE_SCHEDULED_TASK=1;
 $SH_TYPE_TASK_SCHEDULER=2;
 $schedulerType=$SH_TYPE_SCHEDULED_TASK;
@@ -494,7 +496,7 @@ IwoPMc;
         <p><span>本文标题:</span><a href="/posts/6193d55c.html">调用jscript引擎接口的malware分析</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年04月22日 - 11时11分</p>
-        <p><span>最后更新:</span>2018年04月22日 - 14时07分</p>
+        <p><span>最后更新:</span>2018年04月22日 - 14时28分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/6193d55c.html" title="调用jscript引擎接口的malware分析">http://yoursite.com/posts/6193d55c.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://yoursite.com/posts/6193d55c.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -523,7 +525,7 @@ IwoPMc;
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jscript代码解密"><span class="toc-number">1.</span> <span class="toc-text">jscript代码解密</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#脚本行为"><span class="toc-number">1.1.</span> <span class="toc-text">脚本行为</span></a></li></ol></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jscript代码解密"><span class="toc-number">1.</span> <span class="toc-text">jscript代码解密</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#com调用jscript代码"><span class="toc-number">2.</span> <span class="toc-text">com调用jscript代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#脚本行为"><span class="toc-number">3.</span> <span class="toc-text">脚本行为</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
