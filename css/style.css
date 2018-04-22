@@ -3074,7 +3074,7 @@ a.gitment-editor-footer-tip:hover {
   margin: -30px 0 20px 30px;
 }
 .article-entry {
-  line-height: 1.8em;
+  line-height: 1.1em;
   padding-right: 30px;
   padding-left: 30px;
 }
@@ -3665,7 +3665,7 @@ a.gitment-editor-footer-tip:hover {
   padding: 10px 10px;
   overflow: auto;
   color: #4c4c4c;
-  line-height: 22.400000000000002px;
+  line-height: 14px;
 }
 .article-entry .highlight .gutter pre,
 .article-entry .gist .gist-file .gist-data .line-numbers {
@@ -3674,6 +3674,7 @@ a.gitment-editor-footer-tip:hover {
 .article-entry pre,
 .article-entry code {
   font-family: Menlo, Consolas, "Source Code Pro", Inconsolata, Monaco, monospace;
+  max-height: 300px;
 }
 .article-entry blockquote {
   background-color: #555;
@@ -4839,7 +4840,7 @@ pre .link_url {
   margin-right: 4px;
 }
 .plugin-desc {
-  line-height: 1.6em;
+  line-height: 1em;
   color: #999;
   margin: 1em 0;
 }
