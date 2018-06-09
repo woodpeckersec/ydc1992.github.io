@@ -21,7 +21,7 @@
 <meta property="og:site_name" content="ydc&#39;s blog">
 <meta property="og:description" content="分析VB样本的时候发现有几种混淆方式，记录下。 替换函数指针 样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c   载入vb.idc脚本，脚本分析完后，查看event handle函数，  .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2018-06-09T02:31:24.128Z">
+<meta property="og:updated_time" content="2018-06-09T04:17:44.795Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="VB Crypt Payload">
 <meta name="twitter:description" content="分析VB样本的时候发现有几种混淆方式，记录下。 替换函数指针 样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c   载入vb.idc脚本，脚本分析完后，查看event handle函数，  .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load">
@@ -293,7 +293,7 @@
 ....
 .text:004644C3 call    dword ptr [eax+2B0h]
 
-</code></pre><p>在shellcode中并没有使用常规的方式获取api地址，而是先找到msvbvm60模块的地址，再通过到处函数DllFunction来获得对应API的地址。</p>
+</code></pre><p>在shellcode中并没有使用常规的方式获取api地址，而是先找到msvbvm60模块的地址，再通过到处函数DllFunction来获得对应API的地址。<br>中间穿插了大量的花指令。</p>
 <pre><code>.text:0043B10F get_api_address proc near                                                                           ; CODE XREF: sub_43AF88:loc_43AF89↑p
 .text:0043B10F                                                                                                     ; sub_43B07C+2B↑p
 .text:0043B10F
@@ -389,7 +389,112 @@
 .text:0043B1F7                 pcmpeqw mm6, mm3
 .text:0043B1FA                 retn
 .text:0043B1FA get_api_address endp
+</code></pre><p>通过get_api_address函数获得shellNoitdyIconW函数。并调用两次。<br>第一次调用的时候dwMessage参数为NIM_ADD，打开<code>控制面板\所有控制面板项\通知区域图标</code>会发现下面有一个空白的<br>这是因为PNOTIFYICONDATA被垃圾数据填充了。第二次传入NIM_DELETE删除托盘图标。</p>
+<pre><code class="asm">.text:0043AF89 call    get_api_address
+.text:0043AF8E push    eax
+.text:0043AF8F push    dword ptr [ebp+52h] ;NOTIFYICONDATA结构体
+.text:0043AF92 push    0                   ;NIM_ADD
+.text:0043AF94 call    eax
+.text:0043AF96 cmp     eax, 1
+.text:0043AF99 jz      short $+2
+.text:0043AF9B
+.text:0043AF9B loc_43AF9B:                                                                                         ; CODE XREF: .text:0043AF99↑j
+.text:0043AF9B pop     eax
+.text:0043AF9C push    dword ptr [ebp+52h]
+.text:0043AF9F push    2                   ;NIM_DELETE 
+.text:0043AFA1 call    eax
 </code></pre>
+<p>使用ZwSetInformationProcess绕过DEP保护的原理如下</p>
+<pre><code class="cpp">ULONG ExecuteFlags = MEM_EXECUTE_OPTION_ENABLE;
+
+    NtSetInformationProcess(
+    -1,//当前进程
+    ProcessExecuteFlags, // 0x22
+    &amp;ExecuteFlags, // executeFlag=2; 设置为2关闭DEP
+    sizeof(ExecuteFlags)); // 0x4
+</code></pre>
+<p>关闭DEP以避免在栈上执行代码出现异常等问题。</p>
+<pre><code>.text:0043B1FF push    &#39;ssf&#39;
+.text:0043B204 dec     dword ptr [esp+0]   ;sse
+.text:0043B207 push    &#39;corQ&#39;
+.text:0043B20C dec     [esp+4+var_4]       ;corP
+.text:0043B20F push    &#39;noiu&#39;
+.text:0043B214 dec     [esp+8+var_8]       ;noit
+.text:0043B217 push    &#39;amrp&#39;
+.text:0043B21C dec     [esp+0Ch+var_C]     ;amro
+.text:0043B21F push    &#39;fnIu&#39;
+.text:0043B224 dec     [esp+10h+var_10]    ;fnIt
+.text:0043B227 push    &#39;eSw[&#39;
+.text:0043B22C dec     [esp+14h+var_14]   ;eSwZ
+.text:0043B22F mov     edx, esp     ZwSetInformationProcess
+.text:0043B231 jmp     loc_43B0A1
+...
+.text:0043B0A1 punpckhwd mm2, mm6
+.text:0043B0A4 pcmpeqd mm2, mm5                                                                                    ; a10
+.text:0043B0A7 call    get_api_address
+.text:0043B0AC add     esp, 18h
+.text:0043B0AF punpckhwd mm0, mm1
+.text:0043B0B2 push    4     ;sizeof(ExecuteFlags)
+.text:0043B0B4 packsswb mm0, mm2
+.text:0043B0B7 push    0  //0
+.text:0043B0B9 pcmpgtw mm7, mm4
+.text:0043B0BC add     [esp+4+var_4], 400004h
+.text:0043B0C3 pcmpeqb mm4, mm0
+.text:0043B0C6 push    22h ; &#39;&quot;&#39; ;ProcessExecuteFlags
+.text:0043B0C8 punpckhwd xmm1, xmm3
+.text:0043B0CC push    0FFFFFFFFh  ;当前进程
+.text:0043B0CE punpckhdq mm5, mm5
+.text:0043B0D1 call    eax ;ZwSetInformationProcess
+</code></pre><h2 id="反调试"><a href="#反调试" class="headerlink" title="反调试"></a>反调试</h2><p>这里使用三处反调试，</p>
+<ul>
+<li>PEB.BeingDebugged</li>
+<li>PEB.NtGlobalFlag</li>
+</ul>
+<pre><code class="asm">Stack[00000B48]:0012D7A8 push    ebp
+Stack[00000B48]:0012D7A9 mov     ebp, esp
+Stack[00000B48]:0012D7AB mov     eax, large fs:18h
+Stack[00000B48]:0012D7B1 mov     eax, [eax+30h]
+Stack[00000B48]:0012D7B4 cmp     byte ptr [eax+2], 1 ;BeingDebugged，改成0绕过
+Stack[00000B48]:0012D7B8 jz      loc_12DAEF
+Stack[00000B48]:0012D7BE nop
+Stack[00000B48]:0012D7BF nop
+Stack[00000B48]:0012D7C0 mov     eax, large fs:30h
+Stack[00000B48]:0012D7C6 nop
+Stack[00000B48]:0012D7C7 nop
+Stack[00000B48]:0012D7C8 mov     al, [eax+68h]
+Stack[00000B48]:0012D7CB nop
+Stack[00000B48]:0012D7CC nop
+Stack[00000B48]:0012D7CD and     al, 70h ;NtGlobalFlag,将al改成0绕过
+Stack[00000B48]:0012D7CF nop
+Stack[00000B48]:0012D7D0 nop
+Stack[00000B48]:0012D7D1 cmp     al, 70h ; &#39;p&#39;
+Stack[00000B48]:0012D7D3 jz      loc_12DAEF
+Stack[00000B48]:0012D7D9 mov     eax, 1         ;检测虚拟机
+Stack[00000B48]:0012D7DE cpuid
+Stack[00000B48]:0012D7E0 mov     eax, edx
+Stack[00000B48]:0012D7E2 shr     eax, 17h
+Stack[00000B48]:0012D7E5 and     eax, 1
+Stack[00000B48]:0012D7E8 cmp     eax, 1        ;如果为1则是运行在虚拟机内
+</code></pre>
+<p>接着往下走，还有一处反调试</p>
+<pre><code class="asm">Stack[00000B48]:0012D94B loc_12D94B:                   ; CODE XREF: Stack[00000B48]:0012D965↓j
+Stack[00000B48]:0012D94B push    eax
+Stack[00000B48]:0012D94C push    0Fh
+Stack[00000B48]:0012D94E call    dword ptr [ebp+94h]   ; sleep
+Stack[00000B48]:0012D954 pop     eax
+Stack[00000B48]:0012D955 push    eax
+Stack[00000B48]:0012D956 call    eax                  ; ntdll_NtYieldExecution
+Stack[00000B48]:0012D958 cmp     eax, 40000024h
+Stack[00000B48]:0012D95D jz      short loc_12D960
+Stack[00000B48]:0012D95F inc     edi
+Stack[00000B48]:0012D960
+Stack[00000B48]:0012D960 loc_12D960:                  ; CODE XREF: Stack[00000B48]:0012D95D↑j
+Stack[00000B48]:0012D960 pop     eax
+Stack[00000B48]:0012D961 inc     esi
+Stack[00000B48]:0012D962 cmp     esi, 20h ; &#39; &#39;
+Stack[00000B48]:0012D965 jnz     short loc_12D94B
+</code></pre>
+
       
       
         <div class="page-reward">
@@ -447,7 +552,7 @@
         <p><span>本文标题:</span><a href="/posts/27be2f79.html">VB Crypt Payload</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
         <p><span>发布时间:</span>2018年03月01日 - 06时53分</p>
-        <p><span>最后更新:</span>2018年06月09日 - 10时31分</p>
+        <p><span>最后更新:</span>2018年06月09日 - 12时17分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/posts/27be2f79.html" title="VB Crypt Payload">http://shxi.me/posts/27be2f79.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://shxi.me/posts/27be2f79.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -485,7 +590,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#替换函数指针"><span class="toc-number">1.</span> <span class="toc-text">替换函数指针</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#替换函数指针"><span class="toc-number">1.</span> <span class="toc-text">替换函数指针</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反调试"><span class="toc-number">2.</span> <span class="toc-text">反调试</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
