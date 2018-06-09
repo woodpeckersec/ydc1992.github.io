@@ -12,30 +12,19 @@
   
   <script>hljs.initHighlightingOnLoad();</script>
 
-  <title>安卓游戏资源解密 | ydc&#39;s blog</title>
+  <title>VB Crypt Payload | ydc&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="安卓游戏资源解密一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。  在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。 这几天看">
-<meta name="keywords" content="Android">
+  <meta name="description" content="分析VB样本的时候发现有几种混淆方式，记录下。 使用回调函数替换函数指针 样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c   载入vb.idc脚本，脚本分析完后，查看event handle函数，  .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm">
 <meta property="og:type" content="article">
-<meta property="og:title" content="安卓游戏资源解密">
-<meta property="og:url" content="http://shxi.me/posts/9e24c54e.html">
+<meta property="og:title" content="VB Crypt Payload">
+<meta property="og:url" content="http://shxi.me/posts/27be2f79.html">
 <meta property="og:site_name" content="ydc&#39;s blog">
-<meta property="og:description" content="安卓游戏资源解密一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。  在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。 这几天看">
+<meta property="og:description" content="分析VB样本的时候发现有几种混淆方式，记录下。 使用回调函数替换函数指针 样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c   载入vb.idc脚本，脚本分析完后，查看event handle函数，  .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm">
 <meta property="og:locale" content="default">
-<meta property="og:image" content="http://t.cn/RGRCrxm">
-<meta property="og:image" content="http://t.cn/RGRCgpS">
-<meta property="og:image" content="http://t.cn/RGRCkDz">
-<meta property="og:image" content="http://t.cn/RGRNhLS">
-<meta property="og:image" content="http://t.cn/RqtewpY">
-<meta property="og:image" content="http://t.cn/RqteUgm">
-<meta property="og:image" content="http://t.cn/RGRNAnc">
-<meta property="og:image" content="http://t.cn/RGRNyz4">
-<meta property="og:image" content="http://t.cn/RGRNboR">
-<meta property="og:updated_time" content="2018-04-04T16:57:40.443Z">
+<meta property="og:updated_time" content="2018-06-09T00:54:46.548Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="安卓游戏资源解密">
-<meta name="twitter:description" content="安卓游戏资源解密一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。  在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。 这几天看">
-<meta name="twitter:image" content="http://t.cn/RGRCrxm">
+<meta name="twitter:title" content="VB Crypt Payload">
+<meta name="twitter:description" content="分析VB样本的时候发现有几种混淆方式，记录下。 使用回调函数替换函数指针 样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c   载入vb.idc脚本，脚本分析完后，查看event handle函数，  .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm">
   
     <link rel="alternative" href="/atom.xml" title="ydc&#39;s blog" type="application/atom+xml">
   
@@ -217,11 +206,11 @@
         </header>                
     </div>
 </nav>
-      <div class="body-wrap"><article id="post-安卓游戏资源解密" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-VB-Crypt-Payload" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
-      <a href="/posts/9e24c54e.html" class="article-date">
-      <time datetime="2016-01-31T12:11:59.000Z" itemprop="datePublished">2016-01-31</time>
+      <a href="/posts/27be2f79.html" class="article-date">
+      <time datetime="2018-05-31T22:53:37.000Z" itemprop="datePublished">2018-06-01</time>
 </a>
     </div>
   
@@ -234,7 +223,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      安卓游戏资源解密
+      VB Crypt Payload
     </h1>
   
 
@@ -242,16 +231,8 @@
       
       <div class="article-info article-info-post">
         
-    <div class="article-category tagcloud">
-    <a class="article-category-link" href="/categories/Android/">Android</a>
-    </div>
-
 
         
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Android/">Android</a></li></ul>
-    </div>
-
         <div class="clearfix"></div>
       </div>
       
@@ -259,89 +240,49 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h1 id="安卓游戏资源解密"><a href="#安卓游戏资源解密" class="headerlink" title="安卓游戏资源解密"></a>安卓游戏资源解密</h1><p>一个同学在群里发了个游戏，要解密游戏的资源。反编译看了下源码，没看出什么，用Android Killer看了下资源，发现在res/raw目录下有个文件比较大，t0.zip解压后有t0.pak;文件有点大，3M多，并且是以PAK格式的文 件，通过搜索得知这个格式为PAK格式——是一种文件打包的格式。</p>
-<p><img src="http://t.cn/RGRCrxm" alt=""></p>
-<p>在网上搜了下 打开PAK文件的软件，发现都不能打开。  搞不定就不搞了。</p>
-<p>这几天看了 &lt;&lt;揭秘数据解密的关键技术&gt;&gt;，下面图片框框内的像文件名，我们可以知道这个文件是一种文件打包的格式。具体是什么结构不知道。<br><img src="http://t.cn/RGRCgpS" alt=""></p>
-<a id="more"></a>
-<p>解析文件推荐使用010 editor，写文件解析模板方便分析。</p>
-<p>我们可以看出第一个文件名从0xA开始， 对比每个文件名，发现名字前面的一字节数据表示这个文件名字符串的长度，前面8个字符未知，每两个字符串之间差8个数据，我们可以利用010 editor的模板功能写一个模板文件。</p>
-<p>前8字节的数据暂时定义成结构</p>
-<pre><code class="c"> typedef struct unkown
-{
-    char  unk[8];
-}
-</code></pre>
-<p>包含文件名的数据定义成</p>
-<pre><code class="bash">typedef struct
-{
-     BYTE  FilenameLen;
-     char  Filename[nameLen];
-     char  unkonw[8];   //未知数据
-}FILE_LIST;
-</code></pre>
-<p><img src="http://t.cn/RGRCkDz" alt=""></p>
-<p>找到最后一个文件名的字符串</p>
-<p><img src="http://t.cn/RGRNhLS" alt=""></p>
-<p>然后不断的改变模板文件中i的值计算总共有多少个文件名，最后算出有总共有292个文件名。发现开头的四字节数据刚好为292，因此可以判断该数据为文件的个数。模板文件改写代码</p>
-<pre><code class="bash">typedef struct
-{
-int FileNum;
-int unk;
-}PAK;
-typedef struct
-{
-     BYTE  nameLen;
-     char  name[nameLen];
-     CHAR  unk[8];
-}FILE_LIST;
-/////////////////////////////
-LittleEndian();
-PAK pak;
-FSeek(0x8);
-local int i;
-for(i=0;i&lt;pak.FileNum;i++)
-{
-    FILE_LIST fileList;  
-};
+        <p>分析VB样本的时候发现有几种混淆方式，记录下。</p>
+<h2 id="使用回调函数"><a href="#使用回调函数" class="headerlink" title="使用回调函数"></a>使用回调函数</h2><h2 id="替换函数指针"><a href="#替换函数指针" class="headerlink" title="替换函数指针"></a>替换函数指针</h2><blockquote>
+<p>样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c</p>
+</blockquote>
+<p> 载入vb.idc脚本，脚本分析完后，查看event handle函数，</p>
+<pre><code> .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load        dd offset Hdr_Jmp_Addr_0x46549A                   ; Ptr to Form Load Event Code.
+ ....
 
-</code></pre>
-<p>继续分析最后一个文件名后面的数据。后面的数据的起止地址0x2D80h.<br><img src="http://t.cn/RqtewpY" alt=""></p>
-<p><img src="http://t.cn/RqteUgm" alt=""></p>
-<p>而第一个FileList结构(模板文件定义的那个结构)的unk字段的第一个4字节为0x2d80;可以判断Unk的前四个字节为偏移地址，比较 多个FileLidy结构，可以发现相邻两个FIleList结构的 unk字段的前4字节刚好就是相邻两个FileList结构unk字段指向的数据之差。</p>
-<p>模板文件现在修改为</p>
-<pre><code class="cpp">
-typedef struct
-{
-      int fileNum;
-      int unknow2;    
-}PAK;
-typedef struct
-{
-     BYTE  nameLen;
-     char  name[nameLen];
-     int   fileoff&lt;format=hex&gt;;
-     int   filesize&lt;format=hex&gt;;
-}FILE_LIST;
-/////////////////////////////
-LittleEndian();
-PAK pak;
-FSeek(0x8);
-local int i;
-for(i=0;i&lt;pak.fileNum;i++)
-{
-    FILE_LIST fileList;
-};
+ .text:00463E78 sub     [esp+arg_0], 0FFFFh
+ .text:00463E80 jmp     _O_Pub_Obj_Inf1_Method0x1
 
+ .text:00463E85 Hdr_Jmp_Addr_0x46549A:                                                                              ; DATA XREF: .text:_O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load↑o
+.text:00463E85                                                   sub     dword ptr [esp+4], 3Bh ; &#39;;&#39;              ; Flags and Code Address
+.text:00463E8D                                                   jmp     _O_Pub_Obj_Inf1_Event0x2
+
+</code></pre><p>_O_Pub_Obj_Inf1_Event0x2就是处理Form_load的函数，一般malicious code都是在这里实现。<br>接着往下看。<br>这里计算处shellcode的地址。0x43AF4B=1526C77h/（sqr(25.0)）</p>
+<pre><code class="asm">.text:00465D83                        mov     [ebp+var_50], 1526C77h
+.text:00465D8A                        fld     ds:dbl_401118   ;25.0
+.text:00465D90                        push    ecx
+.text:00465D91                        push    ecx
+.text:00465D92                        fstp    qword ptr [esp+8+var_8]
+.text:00465D95                        call    rtcSqr
+.text:00465D9A                        call    __vbaFpI4
+.text:00465D9F                        mov     ecx, eax
 </code></pre>
-<p>随便找一个文件名查看</p>
-<p><img src="http://t.cn/RGRNAnc" alt=""></p>
-<p>后缀spritr文件名的文件头SPRX，可以知道该数据为这个文件的数据，并且没有加密。</p>
-<p>资源中最重要的是图片，这里面最多的就是PNG图片，查看数据时文件头并不是PNG，而是RIFF文件头。用图片浏览器也打不开，通过搜索得知这是一种比较新的文件格式，查阅资料知道XnView支持这个文件格式。</p>
-<p><img src="http://t.cn/RGRNyz4" alt=""></p>
-<p>用XnView打开的图像就是</p>
-<p><img src="http://t.cn/RGRNboR" alt=""></p>
-<p>解密到此就差不多，接下来就是写个小程序把资源都提取出来了。</p>
+<p>在’[eax+0x6f8]’ 这个函数将shellcode地址替换，arg_0为Form_load的第一个参数，也就是Form类。</p>
+<pre><code class="asm">.text:00465DA8                        mov     eax, [ebp+arg_0]
+.text:00465DAB                        mov     eax, [eax]
+.text:00465DAD                        push    [ebp+arg_0]
+.text:00465DB0                        call    dword ptr [eax+6F8h]
+</code></pre>
+<p>[eax]中存放的是地址虚表，[eax+6f8h]地址正好是_O_Pub_Obj_Inf1_Method0x1方法,</p>
+<pre><code class="asm">
+.data:0046737C dd offset msvbvm60_BASIC_CLASS_QueryInterface
+.data:00467380 dd offset msvbvm60_BASIC_CLASS_AddRef
+.data:00467384 dd offset msvbvm60_BASIC_CLASS_Release
+...
+.data:00467A6C dd 72A44A98h
+.data:00467A70 dd 72A44AA0h
+.data:00467A74 dd 463E80h                 ; ptr _O_Pub_Obj_Inf1_Method0x1
+.data:00467A78 dd 463E8Dh                 ; ptr _O_Pub_Obj_Inf1_Event0x2 
+...
+</code></pre>
 
       
       
@@ -397,13 +338,13 @@ for(i=0;i&lt;pak.fileNum;i++)
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="/posts/9e24c54e.html">安卓游戏资源解密</a></p>
+        <p><span>本文标题:</span><a href="/posts/27be2f79.html">VB Crypt Payload</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 Ken 的个人博客">Ken</a></p>
-        <p><span>发布时间:</span>2016年01月31日 - 20时11分</p>
-        <p><span>最后更新:</span>2018年04月05日 - 00时57分</p>
+        <p><span>发布时间:</span>2018年06月01日 - 06时53分</p>
+        <p><span>最后更新:</span>2018年06月09日 - 08时54分</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="/posts/9e24c54e.html" title="安卓游戏资源解密">http://shxi.me/posts/9e24c54e.html</a>
-            <span class="copy-path" data-clipboard-text="原文: http://shxi.me/posts/9e24c54e.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="/posts/27be2f79.html" title="VB Crypt Payload">http://shxi.me/posts/27be2f79.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://shxi.me/posts/27be2f79.html　　作者: Ken" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script src="/js/clipboard.min.js"></script>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -416,18 +357,9 @@ for(i=0;i&lt;pak.fileNum;i++)
 
 <nav id="article-nav">
   
-    <a href="/posts/f6e7b5bf.html" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption"><</strong>
-      <div class="article-nav-title">
-        
-          pwnable.kr mistake
-        
-      </div>
-    </a>
   
-  
-    <a href="/posts/6e7365c5.html" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">pypcap模块安装</div>
+    <a href="/posts/6193d55c.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">调用jscript引擎接口的malware分析</div>
       <strong class="article-nav-caption">></strong>
     </a>
   
@@ -438,7 +370,7 @@ for(i=0;i&lt;pak.fileNum;i++)
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#安卓游戏资源解密"><span class="toc-number">1.</span> <span class="toc-text">安卓游戏资源解密</span></a></li></ol>
+    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#使用回调函数"><span class="toc-number">1.</span> <span class="toc-text">使用回调函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#替换函数指针"><span class="toc-number">2.</span> <span class="toc-text">替换函数指针</span></a></li></ol>
 </div>
 <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
 
@@ -504,13 +436,11 @@ for(i=0;i&lt;pak.fileNum;i++)
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/posts/f6e7b5bf.html" title="上一篇: pwnable.kr mistake">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
         
-            <a href="/posts/6e7365c5.html" title="下一篇: pypcap模块安装">
+            <a href="/posts/6193d55c.html" title="下一篇: 调用jscript引擎接口的malware分析">
                 <i class="fa fa-angle-right"></i>
             </a>
         

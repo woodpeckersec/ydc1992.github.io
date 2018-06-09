@@ -143,7 +143,7 @@
                 
                 <section class="switch-part switch-part2">
                     <div class="widget tagcloud" id="js-tagcloud">
-                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 12.5px;">病毒分析</a>
+                        <a href="/tags/Android/" style="font-size: 10px;">Android</a> <a href="/tags/Far-Manager/" style="font-size: 12.5px;">Far Manager</a> <a href="/tags/Pwnable/" style="font-size: 20px;">Pwnable</a> <a href="/tags/Reversing/" style="font-size: 17.5px;">Reversing</a> <a href="/tags/hacker/" style="font-size: 12.5px;">hacker</a> <a href="/tags/powershell/" style="font-size: 12.5px;">powershell</a> <a href="/tags/pypcap/" style="font-size: 10px;">pypcap</a> <a href="/tags/python/" style="font-size: 12.5px;">python</a> <a href="/tags/取证/" style="font-size: 15px;">取证</a> <a href="/tags/爬虫/" style="font-size: 12.5px;">爬虫</a> <a href="/tags/病毒分析/" style="font-size: 10px;">病毒分析</a>
                     </div>
                 </section>
                 
@@ -206,6 +206,103 @@
     </div>
 </nav>
       <div class="body-wrap">
+  
+    <article id="post-VB-Crypt-Payload" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/27be2f79.html" class="article-date">
+      <time datetime="2018-05-31T22:53:37.000Z" itemprop="datePublished">2018-06-01</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/27be2f79.html">VB Crypt Payload</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>分析VB样本的时候发现有几种混淆方式，记录下。</p>
+<h2 id="使用回调函数"><a href="#使用回调函数" class="headerlink" title="使用回调函数"></a>使用回调函数</h2><h2 id="替换函数指针"><a href="#替换函数指针" class="headerlink" title="替换函数指针"></a>替换函数指针</h2><blockquote>
+<p>样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c</p>
+</blockquote>
+<p> 载入vb.idc脚本，脚本分析完后，查看event handle函数，</p>
+<pre><code> .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load        dd offset Hdr_Jmp_Addr_0x46549A                   ; Ptr to Form Load Event Code.
+ ....
+
+ .text:00463E78 sub     [esp+arg_0], 0FFFFh
+ .text:00463E80 jmp     _O_Pub_Obj_Inf1_Method0x1
+
+ .text:00463E85 Hdr_Jmp_Addr_0x46549A:                                                                              ; DATA XREF: .text:_O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load↑o
+.text:00463E85                                                   sub     dword ptr [esp+4], 3Bh ; &#39;;&#39;              ; Flags and Code Address
+.text:00463E8D                                                   jmp     _O_Pub_Obj_Inf1_Event0x2
+
+</code></pre><p>_O_Pub_Obj_Inf1_Event0x2就是处理Form_load的函数，一般malicious code都是在这里实现。<br>接着往下看。<br>这里计算处shellcode的地址。0x43AF4B=1526C77h/（sqr(25.0)）</p>
+<pre><code class="asm">.text:00465D83                        mov     [ebp+var_50], 1526C77h
+.text:00465D8A                        fld     ds:dbl_401118   ;25.0
+.text:00465D90                        push    ecx
+.text:00465D91                        push    ecx
+.text:00465D92                        fstp    qword ptr [esp+8+var_8]
+.text:00465D95                        call    rtcSqr
+.text:00465D9A                        call    __vbaFpI4
+.text:00465D9F                        mov     ecx, eax
+</code></pre>
+<p>在’[eax+0x6f8]’ 这个函数将shellcode地址替换，arg_0为Form_load的第一个参数，也就是Form类。</p>
+<pre><code class="asm">.text:00465DA8                        mov     eax, [ebp+arg_0]
+.text:00465DAB                        mov     eax, [eax]
+.text:00465DAD                        push    [ebp+arg_0]
+.text:00465DB0                        call    dword ptr [eax+6F8h]
+</code></pre>
+<p>[eax]中存放的是地址虚表，[eax+6f8h]地址正好是_O_Pub_Obj_Inf1_Method0x1方法,</p>
+<pre><code class="asm">
+.data:0046737C dd offset msvbvm60_BASIC_CLASS_QueryInterface
+.data:00467380 dd offset msvbvm60_BASIC_CLASS_AddRef
+.data:00467384 dd offset msvbvm60_BASIC_CLASS_Release
+...
+.data:00467A6C dd 72A44A98h
+.data:00467A70 dd 72A44AA0h
+.data:00467A74 dd 463E80h                 ; ptr _O_Pub_Obj_Inf1_Method0x1
+.data:00467A78 dd 463E8Dh                 ; ptr _O_Pub_Obj_Inf1_Event0x2 
+...
+</code></pre>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
   
     <article id="post-c-调用jscript引擎接口的malware分析" class="article article-type-post" itemscope itemprop="blogPost">
   
@@ -1065,364 +1162,6 @@ IwoPMc;
 
 
   
-    <article id="post-windows内核学习-SSDT-Hook" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/77d5c310.html" class="article-date">
-      <time datetime="2018-04-20T13:54:47.000Z" itemprop="datePublished">2018-04-20</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/77d5c310.html">windows内核学习:SSDT Hook</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <h2 id="内核函数HOOK"><a href="#内核函数HOOK" class="headerlink" title="内核函数HOOK"></a>内核函数HOOK</h2><pre><code class="cpp">
-static ZWCREATEFILE                OldZwCreateFile; //原函数地址
-
-NTSTATUS Hook_ZwWriteFile(
-  IN HANDLE              FileHandle,
-  IN HANDLE              Event OPTIONAL,
-  IN PIO_APC_ROUTINE      ApcRoutine OPTIONAL,
-  IN PVOID                ApcContext OPTIONAL,
-  OUT PIO_STATUS_BLOCK    IoStatusBlock,
-  IN PVOID                Buffer,
-  IN ULONG                Length,
-  IN PLARGE_INTEGER      ByteOffset OPTIONAL,
-  IN PULONG              Key OPTIONAL )
-{
-    NTSTATUS rc;
-    rc = OldZwWriteFile(FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,Buffer,Length,ByteOffset,Key);
-    return rc;
-}
-
-
-void StartHook (void)
-{
-    //获取未导出的服务函数索引号
-    HANDLE    hFile;
-    PCHAR    pDllFile;
-    ULONG  ulSize;
-    ULONG  ulByteReaded;
-
-    __asm
-    {
-        push    eax
-        mov        eax, CR0
-        and        eax, 0FFFEFFFFh
-        mov        CR0, eax
-        pop        eax
-    }
-    //用我们自己写的hook函数替换原函数地址，并把原函数地址返回
-    OldZwCreateFile    = (ZWCREATEFILE) InterlockedExchange((PLONG)
-                              &amp;SDT(ZwCreateFile),
-                              (LONG)Hook_ZwCreateFile);
-
-    //关闭
-    __asm
-    {
-        push       eax
-        mov        eax, CR0
-        or         eax, NOT 0FFFEFFFFh
-        mov        CR0, eax
-        pop        eax
-    }
-    return ;
-}
-</code></pre>
-
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-windows内核学习-内存操作" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/fa1bd37f.html" class="article-date">
-      <time datetime="2018-04-19T23:11:52.000Z" itemprop="datePublished">2018-04-20</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/fa1bd37f.html">windows内核学习:内存操作</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>在内核中有以下四种内存操作</p>
-<pre><code class="cpp">PVOID ExAllocatePool(POOL_TYPE PoolType, SIZE_T NumberOfBytes);
-VOID RtlMoveMemory(PVOID Destination, PVOID Source, SIZE_T Length);
-VOID RtlFillMemory(PVOID Destination, SIZE_T Length, UCHAR Fill);
-VOID ExFreePool(PVOID P);
-</code></pre>
-<p>分别对应C语言的<code>malloc memcpy memset free</code>;</p>
-<p>POOL_TYPE常用的有两种：PagedPool 和 NonPagedPool。在内核层内存都是可写可读可执行的。没有类似VirtualProtect的函数。</p>
-<pre><code>void test()
-{
-    PVOID ptr1 = ExAllocatePool(PagedPool,0x100);
-    PVOID ptr2 = ExAllocatePool(NonPagedPool,0x200);
-    RtlFillMemory(ptr2,0x200,0x90);
-    RtlMoveMemory(ptr1,ptr2,0x50);
-    ExFreePool(ptr1);
-    ExFreePool(ptr2);
-}
-</code></pre><p>一般来说，要写入“别人的”内核内存， 必须关闭内存写保护，并把 IRQL 提升到 2 才行（绝大多数时候 IRQL 都为 0， 当 IRQL=2 时，会阻断大部分线程执行， 防止执行出错）。 内存是否处于写保护的状态记录在 CR0 寄存器上，因此直接修改 CR0 寄存器的值即可；而提升或降低IRQL 则使用 KeRaiseIrqlToDpcLevel 和 KeLowerIrql 实现（ WIN64 的 IRQL 值记录在 CR8 寄存器上， 而 WIN32 的 IRQL 值记录在 KPCR 上）。 </p>
-<pre><code>KIRQL WPOFFx64()
-{
-    KIRQL irql=KeRaiseIrqlToDpcLevel();
-    UINT64 cr0=__readcr0();
-    cr0 &amp;= 0xfffffffffffeffff;
-    __writecr0(cr0);
-    _disable();
-    return irql;
-}
-void WPONx64(KIRQL irql)
-{
-    UINT64 cr0=__readcr0();
-    cr0 |= 0x10000;
-    _enable();
-    __writecr0(cr0);
-    KeLowerIrql(irql);
-}
-void test()
-{
-   KIRQL irql=WPOFF();
-   RtlMoveMemory(NtOpenProcess,HookCode,15);
-   WPON(irql);
-}
-</code></pre><p>MDL:<br>申请一个 MDL（类似句柄的玩意），然后尝试锁定页面，如果成功，则让系统分配一个“安全” 的虚拟地址再行写入， 写入完毕后解锁页面并释放掉 MDL。</p>
-<pre><code class="cpp">BOOLEAN SafeCopyMemory( PVOID pDestination, PVOID pSourceAddress, SIZE_T SizeOfCopy )
-{
-    PMDL pMdl = NULL;
-    PVOID pSafeAddress = NULL;
-   if( !MmIsAddressValid(pDestination) || !MmIsAddressValid(pSourceAddress) )
-      return FALSE;
-    pMdl = IoAllocateMdl(pDestination, (ULONG)SizeOfCopy, FALSE, FALSE, NULL );
-      if( !pMdl )
-     return FALSE;
-  __try
-{
-     MmProbeAndLockPages( pMdl, KernelMode, IoReadAccess );
-}
-__except(EXCEPTION_EXECUTE_HANDLER)
-{
-    IoFreeMdl( pMdl );
-    return FALSE;
-}
-    pSafeAddress = MmGetSystemAddressForMdlSafe( pMdl, NormalPagePriority );
-    if( !pSafeAddress )
-     return FALSE;
-__try
-{
-    RtlMoveMemory(pSafeAddress, pSourceAddress, SizeOfCopy );
-}
-__except(EXCEPTION_EXECUTE_HANDLER)
-{
-   ;
-}
-    MmUnlockPages( pMdl );
-   IoFreeMdl( pMdl );
-   return TRUE;
-}
-</code></pre>
-
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-windows内核学习-文件操作" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/15ab7b57.html" class="article-date">
-      <time datetime="2018-04-19T22:05:46.000Z" itemprop="datePublished">2018-04-20</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/15ab7b57.html">windows内核学习:文件操作</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-              <h2 id="文件基本操作"><a href="#文件基本操作" class="headerlink" title="文件基本操作"></a>文件基本操作</h2><p>在进行各类文件操作前，我们需要使用<code>ZwCreateFile</code>创建或打开文件获得文件句柄。然后使用该句柄进行各类操作</p>
-<h3 id="创建文件"><a href="#创建文件" class="headerlink" title="创建文件"></a>创建文件</h3><blockquote>
-<p>创建文件对象必须要调用<code>RtlInitUnicodeString</code>初始化<code>OBJECT_ATTRIBUTES</code>结构体，</p>
-</blockquote>
-<div class="le-cah-container"><br><div style="background-color: #000000; color: #dcdcdc; overflow: auto; padding: 2px 5px; white-space: nowrap"><span style="color:#ffd700">NTSTATUS</span> <span style="color:#ff8000">ntCreateFile</span><span style="color:#ff9900">(</span><span style="color:#ffd700">WCHAR</span> <span style="color:#b4b4b4">*</span><span style="color:#bdb76b">szFileName</span><span style="color:#ff9900">)</span><br>{<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ffd700">OBJECT_ATTRIBUTES&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span><span style="color:#bdb76b">objAttrib</span> <span style="color:#b4b4b4">=</span> { <span style="color:#b5cea8">0</span> }<span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ffd700">UNICODE_STRING&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span><span style="color:#bdb76b">uFileName</span> <span style="color:#b4b4b4">=</span> { <span style="color:#b5cea8">0</span> }<span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ffd700">IO_STATUS_BLOCK</span> &#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bdb76b">io_status</span> <span style="color:#b4b4b4">=</span> { <span style="color:#b5cea8">0</span> }<span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ffd700">HANDLE&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span><span style="color:#bdb76b">hFile</span> <span style="color:#b4b4b4">=</span> <span style="color:#bd63c5">NULL</span><span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ffd700">NTSTATUS&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</span><span style="color:#bdb76b">status</span> <span style="color:#b4b4b4">=</span> <span style="color:#b5cea8">0</span><span style="color:#b4b4b4">;</span><br><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ff8000">RtlInitUnicodeString</span><span style="color:#ff1493">(</span><span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">uFileName</span><span style="color:#b4b4b4">,</span> <span style="color:#bdb76b">szFileName</span><span style="color:#ff1493">)</span><span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">InitializeObjectAttributes</span><span style="color:#ff1493">(</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">objAttrib</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">uFileName</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">OBJ_CASE_INSENSITIVE</span> <span style="color:#b4b4b4">|</span> <span style="color:#bd63c5">OBJ_KERNEL_HANDLE</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">NULL</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">NULL</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ff1493">)</span><span style="color:#b4b4b4">;</span><br><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bdb76b">status</span> <span style="color:#b4b4b4">=</span> <span style="color:#ff8000">ZwCreateFile</span><span style="color:#ff1493">(</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">hFile</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">GENERIC_WRITE</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">objAttrib</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b4b4b4">&amp;</span><span style="color:#bdb76b">io_status</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">NULL</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">FILE_ATTRIBUTE_NORMAL</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">FILE_SHARE_READ</span> <span style="color:#b4b4b4">|</span> <span style="color:#bd63c5">FILE_SHARE_WRITE</span> <span style="color:#b4b4b4">|</span> <span style="color:#bd63c5">FILE_SHARE_DELETE</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">FILE_OPEN_IF</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">FILE_SYNCHRONOUS_IO_NONALERT</span> <span style="color:#b4b4b4">|</span> <span style="color:#bd63c5">FILE_NON_DIRECTORY_FILE</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#bd63c5">NULL</span><span style="color:#b4b4b4">,</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#b5cea8">0</span><span style="color:#ff1493">)</span><span style="color:#b4b4b4">;</span><br><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#569cd6">if</span> <span style="color:#ff1493">(</span><span style="color:#bd63c5">NT_SUCCESS</span><span style="color:#9acd32">(</span><span style="color:#bdb76b">status</span><span style="color:#9acd32">)</span><span style="color:#ff1493">)</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;{<br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#ff8000">ZwClose</span><span style="color:#9acd32">(</span><span style="color:#bdb76b">hFile</span><span style="color:#9acd32">)</span><span style="color:#b4b4b4">;</span><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;}<br><br>&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;<span style="color:#569cd6">return</span> <span style="color:#bdb76b">status</span><span style="color:#b4b4b4">;</span><br>}</div><br></div>
-          
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-        <p class="article-more-link">
-          <a  href="/posts/15ab7b57.html#more">大航海 >></a>
-        </p>
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
-    <article id="post-go程序恶意程序分析" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/5e308b44.html" class="article-date">
-      <time datetime="2018-04-14T15:39:06.000Z" itemprop="datePublished">2018-04-14</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/5e308b44.html">go程序恶意程序分析</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/病毒分析/">病毒分析</a></li></ul>
-    </div>
-
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-病毒样本快到碗里来，一个样本下载爬虫的实现" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1741,6 +1480,211 @@ __except(EXCEPTION_EXECUTE_HANDLER)
       
         <p class="article-more-link">
           <a  href="/posts/9d7b1fcb.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-selenium-Firefox-48-报错解决方法" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/e8a649b6.html" class="article-date">
+      <time datetime="2016-10-26T12:47:23.000Z" itemprop="datePublished">2016-10-26</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/e8a649b6.html">python selenium 3 + Firefox 48+ 报错解决方法</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>这里记录下使用selenium碰到的问题。</p>
+<p>报错信息如下时：</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: &#39;geckodriver&#39; executable needs to be in PATH.       
+</code></pre><p>这是因为在Firefox高版本需要使用 <strong>geckodriver</strong>来驱动,不再使用Seleniu默认自带的Firefox webdriver。</p>
+<p>我们只需要在下面这个地址下载<strong>geckodriver</strong>并将 其所在的路径设为环境变量即可解决。</p>
+<p><a href="https://github.com/mozilla/geckodriver/releases" target="_blank" rel="noopener">https://github.com/mozilla/geckodriver/releases</a></p>
+<p>当报如下错误信息时，则是</p>
+<pre><code>selenium.common.exceptions.WebDriverException: Message: Expected browser binary location, but unable to find binary in default location, 
+no &#39;moz:firefoxOptions.binary&#39; capability provided, and no binary flag set on the command line
+</code></pre><p>这时我们需要指定Firefox浏览器程序路径。</p>
+<pre><code class="python">binary = FirefoxBinary(&#39;D:\\Firefox\\Firefox\\firefox.exe&#39;)
+driver = webdriver.Firefox(firefox_binary=binary)
+</code></pre>
+<p>这样就能正常使用了。</p>
+
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/python/">python</a>
+    </div>
+
+
+      
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-pycharm-远程调试kodi-python-plugin" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/8a11904.html" class="article-date">
+      <time datetime="2016-06-18T07:23:11.000Z" itemprop="datePublished">2016-06-18</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/8a11904.html">pycharm 远程调试kodi python plugin</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p>kodi是什么我就不说了，附上一张我的kodi插件图。这个播放器最强大的功能就是支持python编写的插件。</p>
+<p> <img src="http://t.cn/R5Kc2nO" alt=""></p>
+<p> 但是有些老的插件作者已经不打算更新或维护了，使用的话又会有一些问题，这时就需要调试来修复问题了。<br> 我最近使用的爱奇艺播放插件作者也是好久没更新，有了这个插件都不用去买爱奇艺VIP了，播放也没有广告。</p>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/python/">python</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/8a11904.html#more">大航海 >></a>
+        </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-Reversing-kr-Flash-Encrypt" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/672ac0b8.html" class="article-date">
+      <time datetime="2016-04-09T03:37:51.000Z" itemprop="datePublished">2016-04-09</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/672ac0b8.html">Reversing.kr Flash Encrypt</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+              <p><img src="http://t.cn/RqaVxsK" alt=""><br>一个swf文件，用浏览器或者播放器打开如上图。在编辑框输入正确的数值再按下按钮，编辑框和按钮会在另外一个位置出现，到最后输入正确的值会显示正确的key<br><img src="http://ww2.sinaimg.cn/large/005Afi4Gjw1f2yil169puj30fo082t8s.jpg" alt=""></p>
+<p>我们使用ffdec来反编译这个swf文件，<br><img src="http://t.cn/RqaV6l4" alt=""></p>
+          
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/challenge/">challenge</a>
+    </div>
+
+
+      
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Reversing/">Reversing</a></li></ul>
+    </div>
+
+      
+        <p class="article-more-link">
+          <a  href="/posts/672ac0b8.html#more">大航海 >></a>
         </p>
       
       <div class="clearfix"></div>
