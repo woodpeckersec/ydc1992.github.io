@@ -207,103 +207,6 @@
 </nav>
       <div class="body-wrap">
   
-    <article id="post-VB-Crypt-Payload" class="article article-type-post" itemscope itemprop="blogPost">
-  
-    <div class="article-meta">
-      <a href="/posts/27be2f79.html" class="article-date">
-      <time datetime="2018-05-31T22:53:37.000Z" itemprop="datePublished">2018-06-01</time>
-</a>
-    </div>
-  
-  <div class="article-inner">
-    
-      <input type="hidden" class="isFancy" />
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/posts/27be2f79.html">VB Crypt Payload</a>
-    </h1>
-  
-
-      </header>
-      
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-          
-        <p>分析VB样本的时候发现有几种混淆方式，记录下。</p>
-<h2 id="使用回调函数"><a href="#使用回调函数" class="headerlink" title="使用回调函数"></a>使用回调函数</h2><h2 id="替换函数指针"><a href="#替换函数指针" class="headerlink" title="替换函数指针"></a>替换函数指针</h2><blockquote>
-<p>样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c</p>
-</blockquote>
-<p> 载入vb.idc脚本，脚本分析完后，查看event handle函数，</p>
-<pre><code> .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load        dd offset Hdr_Jmp_Addr_0x46549A                   ; Ptr to Form Load Event Code.
- ....
-
- .text:00463E78 sub     [esp+arg_0], 0FFFFh
- .text:00463E80 jmp     _O_Pub_Obj_Inf1_Method0x1
-
- .text:00463E85 Hdr_Jmp_Addr_0x46549A:                                                                              ; DATA XREF: .text:_O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load↑o
-.text:00463E85                                                   sub     dword ptr [esp+4], 3Bh ; &#39;;&#39;              ; Flags and Code Address
-.text:00463E8D                                                   jmp     _O_Pub_Obj_Inf1_Event0x2
-
-</code></pre><p>_O_Pub_Obj_Inf1_Event0x2就是处理Form_load的函数，一般malicious code都是在这里实现。<br>接着往下看。<br>这里计算处shellcode的地址。0x43AF4B=1526C77h/（sqr(25.0)）</p>
-<pre><code class="asm">.text:00465D83                        mov     [ebp+var_50], 1526C77h
-.text:00465D8A                        fld     ds:dbl_401118   ;25.0
-.text:00465D90                        push    ecx
-.text:00465D91                        push    ecx
-.text:00465D92                        fstp    qword ptr [esp+8+var_8]
-.text:00465D95                        call    rtcSqr
-.text:00465D9A                        call    __vbaFpI4
-.text:00465D9F                        mov     ecx, eax
-</code></pre>
-<p>在’[eax+0x6f8]’ 这个函数将shellcode地址替换，arg_0为Form_load的第一个参数，也就是Form类。</p>
-<pre><code class="asm">.text:00465DA8                        mov     eax, [ebp+arg_0]
-.text:00465DAB                        mov     eax, [eax]
-.text:00465DAD                        push    [ebp+arg_0]
-.text:00465DB0                        call    dword ptr [eax+6F8h]
-</code></pre>
-<p>[eax]中存放的是地址虚表，[eax+6f8h]地址正好是_O_Pub_Obj_Inf1_Method0x1方法,</p>
-<pre><code class="asm">
-.data:0046737C dd offset msvbvm60_BASIC_CLASS_QueryInterface
-.data:00467380 dd offset msvbvm60_BASIC_CLASS_AddRef
-.data:00467384 dd offset msvbvm60_BASIC_CLASS_Release
-...
-.data:00467A6C dd 72A44A98h
-.data:00467A70 dd 72A44AA0h
-.data:00467A74 dd 463E80h                 ; ptr _O_Pub_Obj_Inf1_Method0x1
-.data:00467A78 dd 463E8Dh                 ; ptr _O_Pub_Obj_Inf1_Event0x2 
-...
-</code></pre>
-
-      
-      
-    </div>
-    
-    <div class="article-info article-info-index">
-      
-      
-
-      
-      
-      <div class="clearfix"></div>
-    </div>
-    
-  </div>
-  
-</article>
-
-
-
-
-
-
-
-
-
-  
     <article id="post-c-调用jscript引擎接口的malware分析" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
@@ -1344,6 +1247,113 @@ IwoPMc;
         <p class="article-more-link">
           <a  href="/posts/7b82cd68.html#more">大航海 >></a>
         </p>
+      
+      <div class="clearfix"></div>
+    </div>
+    
+  </div>
+  
+</article>
+
+
+
+
+
+
+
+
+
+  
+    <article id="post-VB-Crypt-Payload" class="article article-type-post" itemscope itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/posts/27be2f79.html" class="article-date">
+      <time datetime="2018-02-28T22:53:37.000Z" itemprop="datePublished">2018-03-01</time>
+</a>
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/posts/27be2f79.html">VB Crypt Payload</a>
+    </h1>
+  
+
+      </header>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p>分析VB样本的时候发现有几种混淆方式，记录下。</p>
+<h2 id="替换函数指针"><a href="#替换函数指针" class="headerlink" title="替换函数指针"></a>替换函数指针</h2><blockquote>
+<p>样本shah:a66f989e58ada2eff729ac2032ff71a159c521e7372373f4a1c1cf13f8ae2f0c</p>
+</blockquote>
+<p> 载入vb.idc脚本，脚本分析完后，查看event handle函数，</p>
+<pre><code> .text:00463E14 _O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load        dd offset Hdr_Jmp_Addr_0x46549A      ; Ptr to Form Load Event Code.
+ ....
+
+ .text:00463E78                 sub     [esp+arg_0], 0FFFFh
+ .text:00463E80                 jmp     _O_Pub_Obj_Inf1_Method0x1
+
+ .text:00463E85          Hdr_Jmp_Addr_0x46549A:       ; DATA XREF:.text:_O_Pub_Obj_Inf1_Ctl_Inf0x3_0x7_lpForm_Load↑o
+ .text:00463E85                 sub     dword ptr [esp+4], 3Bh ; &#39;;&#39; ; Flags and Code Address
+ .text:00463E8D                 jmp     _O_Pub_Obj_Inf1_Event0x2
+
+</code></pre><p><code>_O_Pub_Obj_Inf1_Event0x2</code>就是处理Form_load的函数，一般malicious code都是在这里实现。<br>接着往下看。<br>这里计算处shellcode的地址。<code>0x43AF4B=1526C77h/（sqr(25.0)）</code></p>
+<pre><code class="asm">.text:00465D83                        mov     [ebp+var_50], 1526C77h
+.text:00465D8A                        fld     ds:dbl_401118   ;25.0
+.text:00465D90                        push    ecx
+.text:00465D91                        push    ecx
+.text:00465D92                        fstp    qword ptr [esp+8+var_8]
+.text:00465D95                        call    rtcSqr
+.text:00465D9A                        call    __vbaFpI4
+.text:00465D9F                        mov     ecx, eax
+</code></pre>
+<p>在 <code>[eax+0x6f8]</code> 这个函数将shellcode地址替换，arg_0为Form_load的第一个参数，也就是Form类。</p>
+<pre><code class="asm">.text:00465DA8                        mov     eax, [ebp+arg_0]
+.text:00465DAB                        mov     eax, [eax]
+.text:00465DAD                        push    [ebp+arg_0]
+.text:00465DB0                        call    dword ptr [eax+6F8h]
+</code></pre>
+<p>[eax]中存放的是地址虚表，[eax+6f8h]地址正好是_O_Pub_Obj_Inf1_Method0x1方法,</p>
+<pre><code class="asm">
+.data:0046737C dd offset msvbvm60_BASIC_CLASS_QueryInterface
+.data:00467380 dd offset msvbvm60_BASIC_CLASS_AddRef
+.data:00467384 dd offset msvbvm60_BASIC_CLASS_Release
+...
+.data:00467A6C dd 72A44A98h
+.data:00467A70 dd 72A44AA0h
+.data:00467A74 dd 463E80h                 ; ptr _O_Pub_Obj_Inf1_Method0x1
+.data:00467A78 dd 463E8Dh                 ; ptr _O_Pub_Obj_Inf1_Event0x2 
+...
+</code></pre>
+<p>替换指针，进入shellcode执行代码</p>
+<pre><code>.text:00464434 add     eax, 2B0h
+.text:00464439 jo      loc_465495
+.text:0046443F mov     [ebp+var_20], eax
+.text:00464442 push    [ebp+arg_4] ;shellcode地址
+.text:00464445 push    [ebp+var_20] ;[eax+0x2b0]
+.text:00464448 call    replace_ptr
+....
+.text:004644C3 call    dword ptr [eax+2B0h]
+
+</code></pre>
+      
+      
+    </div>
+    
+    <div class="article-info article-info-index">
+      
+      
+
+      
       
       <div class="clearfix"></div>
     </div>
